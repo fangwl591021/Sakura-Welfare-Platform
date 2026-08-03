@@ -60,6 +60,15 @@ npx.cmd wrangler deploy -c "D:\OneDrive\文件\New project 5\wrangler.sakura-wel
 
 正式 Worker：https://sakura-welfare-platform.fangwl591021.workers.dev/
 
+### GitHub Actions
+
+- Verify Sakura Welfare：Pull Request 與 main push 時只執行語法、綁定與差異檢查，不部署。
+- Deploy Sakura Welfare：只接受 GitHub Actions 頁面的手動執行，部署至正式 Worker。
+- 手動部署前，請在 GitHub repository 的 Settings > Secrets and variables > Actions 設定：
+  - CLOUDFLARE_API_TOKEN
+  - CLOUDFLARE_ACCOUNT_ID
+- GitHub workflow 不會執行 D1 migration，也不會寫入 Remote D1。
+
 ## 安全規則
 
 - 不提交 .dev.vars、API key、LINE token、Telegram token 或任何帳密。

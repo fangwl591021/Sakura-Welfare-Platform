@@ -1,0 +1,36 @@
+name: Verify Sakura Welfare
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Worker syntax
+        run: npm run check:welfare
+
+      - name: Verify Sakura deployment bindings
+        run: npm run predeploy:welfare
+
+      - name: Check whitespace errors
+        run: git diff --check

@@ -51,6 +51,7 @@ Current implementation is a Cloudflare Worker based platform with D1, R2, LINE O
 - Mother roster reconciliation depends on mother API key configuration and live mother API response shape.
 - Telegram notification parameters and alert rules need a final settings surface.
 - AI OCR/menu-DM generation is deferred to a later phase and should remain hidden from main vendor workflow until stable.
+- GitHub Actions now verifies every pull request and main push; production deployment remains a separate manual workflow and never applies D1 migrations.
 
 ## Known High-Risk Areas
 

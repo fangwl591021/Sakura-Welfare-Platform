@@ -214,3 +214,12 @@ Rules:
 - 此路徑只用於補同步與 Rich Menu 套用，不改變母站仍為員工驗證權威的決策。
 
 Reason: 母站畫面可看到內部 User ID，但子站需要 LINE UID 才能套用 Rich Menu；點數帳本若已有明確對應，可作為安全反查來源。
+
+### D023 - GitHub Verification Is Automatic, Production Deployment Is Manual
+
+- Pull Request 與 main push 只執行 Sakura Worker 語法、綁定與差異檢查。
+- 正式 Cloudflare Worker 部署只能從 GitHub Actions 手動執行，並固定使用 wrangler.sakura-welfare.toml。
+- GitHub workflow 不執行 D1 migration，也不寫入 Remote D1。
+- Cloudflare API token 與 account ID 僅存放於 GitHub Actions secrets，不得提交至 repository。
+
+Reason: GitHub 應保存可部署原始碼與驗證紀錄，但一般程式提交不應自動改動正式福利平台或資料庫。
