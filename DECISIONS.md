@@ -223,3 +223,14 @@ Reason: 母站畫面可看到內部 User ID，但子站需要 LINE UID 才能套
 - Cloudflare API token 與 account ID 僅存放於 GitHub Actions secrets，不得提交至 repository。
 
 Reason: GitHub 應保存可部署原始碼與驗證紀錄，但一般程式提交不應自動改動正式福利平台或資料庫。
+### D024 - Workspace Agent Phase 1 Is Exact-Keyword and Read-Only
+
+- `儀表板` and `仪表板` are exact keyword intents.
+- Administrator access reuses the active UID whitelist; no second permission system is introduced.
+- The response is Flex Dashboard V2 and uses the welfare dashboard's existing source tables and counting rules; the underlying query is unchanged.
+- The fixed `今日待辦` copy and five placeholder buttons are presentation-only. They reuse the active UID whitelist and do not introduce Popup, write operations, or a second workflow.
+- The workspace handler performs no business-data writes and adds no database schema.
+- Existing LINE webhook intake logging and the single replyToken owner remain unchanged.
+- AI intent classification is deferred until a later approved phase.
+
+Reason: provide a low-risk LINE management entry without changing Admin UI, database ownership, or webhook authority.

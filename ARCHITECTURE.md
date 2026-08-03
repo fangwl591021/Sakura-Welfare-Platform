@@ -1,4 +1,4 @@
-﻿# ARCHITECTURE - Sakura Welfare Platform
+# ARCHITECTURE - Sakura Welfare Platform
 
 ## System Overview
 
@@ -133,5 +133,17 @@ npx.cmd wrangler deploy -c wrangler.sakura-welfare.toml
 ```
 
 Do not use bare `wrangler deploy` for Sakura production work.
+## LINE Workspace Agent
 
+Phase 1 adds a narrow read-only command path under `src/workspace`:
 
+```text
+LINE OA exact keyword
+  -> existing child webhook and single reply owner
+  -> workspace intent router
+  -> existing admin UID whitelist SELECT
+  -> welfare dashboard summary SELECT
+  -> LINE Flex or text reply through the existing reply owner
+```
+
+The workspace path does not call AI, does not own a second reply path, and does not mutate operational data. Dashboard buttons currently resolve to exact placeholder intents and return text through the same reply owner. Existing webhook intake observability continues outside the workspace module.

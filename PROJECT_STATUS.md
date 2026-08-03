@@ -78,13 +78,12 @@ Current implementation is a Cloudflare Worker based platform with D1, R2, LINE O
   - `/vendor-store?vendor_id=...`
   - `/member-records`
   - `/activity-checkin-admin`
+## LINE Workspace Agent - Phase 1
 
-
-
-
-
-
-
-
-
-
+- Exact keywords: `儀表板` and `仪表板`.
+- Authorization: existing active `admin_uid_whitelist` record.
+- Response: Flex Dashboard V2 showing the existing live summary for pending vendors, approved offers, and today's confirmed redemption count and payable amount.
+- The `今日待辦` copy is currently fixed, and all five workspace buttons reuse the same admin authorization before returning `此功能即將開放`.
+- Data behavior: read-only business queries; no new tables, migrations, INSERT, UPDATE, or DELETE operations.
+- Existing LINE webhook intake and thread logging remain unchanged.
+- Admin UI and existing dashboard subcommands are unchanged.

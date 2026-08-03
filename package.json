@@ -6,6 +6,7 @@
     "scripts":  {
                     "dev":  "wrangler dev -c wrangler.sakura-welfare.toml",
                     "check:welfare":  "node --check src/index.js",
+                    "test:workspace":  "node --test tests/workspace-dashboard.test.mjs",
                     "predeploy:welfare":  "node scripts/predeploy-welfare-check.mjs",
                     "deploy:welfare":  "npm run predeploy:welfare \u0026\u0026 wrangler deploy -c wrangler.sakura-welfare.toml"
                 },

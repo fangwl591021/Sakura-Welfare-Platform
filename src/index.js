@@ -1,3 +1,5 @@
+import { resolveWorkspaceIntent, WORKSPACE_INTENTS } from "./workspace/intent-router.js";
+import { handleDashboardSummaryIntent, handleWorkspacePlaceholderIntent } from "./workspace/dashboard-handler.js";
 /**
  * Cloudflare Worker: ?寥缺件?謕墨缺件缺件?叟缺件ｇ缺件? * - 缺件缺件缺件蹓螞缺件撞?鈭亙眺
  * - 缺件麾??Cloudflare R2
@@ -3259,6 +3261,11 @@ function getLineItemText(item) {
   return String(item.text || item.message_text || item.messageText || (item.message && item.message.text) || "").trim();
 }
 
+function getLineItemWorkspaceInput(item) {
+  if (!item) return "";
+  return String(item.postbackData || getLineItemText(item) || "").trim();
+}
+
 function getLineItemUserId(item) {
   if (!item) return "";
   return String(item.LINE_user_id || item.line_user_id || item.source_user_id || (item.source && item.source.userId) || "").trim();
@@ -3267,7 +3274,7 @@ function getLineItemUserId(item) {
 function isLineDashboardCommandCandidate(item) {
   if (!item || !item.replyToken || !getLineItemUserId(item)) return false;
   const text = getLineItemText(item);
-  return text === "儀表板" || Boolean(getLineDashboardSubcommand(text));
+  return Boolean(resolveWorkspaceIntent(getLineItemWorkspaceInput(item))) || Boolean(getLineDashboardSubcommand(text));
 }
 
 function getLineDashboardSubcommand(text) {
@@ -3302,6 +3309,18 @@ async function findAdminUidWhitelistRow(db, lineUserId) {
   }
 }
 
+async function findAdminUidWhitelistRowReadOnly(db, lineUserId) {
+  if (!db || !lineUserId) return null;
+  try {
+    const row = await db.prepare("SELECT id, line_user_id, display_name, role, allowed_modules, active, note FROM admin_uid_whitelist WHERE line_user_id = ? AND active = 1 LIMIT 1")
+      .bind(lineUserId)
+      .first();
+    return row || null;
+  } catch (err) {
+    console.warn("findAdminUidWhitelistRowReadOnly failed", err && err.message ? err.message : err);
+    return null;
+  }
+}
 async function lineDashboardFirst(db, sql, binds = []) {
   if (!db) return {};
   try {
@@ -3763,6 +3782,26 @@ async function maybeHandleLineDashboardCommand(db, env, item, origin) {
   if (!env.LINE_CHANNEL_ACCESS_TOKEN) return null;
 
   const lineUserId = getLineItemUserId(item);
+  const workspaceIntent = resolveWorkspaceIntent(getLineItemWorkspaceInput(item));
+  if (workspaceIntent) {
+    const findAdmin = (userId) => findAdminUidWhitelistRowReadOnly(db, userId);
+    const result = workspaceIntent === WORKSPACE_INTENTS.DASHBOARD_SUMMARY
+      ? await handleDashboardSummaryIntent({
+          lineUserId,
+          findAdmin,
+          loadSummary: () => getWorkspaceDashboardSummary(db),
+        })
+      : await handleWorkspacePlaceholderIntent({ lineUserId, findAdmin, intent: workspaceIntent });
+    const messages = result.message ? [result.message] : [{ type: "text", text: result.text }];
+    const lineResult = await replyLineMessages(env, item.replyToken, messages);
+    return {
+      type: "workspace_agent",
+      role: result.authorized ? "owner" : "none",
+      intent: workspaceIntent,
+      ok: lineResult.ok,
+      status: lineResult.status,
+    };
+  }
   const subcommand = getLineDashboardSubcommand(getLineItemText(item));
   const admin = await findAdminUidWhitelistRow(db, lineUserId);
   if (admin) {
@@ -5975,6 +6014,43 @@ async function ensureVendorPortalCredentialColumns(db) {
     }
   }
   globalThis.__sakuraVendorPortalCredentialColumnsReady = true;
+}
+async function readWorkspaceDashboardMetric(db, sql) {
+  try {
+    const row = await db.prepare(sql).first();
+    const value = Number(row && row.value);
+    return Number.isFinite(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+async function getWorkspaceDashboardSummary(db) {
+  if (!db) throw new Error("D1 binding is unavailable");
+  const [vendorPending, offerApproved, todayRedemptionTotal, todayPayableTotal] = await Promise.all([
+    readWorkspaceDashboardMetric(
+      db,
+      "SELECT COUNT(*) AS value FROM welfare_vendors WHERE status = 'pending' AND COALESCE(is_hidden, 0) = 0"
+    ),
+    readWorkspaceDashboardMetric(
+      db,
+      "SELECT COUNT(*) AS value FROM welfare_offers WHERE status = 'approved'"
+    ),
+    readWorkspaceDashboardMetric(
+      db,
+      "SELECT COUNT(*) AS value FROM welfare_redemptions WHERE status = 'confirmed' AND date(COALESCE(redeemed_at, created_at), '+8 hours') = date('now', '+8 hours')"
+    ),
+    readWorkspaceDashboardMetric(
+      db,
+      "SELECT COALESCE(SUM(payable_price), 0) AS value FROM welfare_redemptions WHERE status = 'confirmed' AND date(COALESCE(redeemed_at, created_at), '+8 hours') = date('now', '+8 hours')"
+    ),
+  ]);
+  return {
+    vendor_pending: vendorPending,
+    offer_approved: offerApproved,
+    today_redemption_total: todayRedemptionTotal,
+    today_payable_total: todayPayableTotal,
+  };
 }
 async function getVendorManagementDashboard(db, env = null) {
   await ensureVendorPortalCredentialColumns(db);
@@ -18327,240 +18403,3 @@ const sakuraAdminHtml = `
 </body>
 </html>
 `;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
