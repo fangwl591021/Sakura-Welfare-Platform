@@ -11,7 +11,9 @@ outputs/
 # Local Codex and temporary artifacts
 .codex/
 tmp-*
+tmp_*
 README.stale.local.md
+/*.pptx
 
 # Backups and unrelated reference projects kept in this workspace
 backups/
