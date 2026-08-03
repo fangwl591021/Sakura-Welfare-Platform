@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>廠商申請表 | 櫻花福委會</title>
+  <style>
+    :root{--green:#06c755;--ink:#0f172a;--muted:#64748b;--line:#dbe3ee;--bg:#f5f7fa;--red:#df1124}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;font-size:15px}
+    .wrap{max-width:960px;margin:0 auto;padding:24px}.hero{background:#fff;border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:14px}h1{font-size:26px;margin:0}.hint{color:var(--muted);line-height:1.7;margin:8px 0 0}.card{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}.section{padding:18px;border-top:1px solid var(--line)}.section:first-child{border-top:0}.section h2{font-size:17px;margin:0 0 14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:13px;font-weight:900;color:#475569;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;border:1px solid #cfd8e6;border-radius:8px;min-height:42px;padding:9px 11px;background:#fff}.field input[type=file]{padding:8px;background:#f8fafc}.field textarea{min-height:96px;resize:vertical}.full{grid-column:1/-1}.btn{width:100%;min-height:48px;border:0;border-radius:9px;background:var(--green);color:#fff;font-weight:950;font-size:16px;cursor:pointer}.btn:disabled{opacity:.6;cursor:wait}.msg{display:none;margin-top:14px;padding:12px;border-radius:8px;background:#ecfdf5;color:#166534;font-weight:800}.msg.err{background:#fee2e2;color:#991b1b}.note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}@media(max-width:720px){.grid{grid-template-columns:1fr}.wrap{padding:14px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>櫻花福委會特約廠商申請表</h1>
+      <p class="hint">請填寫公司登記、聯絡人、證照合約與員工優惠政策。送出後會進入福委會審核清單，核准後才能上架商品與優惠。</p>
+    </section>
+    <form class="card" id="vendorApplyForm">
+      <section class="section">
+        <h2>1. 公司與品牌資料</h2>
+        <div class="grid">
+          <div class="field"><label>店家/品牌名稱 *</label><input name="name" required placeholder="例：櫻花特約咖啡"></div>
+          <div class="field"><label>分類</label><select name="category"><option>食</option><option>衣</option><option>住</option><option>行</option><option>育</option><option>樂</option><option>醫療</option><option>生活服務</option><option>其他</option></select></div>
+          <div class="field"><label>公司登記名稱</label><input name="legal_name"></div>
+          <div class="field"><label>統一編號</label><input name="tax_id"></div>
+          <div class="field full"><label>公司地址</label><input name="company_address"></div>
+        </div>
+      </section>
+      <section class="section">
+        <h2>2. 聯絡人與 LINE 帳號</h2>
+        <div class="grid">
+          <div class="field"><label>負責人</label><input name="owner_name"></div>
+          <div class="field"><label>主要聯絡人 *</label><input name="contact_name" required></div>
+          <div class="field"><label>電話 *</label><input name="phone" required></div>
+          <div class="field"><label>Email</label><input name="email" type="email"></div>
+          <div class="field full"><label>LINE User ID / LINE OA ID</label><input name="contact_line_user_id" placeholder="可先留空，後續由系統綁定"></div>
+        </div>
+      </section>
+      <section class="section">
+        <h2>3. 證照、保險與合約</h2>
+        <div class="grid">
+          <div class="field">
+            <label>營業登記 / 證照檔案</label>
+            <input name="business_license_file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+            <div class="note">請直接上傳檔案，系統會自動保存並交給福委會審核。</div>
+          </div>
+          <div class="field">
+            <label>食品業者登錄字號</label>
+            <input name="food_registration_no">
+          </div>
+          <div class="field">
+            <label>食品業者登錄文件</label>
+            <input name="food_registration_file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+          </div>
+          <div class="field">
+            <label>保險證號</label>
+            <input name="insurance_policy_no">
+          </div>
+          <div class="field">
+            <label>保險文件</label>
+            <input name="insurance_file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+          </div>
+          <div class="field">
+            <label>合約起日</label>
+            <input name="contract_start" type="date">
+          </div>
+          <div class="field">
+            <label>合約迄日</label>
+            <input name="contract_end" type="date">
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <h2>4. 對外資訊與員工優惠政策</h2>
+        <div class="grid">
+          <div class="field"><label>官方網站連結</label><input name="website_url" type="url"></div>
+          <div class="field"><label>Facebook / 社群連結</label><input name="facebook_url" type="url"></div>
+          <div class="field full"><label>標籤</label><input name="tags" placeholder="例：中彰投,餐飲,員工優惠,可外送"></div>
+          <div class="field full"><label>提供給櫻花員工的優惠政策 *</label><textarea name="discount_policy" required placeholder="例：員工憑 QR Code 享 8 折；訪客不得低於員工價。"></textarea></div>
+        </div>
+      </section>
+      <section class="section">
+        <button class="btn" id="submitBtn" type="submit">送出申請</button>
+        <div id="msg" class="msg"></div>
+      </section>
+    </form>
+  </main>
+  <script>
+    const form = document.getElementById("vendorApplyForm");
+    const msg = document.getElementById("msg");
+    const submitBtn = document.getElementById("submitBtn");
+    const fileFields = ["business_license_file", "food_registration_file", "insurance_file"];
+
+    function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function filePayload(file) {
+      if (!file) return null;
+      if (file.size > 10 * 1024 * 1024) throw new Error(file.name + " 超過 10MB，請壓縮後再上傳。");
+      return {
+        name: file.name,
+        mimeType: file.type || "application/octet-stream",
+        size: file.size || 0,
+        base64: (await toBase64(file)).split(",")[1] || ""
+      };
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      msg.style.display = "block";
+      msg.className = "msg";
+      msg.textContent = "送出中，檔案上傳需要一點時間...";
+      submitBtn.disabled = true;
+      const fd = new FormData(form);
+      const data = Object.fromEntries(fd);
+
+      try {
+        for (const name of fileFields) {
+          const file = form.querySelector(`[name="${name}"]`)?.files?.[0];
+          if (file) data[name] = await filePayload(file);
+          else delete data[name];
+        }
+
+        const res = await fetch("/api/vendor-apply", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.message || "送出失敗");
+        msg.textContent = "申請已送出，請等待福委會審核。申請編號：" + (json.data && json.data.id || "");
+        form.reset();
+      } catch (err) {
+        msg.className = "msg err";
+        msg.textContent = err.message;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>

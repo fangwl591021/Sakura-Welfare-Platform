@@ -1,0 +1,3 @@
+ALTER TABLE welfare_vendors ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE welfare_vendors ADD COLUMN hidden_at TEXT NOT NULL DEFAULT '';
+ALTER TABLE welfare_vendors ADD COLUMN hidden_by TEXT NOT NULL DEFAULT '';

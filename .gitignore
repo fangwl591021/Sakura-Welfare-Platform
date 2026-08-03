@@ -1,0 +1,36 @@
+node_modules/
+.wrangler/
+.dev.vars
+
+# Cloudflare/local runtime output
+.wrangler-*/
+.wrangler-logs/
+out/
+outputs/
+
+# Local Codex and temporary artifacts
+.codex/
+tmp-*
+README.stale.local.md
+
+# Backups and unrelated reference projects kept in this workspace
+backups/
+BookingOS-b4-merge/
+LINEPILOT/
+hooktea/
+mylittlesys/
+reference-*/
+migrations_quarantined/
+
+# Legacy scholarship application is intentionally not part of this repository
+wrangler.toml
+src/scholarship-worker.js
+src/scholarship-worker.js.broken-*
+scripts/predeploy-check.mjs
+docs/scholarship-*
+
+# Local reference/import files
+gas/
+gas_gmail_webhook.gs
+reference-*.html
+*.local.md

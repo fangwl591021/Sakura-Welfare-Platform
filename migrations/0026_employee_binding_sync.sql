@@ -1,0 +1,6 @@
+﻿-- 0026_employee_binding_sync.sql
+-- Remote D1 schema was updated manually on 2026-07-16 because older pending
+-- migration 0023 is blocked by already-existing vendor portal columns.
+-- Runtime helper ensureEmployeeBindingMemberColumns() keeps these columns safe for
+-- fresh/local databases and existing remote databases.
+-- No-op migration kept so the filename remains documented.

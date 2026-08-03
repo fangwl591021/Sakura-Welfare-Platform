@@ -1,0 +1,13 @@
+﻿name = "sakura-welfare-platform"
+main = "src/index.js"
+compatibility_date = "2026-05-08"
+workers_dev = true
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "sakurakitchen-files"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sakura-welfare-db"
+database_id = "0a4bf3ce-5827-46a7-9629-155639dc7ac2"

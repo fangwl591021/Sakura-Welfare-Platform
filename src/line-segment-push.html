@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LINE 分眾推播 | SAKURA Welfare</title>
+  <style>
+    :root{--green:#06c755;--red:#df1124;--ink:#071226;--muted:#64748b;--line:#dbe3ee;--bg:#f4f7fb;--soft:#f8fafc}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;font-size:14px}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}.page{min-height:100vh;padding:16px 18px 28px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:12px}.top h1{font-size:24px;line-height:1.15;margin:0 0 6px}.hint{color:var(--muted);line-height:1.6}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{min-height:38px;border:1px solid #cfd8e6;background:#fff;border-radius:8px;padding:0 13px;font-weight:900}.btn.primary{background:var(--green);border-color:var(--green);color:#fff}.btn.red{background:var(--red);border-color:var(--red);color:#fff}.btn.dark{background:#071226;border-color:#071226;color:#fff}.btn:disabled{opacity:.55;cursor:not-allowed}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}.metric{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px}.metric span{display:block;color:#52627a;font-size:12px;font-weight:800}.metric b{display:block;font-size:24px;margin-top:4px}
+    .workspace{display:grid;grid-template-columns:280px minmax(420px,1fr) 360px;gap:12px;min-height:calc(100vh - 158px)}.panel{background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}.panel-head{min-height:54px;padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.panel-head b{font-size:16px}.panel-body{padding:14px 16px}.section-title{font-weight:950;margin:0 0 10px}.field{margin-bottom:12px}.field label{display:block;font-size:12px;font-weight:900;color:#40516b;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;border:1px solid #cfd8e6;border-radius:8px;padding:10px 11px;outline:0;background:#fff}.field textarea{min-height:110px;resize:vertical;line-height:1.6}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid #dbe3ee;background:#f1f5f9;border-radius:999px;padding:7px 10px;font-weight:850;color:#334155}.chip.active{background:#ecfdf5;border-color:#86efac;color:#047857}.chip.warn{background:#fef3c7;color:#92400e}.check-list{max-height:190px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}.check-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border-bottom:1px solid #edf1f7}.check-row:last-child{border-bottom:0}.check-row input{width:auto}.preview-box{border:1px solid var(--line);background:#f8fafc;border-radius:8px;padding:10px;line-height:1.7;min-height:82px;white-space:pre-wrap}
+    table{width:100%;border-collapse:collapse}th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#f8fafc;color:#40516b;font-size:12px}td small{display:block;color:var(--muted);margin-top:3px}.avatar{width:34px;height:34px;border-radius:50%;background:#e2e8f0;display:grid;place-items:center;overflow:hidden;font-weight:900}.avatar img{width:100%;height:100%;object-fit:cover}.user-cell{display:flex;gap:10px;align-items:flex-start}.tag{display:inline-flex;align-items:center;min-height:22px;border-radius:999px;background:#eef2ff;color:#3730a3;padding:0 8px;font-size:12px;font-weight:800;margin:2px}.empty{padding:22px;color:var(--muted);line-height:1.7}.log{max-height:210px;overflow:auto;font-size:12px}.log-row{border-bottom:1px solid #edf1f7;padding:8px 0;color:#40516b}.toast{position:fixed;right:18px;bottom:18px;background:#111827;color:#fff;border-radius:8px;padding:12px 14px;font-weight:900;display:none;box-shadow:0 14px 30px rgba(15,23,42,.22);z-index:20}.toast.show{display:block}
+    @media(max-width:1180px){.workspace{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}}@media(max-width:720px){.page{padding:12px}.top{display:block}.actions{margin-top:10px}.metrics{grid-template-columns:1fr}.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="top">
+      <div>
+        <h1>LINE 分眾推播</h1>
+        <div class="hint">依 CRM 標籤、會員身份與互動狀態篩選受眾；可發送官方文字/圖片，也可發送系統 Flex 付費內容版型。</div>
+      </div>
+      <div class="actions">
+        <button class="btn" type="button" onclick="location.href='/sakura-admin'">返回後台</button>
+        <button class="btn" type="button" id="reloadBtn">重新整理</button>
+        <button class="btn dark" type="button" id="previewBtn">預覽受眾</button>
+        <button class="btn primary" type="button" id="sendBtn">送出推播</button>
+      </div>
+    </header>
+
+    <section class="metrics">
+      <div class="metric"><span>CRM 可推播名單</span><b id="totalUsers">0</b></div>
+      <div class="metric"><span>目前篩選受眾</span><b id="selectedUsers">0</b></div>
+      <div class="metric"><span>可用標籤</span><b id="tagCount">0</b></div>
+      <div class="metric"><span>Flex 版型</span><b id="templateCount">0</b></div>
+    </section>
+
+    <main class="workspace">
+      <aside class="panel">
+        <div class="panel-head"><b>受眾篩選</b><span class="hint">標籤 / 身份 / 狀態</span></div>
+        <div class="panel-body">
+          <div class="field">
+            <label>搜尋</label>
+            <input id="keyword" placeholder="姓名、LINE ID、電話、Email、標籤">
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>標籤邏輯</label>
+              <select id="tagMode"><option value="any">符合任一標籤</option><option value="all">必須全部符合</option></select>
+            </div>
+            <div class="field">
+              <label>綁定狀態</label>
+              <select id="bindStatus"><option value="">全部</option><option value="bound">已綁定</option><option value="unbound">未綁定</option></select>
+            </div>
+          </div>
+          <div class="field">
+            <label>身份別</label>
+            <div class="chips" id="memberTypeChips">
+              <button class="chip active" type="button" data-value="">全部</button>
+              <button class="chip" type="button" data-value="employee">員工</button>
+              <button class="chip" type="button" data-value="visitor">用戶</button>
+              <button class="chip" type="button" data-value="vendor">廠商</button>
+              <button class="chip" type="button" data-value="unknown">未分類</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>標籤</label>
+            <div class="check-list" id="tagList"><div class="empty">讀取中...</div></div>
+          </div>
+          <div class="field">
+            <label>安全上限</label>
+            <input id="maxRecipients" type="number" min="1" max="500" value="200">
+          </div>
+          <button class="btn dark" type="button" id="filterBtn" style="width:100%">套用篩選</button>
+        </div>
+      </aside>
+
+      <section class="panel">
+        <div class="panel-head"><b>受眾名單</b><span class="hint" id="audienceHint">先預覽再送出</span></div>
+        <div style="overflow:auto;max-height:calc(100vh - 230px)">
+          <table>
+            <thead><tr><th style="width:44px">選</th><th>用戶</th><th>身份/狀態</th><th>標籤</th><th>最後互動</th></tr></thead>
+            <tbody id="audienceBody"><tr><td colspan="5"><div class="empty">讀取中...</div></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="panel-head"><b>推播內容</b><span class="hint">付費內容可用 Flex</span></div>
+        <div class="panel-body">
+          <div class="field">
+            <label>推播名稱 / 付費內容標題</label>
+            <input id="campaignTitle" value="員工專屬優惠推播">
+          </div>
+          <div class="field">
+            <label>內容來源</label>
+            <select id="messageMode">
+              <option value="official_text">官方格式：文字</option>
+              <option value="official_image">官方格式：圖片</option>
+              <option value="system_template">系統客製：Flex 版型庫</option>
+              <option value="system_json">系統客製：貼上 Flex JSON</option>
+            </select>
+          </div>
+          <div id="officialTextFields">
+            <div class="field"><label>文字內容</label><textarea id="messageText">您好，福委會有新的員工專屬優惠內容，請點開 LINE 官方帳號查看。</textarea></div>
+          </div>
+          <div id="officialImageFields" style="display:none">
+            <div class="field"><label>原圖 URL</label><input id="imageOriginalUrl" placeholder="https://..."></div>
+            <div class="field"><label>預覽圖 URL</label><input id="imagePreviewUrl" placeholder="https://..."></div>
+          </div>
+          <div id="templateFields" style="display:none">
+            <div class="field"><label>選擇 Flex 版型</label><select id="templateSelect"><option value="">讀取中...</option></select></div>
+            <div class="field"><label>替代文字 altText</label><input id="altText" value="櫻花福委會福利訊息"></div>
+          </div>
+          <div id="jsonFields" style="display:none">
+            <div class="field"><label>Flex contents JSON</label><textarea id="customJson" placeholder='{"type":"bubble",...}'></textarea></div>
+            <div class="field"><label>替代文字 altText</label><input id="jsonAltText" value="櫻花福委會福利訊息"></div>
+          </div>
+          <div class="field">
+            <label>內容預覽</label>
+            <div class="preview-box" id="messagePreview"></div>
+          </div>
+          <div class="field">
+            <label>送出紀錄</label>
+            <div class="log" id="logBox"><div class="hint">尚未送出。</div></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+    let state = { users: [], templates: [], tags: [], selected: new Set(), preview: [] };
+    function toast(text){$("toast").textContent=text;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2400)}
+    async function api(path, options){const r=await fetch(path, options);const j=await r.json().catch(()=>null);if(!r.ok||!j?.success)throw new Error(j?.message||j?.error||`HTTP ${r.status}`);return j}
+    function tagArray(value){return String(value||"").split(",").map((x)=>x.trim()).filter(Boolean)}
+    function activeMemberType(){const active=document.querySelector("#memberTypeChips .active");return active ? active.dataset.value : ""}
+    function getFilters(){
+      return {
+        keyword: $("keyword").value.trim(),
+        tags: Array.from(document.querySelectorAll("#tagList input:checked")).map((x)=>x.value),
+        tagMode: $("tagMode").value,
+        memberType: activeMemberType(),
+        bindStatus: $("bindStatus").value,
+        maxRecipients: Number($("maxRecipients").value || 200),
+        selectedLineUserIds: Array.from(state.selected)
+      };
+    }
+    function applyLocalFilters(){
+      const f=getFilters();
+      let rows=state.users.filter((u)=>u.line_user_id);
+      if(f.keyword){
+        const key=f.keyword.toLowerCase();
+        rows=rows.filter((u)=>[u.display_name,u.line_user_id,u.phone,u.email,u.employee_no,u.tags,u.last_message].join(" ").toLowerCase().includes(key));
+      }
+      if(f.memberType) rows=rows.filter((u)=>String(u.member_type||"unknown")===f.memberType);
+      if(f.bindStatus) rows=rows.filter((u)=>String(u.bind_status||"")===f.bindStatus || (f.bindStatus==="bound" && u.employee_no));
+      if(f.tags.length){
+        rows=rows.filter((u)=>{
+          const tags=tagArray(u.tags);
+          return f.tagMode==="all" ? f.tags.every((t)=>tags.includes(t)) : f.tags.some((t)=>tags.includes(t));
+        });
+      }
+      rows=rows.slice(0, Math.min(Math.max(f.maxRecipients || 200, 1), 500));
+      state.preview=rows;
+      rows.forEach((u)=>state.selected.add(u.line_user_id));
+      renderAudience();
+    }
+    function renderTags(){
+      $("tagList").innerHTML = state.tags.length ? state.tags.map((tag)=>`<label class="check-row"><input type="checkbox" value="${esc(tag)}"><span>${esc(tag)}</span></label>`).join("") : '<div class="empty">尚無標籤。可先由聊天室監控或 CRM 補標籤。</div>';
+      document.querySelectorAll("#tagList input").forEach((el)=>el.addEventListener("change", applyLocalFilters));
+    }
+    function renderTemplates(){
+      $("templateSelect").innerHTML = state.templates.length ? state.templates.map((t)=>`<option value="${esc(t.id)}">${esc(t.name || t.keyword || t.id)} (${esc(t.category || "general")})</option>`).join("") : '<option value="">尚無 Flex 版型</option>';
+    }
+    function renderAudience(){
+      $("selectedUsers").textContent = state.preview.filter((u)=>state.selected.has(u.line_user_id)).length;
+      $("audienceHint").textContent = `顯示 ${state.preview.length} 筆，已勾選 ${state.selected.size} 位`;
+      $("audienceBody").innerHTML = state.preview.length ? state.preview.map((u)=>`
+        <tr>
+          <td><input type="checkbox" data-id="${esc(u.line_user_id)}" ${state.selected.has(u.line_user_id) ? "checked" : ""}></td>
+          <td><div class="user-cell"><div class="avatar">${u.picture_url?`<img src="${esc(u.picture_url)}" alt="">`:esc((u.display_name||"U").slice(0,1))}</div><div><b>${esc(u.display_name || "LINE 使用者")}</b><small>${esc(u.line_user_id)}</small></div></div></td>
+          <td>${esc(u.member_type || "unknown")}<small>${esc(u.bind_status || "unbound")}</small></td>
+          <td>${tagArray(u.tags).map((t)=>`<span class="tag">${esc(t)}</span>`).join("") || '<span class="hint">無標籤</span>'}</td>
+          <td>${esc(u.last_interaction_at || u.updated_at || "")}<small>${esc(u.last_message || "")}</small></td>
+        </tr>`).join("") : '<tr><td colspan="5"><div class="empty">沒有符合條件的受眾。</div></td></tr>';
+      document.querySelectorAll("#audienceBody input[type=checkbox]").forEach((el)=>el.addEventListener("change",()=>{
+        if(el.checked) state.selected.add(el.dataset.id); else state.selected.delete(el.dataset.id);
+        $("selectedUsers").textContent = state.preview.filter((u)=>state.selected.has(u.line_user_id)).length;
+      }));
+    }
+    function renderPreview(){
+      const mode=$("messageMode").value;
+      $("officialTextFields").style.display=mode==="official_text"?"":"none";
+      $("officialImageFields").style.display=mode==="official_image"?"":"none";
+      $("templateFields").style.display=mode==="system_template"?"":"none";
+      $("jsonFields").style.display=mode==="system_json"?"":"none";
+      if(mode==="official_text") $("messagePreview").textContent=$("messageText").value || "尚未輸入文字。";
+      if(mode==="official_image") $("messagePreview").textContent=`圖片推播\n原圖：${$("imageOriginalUrl").value || "未填"}\n預覽：${$("imagePreviewUrl").value || "未填"}`;
+      if(mode==="system_template"){
+        const t=state.templates.find((x)=>x.id===$("templateSelect").value);
+        $("messagePreview").textContent=t ? `Flex 版型：${t.name || t.keyword}\n分類：${t.category || ""}\naltText：${$("altText").value}` : "尚未選擇 Flex 版型。";
+      }
+      if(mode==="system_json") $("messagePreview").textContent=$("customJson").value ? "將以貼上的 Flex JSON 推播。" : "尚未貼上 Flex JSON。";
+    }
+    function collectMessage(){
+      const mode=$("messageMode").value;
+      if(mode==="official_text") return { mode, text: $("messageText").value.trim() };
+      if(mode==="official_image") return { mode, originalContentUrl: $("imageOriginalUrl").value.trim(), previewImageUrl: $("imagePreviewUrl").value.trim() };
+      if(mode==="system_template") return { mode, templateId: $("templateSelect").value, altText: $("altText").value.trim() };
+      let contents=null;
+      try{contents=JSON.parse($("customJson").value || "{}")}catch(err){throw new Error("Flex JSON 格式錯誤：" + err.message)}
+      return { mode, contents, altText: $("jsonAltText").value.trim() };
+    }
+    async function loadData(){
+      const j=await api("/admin-api/line-segment-push");
+      const data=j.data||{};
+      state.users=data.users||[]; state.templates=data.templates||[]; state.tags=data.tags||[];
+      state.selected=new Set();
+      $("totalUsers").textContent=data.summary?.pushableUsers || state.users.length;
+      $("tagCount").textContent=state.tags.length;
+      $("templateCount").textContent=state.templates.length;
+      renderTags(); renderTemplates(); applyLocalFilters(); renderPreview();
+    }
+    async function previewRemote(){
+      const j=await api("/admin-api/line-segment-push",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"preview",filters:getFilters(),message:collectMessage(),title:$("campaignTitle").value})});
+      state.preview=j.data?.recipients || [];
+      state.selected=new Set(state.preview.map((u)=>u.line_user_id));
+      renderAudience();
+      toast(`已預覽 ${state.preview.length} 位受眾`);
+    }
+    async function sendPush(){
+      const count=state.preview.filter((u)=>state.selected.has(u.line_user_id)).length;
+      if(!count) return toast("請先選擇推播受眾。");
+      if(!confirm(`確定要推播給 ${count} 位受眾？`)) return;
+      $("sendBtn").disabled=true;
+      try{
+        const j=await api("/admin-api/line-segment-push",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"send",filters:getFilters(),message:collectMessage(),title:$("campaignTitle").value})});
+        const data=j.data||{};
+        $("logBox").innerHTML=`<div class="log-row"><b>${esc(data.title || "分眾推播")}</b></div><div class="log-row">受眾 ${data.recipientCount || 0} / 成功 ${data.successCount || 0} / 失敗 ${data.failedCount || 0}</div>` + (data.results||[]).slice(0,30).map((r)=>`<div class="log-row">${esc(r.lineUserId)}：${r.ok?"成功":"失敗"} ${esc(r.status || "")}</div>`).join("");
+        toast(j.message || "推播完成");
+      }catch(err){toast(err.message)}finally{$("sendBtn").disabled=false}
+    }
+    document.querySelectorAll("#memberTypeChips .chip").forEach((btn)=>btn.addEventListener("click",()=>{document.querySelectorAll("#memberTypeChips .chip").forEach((x)=>x.classList.remove("active"));btn.classList.add("active");applyLocalFilters()}));
+    ["keyword","tagMode","bindStatus","maxRecipients"].forEach((id)=>$(id).addEventListener("input", applyLocalFilters));
+    ["messageMode","messageText","imageOriginalUrl","imagePreviewUrl","templateSelect","altText","customJson","jsonAltText"].forEach((id)=>$(id).addEventListener("input", renderPreview));
+    $("filterBtn").addEventListener("click", applyLocalFilters);
+    $("previewBtn").addEventListener("click", ()=>previewRemote().catch((e)=>toast(e.message)));
+    $("sendBtn").addEventListener("click", sendPush);
+    $("reloadBtn").addEventListener("click", ()=>loadData().then(()=>toast("已重新整理")).catch((e)=>toast(e.message)));
+    loadData().catch((e)=>{$("audienceBody").innerHTML=`<tr><td colspan="5"><div class="empty">${esc(e.message)}</div></td></tr>`});
+  </script>
+</body>
+</html>
