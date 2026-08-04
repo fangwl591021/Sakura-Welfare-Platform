@@ -197,7 +197,7 @@ test("workspace implementation remains read-only and owns one LINE reply", () =>
   assert.doesNotMatch(workspaceSource, /\b(?:INSERT|UPDATE|DELETE)\b/i);
   assert.match(indexSource, /resolveWorkspaceIntent\(getLineItemWorkspaceInput\(item\)\)/);
   const workspaceBranch = indexSource.match(
-    /const workspaceIntent = resolveWorkspaceIntent\(getLineItemWorkspaceInput\(item\)\);[\s\S]*?\n  }\n  const subcommand =/
+    /const workspaceIntent = resolveWorkspaceIntent\(getLineItemWorkspaceInput\(item\)\);[\s\S]*?\r?\n  }\r?\n  const subcommand =/
   )?.[0] || "";
   assert.match(workspaceBranch, /const result = workspaceIntent === WORKSPACE_INTENTS\.DASHBOARD_SUMMARY/);
   assert.equal((workspaceBranch.match(/await replyLineMessages\(/g) || []).length, 1);
@@ -206,7 +206,7 @@ test("workspace implementation remains read-only and owns one LINE reply", () =>
 test("dashboard SQL is isolated SELECT-only and performs no writes", () => {
   const indexSource = readFileSync(new URL("../src/index.js", import.meta.url), "utf8");
   const block = indexSource.match(
-    /async function readWorkspaceDashboardMetric[\s\S]*?\n}\nasync function getVendorManagementDashboard/
+    /async function readWorkspaceDashboardMetric[\s\S]*?\r?\n}\r?\nasync function getVendorManagementDashboard/
   )?.[0] || "";
 
   assert.match(block, /SELECT COUNT\(\*\)/);
