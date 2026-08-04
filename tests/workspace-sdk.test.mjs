@@ -1,0 +1,162 @@
+﻿import test from "node:test";
+import assert from "node:assert/strict";
+
+import {
+  WorkspaceSdk,
+  createWorkspaceSdk,
+} from "../chrome-extension/sdk/workspace-sdk.js";
+
+function jsonResponse(
+  body,
+  {
+    status = 200,
+  } = {},
+) {
+  return new Response(
+    JSON.stringify(body),
+    {
+      status,
+      headers: {
+        "content-type": "application/json",
+      },
+    },
+  );
+}
+
+test("SDK requires baseUrl", () => {
+  assert.throws(
+    () => createWorkspaceSdk(),
+    /baseUrl/,
+  );
+});
+
+test("login stores returned token", async () => {
+  let request = null;
+
+  const sdk = new WorkspaceSdk({
+    baseUrl: "https://example.test/",
+    fetchImpl: async (url, options) => {
+      request = {
+        url,
+        options,
+      };
+
+      return jsonResponse({
+        success: true,
+        data: {
+          token: "session-token",
+        },
+      });
+    },
+  });
+
+  await sdk.login({
+    username: "admin",
+    password: "secret",
+  });
+
+  assert.equal(
+    sdk.token,
+    "session-token",
+  );
+
+  assert.equal(
+    request.url,
+    "https://example.test/workspace-api/login",
+  );
+
+  assert.equal(
+    request.options.method,
+    "POST",
+  );
+});
+
+test("createActivity sends normalized data and bearer token", async () => {
+  let request = null;
+
+  const sdk = new WorkspaceSdk({
+    baseUrl: "https://example.test",
+    token: "session-token",
+    fetchImpl: async (url, options) => {
+      request = {
+        url,
+        options,
+      };
+
+      return jsonResponse({
+        success: true,
+        data: {
+          event: {
+            id: "event-1",
+          },
+        },
+      });
+    },
+  });
+
+  const result = await sdk.createActivity({
+    title: " 員工烤肉 ",
+    description: " 活動說明 ",
+    startAt: "2026-09-20T18:00",
+    endAt: "2026-09-20T21:00",
+    location: " 本廠 ",
+  });
+
+  assert.equal(
+    result.data.event.id,
+    "event-1",
+  );
+
+  assert.equal(
+    request.options.headers.get(
+      "Authorization",
+    ),
+    "Bearer session-token",
+  );
+
+  const body = JSON.parse(
+    request.options.body,
+  );
+
+  assert.equal(body.title, "員工烤肉");
+  assert.equal(body.location, "本廠");
+});
+
+test("API errors become JavaScript errors", async () => {
+  const sdk = new WorkspaceSdk({
+    baseUrl: "https://example.test",
+    fetchImpl: async () =>
+      jsonResponse(
+        {
+          success: false,
+          message: "登入失敗",
+        },
+        {
+          status: 401,
+        },
+      ),
+  });
+
+  await assert.rejects(
+    () => sdk.login({
+      username: "admin",
+      password: "wrong",
+    }),
+    /登入失敗/,
+  );
+});
+
+test("logout always clears local token", async () => {
+  const sdk = new WorkspaceSdk({
+    baseUrl: "https://example.test",
+    token: "session-token",
+    fetchImpl: async () =>
+      jsonResponse({
+        success: true,
+      }),
+  });
+
+  await sdk.logout();
+
+  assert.equal(sdk.token, "");
+});

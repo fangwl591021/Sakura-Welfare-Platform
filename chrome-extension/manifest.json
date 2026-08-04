@@ -1,0 +1,29 @@
+﻿{
+  "manifest_version": 3,
+  "name": "SAKURA AI Workspace",
+  "version": "0.2.0",
+  "description": "在 LINE OA Manager 中開啟 SAKURA AI Workspace 工具。",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://sakura-welfare-platform.fangwl591021.workers.dev/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://manager.line.biz/*",
+        "https://chat.line.biz/*"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    }
+  ]
+}
