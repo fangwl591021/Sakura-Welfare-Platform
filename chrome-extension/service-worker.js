@@ -1,4 +1,4 @@
-﻿import {
+import {
   createWorkspaceSdk,
 } from "./sdk/workspace-sdk.js";
 
@@ -35,6 +35,12 @@ async function saveToken() {
 }
 
 async function handleWorkspaceMessage(message) {
+  console.log(
+    "[Workspace handling]",
+    message?.type,
+    message?.payload,
+  );
+
   const type = String(message?.type || "");
 
   await loadToken();
@@ -81,6 +87,12 @@ async function handleWorkspaceMessage(message) {
 
 chrome.runtime.onMessage.addListener(
   (message, sender, sendResponse) => {
+    console.log(
+      "[Workspace message received]",
+      message,
+      sender,
+    );
+
     if (
       !String(message?.type || "")
         .startsWith("workspace.")

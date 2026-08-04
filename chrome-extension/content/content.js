@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   const ROOT_ID = "sakura-ai-workspace-extension";
 
   if (document.getElementById(ROOT_ID)) {
@@ -520,8 +520,77 @@
     preview.classList.add("show");
   });
 
-  form.addEventListener("submit", (event) => {
+  async function sendWorkspaceMessage(type, payload = {}) {
+    const response = await chrome.runtime.sendMessage({
+      type,
+      payload,
+    });
+
+    if (!response?.ok) {
+      const error = new Error(
+        response?.error?.message ||
+        "Workspace request failed.",
+      );
+
+      error.status = Number(
+        response?.error?.status || 0,
+      );
+
+      throw error;
+    }
+
+    return response.result;
+  }
+
+  function openLoginPrompt() {
+    const username = window.prompt(
+      "\u8acb\u8f38\u5165\u5f8c\u53f0\u5e33\u865f\uff1a",
+    );
+
+    if (!username) {
+      throw new Error(
+        "\u5df2\u53d6\u6d88\u767b\u5165\u3002",
+      );
+    }
+
+    const password = window.prompt(
+      "\u8acb\u8f38\u5165\u5f8c\u53f0\u5bc6\u78bc\uff1a",
+    );
+
+    if (!password) {
+      throw new Error(
+        "\u5df2\u53d6\u6d88\u767b\u5165\u3002",
+      );
+    }
+
+    return {
+      username: String(username).trim(),
+      password: String(password),
+    };
+  }
+
+  async function ensureWorkspaceLogin() {
+    const status = await sendWorkspaceMessage(
+      "workspace.session.status",
+    );
+
+    if (status?.data?.authenticated) {
+      return true;
+    }
+
+    const credentials = openLoginPrompt();
+
+    await sendWorkspaceMessage(
+      "workspace.login",
+      credentials,
+    );
+
+    return true;
+  }
+
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    console.log("[SAKURA Activity] submit fired");
     clearError();
 
     const result = validateForm();
@@ -531,20 +600,60 @@
       return;
     }
 
-    console.info(
-      "[SAKURA AI Workspace] Activity form preview:",
-      {
-        title: result.data.title,
-        description: result.data.description,
-        startAt: result.data.startAt,
-        endAt: result.data.endAt,
-        location: result.data.location,
-        photoName: result.data.photo?.name || "",
-      },
-    );
+    const submitButton =
+      shadow.querySelector(".submit");
 
-    closeModal();
-    showToast("表單驗證成功，下一階段將串接 Worker。");
+    const originalText =
+      submitButton.textContent;
+
+    submitButton.disabled = true;
+    submitButton.textContent = "\u5efa\u7acb\u4e2d...";
+
+    try {
+      await ensureWorkspaceLogin();
+
+      const response = await sendWorkspaceMessage(
+        "workspace.activity.create",
+        {
+          title: result.data.title,
+          description: result.data.description,
+          startAt: result.data.startAt,
+          endAt: result.data.endAt,
+          location: result.data.location,
+          coverImageUrl: "",
+        },
+      );
+
+      const eventData =
+        response?.data?.event || {};
+
+      closeModal();
+
+      showToast(
+        eventData.title
+          ? `\u6d3b\u52d5\u5efa\u7acb\u6210\u529f\uff1a${eventData.title}`
+          : "\u6d3b\u52d5\u5efa\u7acb\u6210\u529f\u3002",
+      );
+    } catch (error) {
+      if (
+        Number(error?.status || 0) === 401 ||
+        /login|expired|session|unauthorized/i.test(
+          String(error?.message || ""),
+        )
+      ) {
+        await chrome.runtime.sendMessage({
+          type: "workspace.logout",
+        }).catch(() => {});
+      }
+
+      showError(
+        error?.message ||
+        "\u6d3b\u52d5\u5efa\u7acb\u5931\u6557\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002",
+      );
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+    }
   });
 
   console.info(

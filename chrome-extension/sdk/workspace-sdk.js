@@ -1,4 +1,4 @@
-﻿function normalizeBaseUrl(value) {
+function normalizeBaseUrl(value) {
   return String(value || "").trim().replace(/\/+$/, "");
 }
 
@@ -35,11 +35,13 @@ async function readJsonResponse(response) {
 export class WorkspaceSdk {
   constructor({
     baseUrl,
-    fetchImpl = globalThis.fetch,
+    fetchImpl,
     token = "",
   } = {}) {
     this.baseUrl = normalizeBaseUrl(baseUrl);
-    this.fetchImpl = fetchImpl;
+    this.fetchImpl =
+      fetchImpl ||
+      globalThis.fetch?.bind(globalThis);
     this.token = String(token || "").trim();
 
     if (!this.baseUrl) {
