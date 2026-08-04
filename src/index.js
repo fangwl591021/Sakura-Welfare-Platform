@@ -3,6 +3,7 @@ import { handleDashboardSummaryIntent, handleWorkspacePlaceholderIntent } from "
 import { handleWorkspaceChatCardIntent } from "./workspace/workspace-chat-card-handler.js";
 import { loadVendorReviewSummaryReadOnly, loadChatMonitorSummaryReadOnly, loadRiskSummaryReadOnly } from "./workspace/workspace-live-summary-reader.js";
 import { resolveWorkspaceIdentity } from "./workspace/identity-provider-registry.js";
+import { createWorkspaceActivityRuntime, handleWorkspaceAgentTurn } from "./workspace/workspace-agent-entry-handler.js";
 /**
  * Cloudflare Worker: ?寥缺件?謕墨缺件缺件?叟缺件ｇ缺件? * - 缺件缺件缺件蹓螞缺件撞?鈭亙眺
  * - 缺件麾??Cloudflare R2
@@ -3125,6 +3126,14 @@ async function processLineChildPayload(rawBody, env, options = {}) {
 
   if (env.DB) {
     for (const item of analyzedEvents) {
+      const workspaceAgentResult = await maybeHandleWorkspaceAgent(env.DB, env, item);
+      if (workspaceAgentResult) {
+        await storeLineWebhookEvent(env.DB, item, payload, env);
+        await storeLineThreadMessage(env.DB, item, payload, env);
+        storedEvents += 1;
+        continue;
+      }
+
       const lineDashboardResult = await maybeHandleLineDashboardCommand(env.DB, env, item, options.origin || "");
       if (lineDashboardResult) {
         await storeLineWebhookEvent(env.DB, item, payload, env);
@@ -3780,6 +3789,62 @@ return {
     }
   };
 }
+let workspaceActivityRuntimeInstance = null;
+
+function getWorkspaceActivityRuntime() {
+  if (!workspaceActivityRuntimeInstance) {
+    workspaceActivityRuntimeInstance = createWorkspaceActivityRuntime({
+      ensureActivityTables: ensureActivityCheckinTables,
+      normalizeActivityDate: normalizeActivityDateInput,
+    });
+  }
+  return workspaceActivityRuntimeInstance;
+}
+
+async function maybeHandleWorkspaceAgent(db, env, item) {
+  if (!item || !item.replyToken || !env.LINE_CHANNEL_ACCESS_TOKEN) return null;
+
+  const lineUserId = getLineItemUserId(item);
+  if (!lineUserId) return null;
+
+  const input = getLineItemWorkspaceInput(item);
+  const findAdmin = async (userId) => {
+    const identityResult = await resolveWorkspaceIdentity({
+      context: { db, userId },
+    });
+    return identityResult.identity?.admin ? identityResult.identity : null;
+  };
+
+  const result = await handleWorkspaceAgentTurn({
+    db,
+    lineUserId,
+    input,
+    isPostback: Boolean(item.postbackData),
+    findAdmin,
+    runtime: getWorkspaceActivityRuntime(),
+  });
+
+  if (!result || !result.handled) return null;
+
+  const messages = result.message
+    ? [result.message]
+    : [{ type: "text", text: result.text || "???????????" }];
+
+  const lineResult = await replyLineMessages(
+    env,
+    item.replyToken,
+    messages,
+  );
+
+  return {
+    type: "workspace_activity_agent",
+    role: result.authorized ? "owner" : "none",
+    agent: result.agent || "activity",
+    ok: lineResult.ok,
+    status: lineResult.status,
+  };
+}
+
 async function maybeHandleLineDashboardCommand(db, env, item, origin) {
   if (!isLineDashboardCommandCandidate(item)) return null;
   if (!env.LINE_CHANNEL_ACCESS_TOKEN) return null;
