@@ -41,5 +41,25 @@ export function resolveWorkspaceIntent(input) {
   if (normalized === "廠商專區" || normalized === "厂商专区") {
     return WORKSPACE_INTENTS.VENDOR_PORTAL;
   }
+  if (normalized === "新增活動" || normalized === "新增活动") {
+    return WORKSPACE_INTENTS.ACTIVITY_PLACEHOLDER;
+  }
+  if (normalized === "訊息推播" || normalized === "消息推送") {
+    return WORKSPACE_INTENTS.PUSH_PLACEHOLDER;
+  }
+  if (normalized === "廠商審核" || normalized === "厂商审核") {
+    return WORKSPACE_INTENTS.VENDOR_REVIEW_PLACEHOLDER;
+  }
+  if (normalized === "聊天室監控" || normalized === "聊天室监控") {
+    return WORKSPACE_INTENTS.CHAT_MONITOR_PLACEHOLDER;
+  }
+  if (
+    normalized === "AI 風險中心" ||
+    normalized === "AI風險中心" ||
+    normalized === "AI 风险中心" ||
+    normalized === "AI风险中心"
+  ) {
+    return WORKSPACE_INTENTS.RISK_CENTER_PLACEHOLDER;
+  }
   return WORKSPACE_ACTION_INTENTS.get(normalized) || null;
 }
