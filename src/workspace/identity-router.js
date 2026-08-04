@@ -1,3 +1,5 @@
+﻿import { findAdminUidWhitelistRowReadOnly } from "./admin-whitelist-reader.js";
+
 export const IDENTITY_ROLES = Object.freeze({
   ADMIN: "admin",
   VENDOR: "vendor",
@@ -42,4 +44,32 @@ export function createIdentity(overrides = {}) {
     authSource: values.authSource,
     locale: values.locale,
   };
+}
+
+export async function resolveAdminIdentity({
+  db,
+  userId,
+  baseIdentity,
+} = {}) {
+  const identity = createIdentity(baseIdentity);
+
+  if (!userId) {
+    return identity;
+  }
+
+  const adminRow = await findAdminUidWhitelistRowReadOnly(db, userId);
+
+  if (!adminRow) {
+    return identity;
+  }
+
+  return createIdentity({
+    ...identity,
+    userId,
+    role: IDENTITY_ROLES.ADMIN,
+    authenticated: true,
+    lineBound: true,
+    admin: true,
+    authSource: AUTH_SOURCES.ADMIN_WHITELIST,
+  });
 }
