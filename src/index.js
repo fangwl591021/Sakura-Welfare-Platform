@@ -1,5 +1,6 @@
 import { resolveWorkspaceIntent, WORKSPACE_INTENTS } from "./workspace/intent-router.js";
 import { handleDashboardSummaryIntent, handleWorkspacePlaceholderIntent } from "./workspace/dashboard-handler.js";
+import { handleWorkspaceActionIntent } from "./workspace/workspace-action-handler.js";
 import { resolveWorkspaceIdentity } from "./workspace/identity-provider-registry.js";
 /**
  * Cloudflare Worker: ?寥缺件?謕墨缺件缺件?叟缺件ｇ缺件? * - 缺件缺件缺件蹓螞缺件撞?鈭亙眺
@@ -3797,7 +3798,12 @@ async function maybeHandleLineDashboardCommand(db, env, item, origin) {
           findAdmin,
           loadSummary: () => getWorkspaceDashboardSummary(db),
         })
-      : await handleWorkspacePlaceholderIntent({ lineUserId, findAdmin, intent: workspaceIntent });
+      : await handleWorkspaceActionIntent({
+          lineUserId,
+          findAdmin,
+          intent: workspaceIntent,
+          buildUrl: (path) => new URL(path, origin).toString(),
+        });
     const messages = result.message ? [result.message] : [{ type: "text", text: result.text }];
     const lineResult = await replyLineMessages(env, item.replyToken, messages);
     return {
