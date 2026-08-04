@@ -1,4 +1,4 @@
-﻿import test from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
@@ -360,4 +360,205 @@ test("unknown workspace API path is ignored", async () => {
     });
 
   assert.equal(result, null);
+});
+
+test("activity list returns recent activities", async () => {
+  const request = new Request(
+    "https://example.test/workspace-api/activities",
+    {
+      method: "GET",
+      headers: {
+        authorization: "Bearer session-token",
+      },
+    },
+  );
+
+  const db = {
+    prepare(sql) {
+      return {
+        async all() {
+          return {
+            results: [
+              {
+                id: "activity-1",
+                title: "員工烤肉",
+                location: "本廠",
+              },
+            ],
+          };
+        },
+      };
+    },
+  };
+
+  const result =
+    await maybeHandleWorkspaceApiRequest({
+      request,
+      url: new URL(request.url),
+      db,
+      requireAdmin: async () => ({
+        ok: true,
+        user: {
+          id: "admin-1",
+        },
+      }),
+      ensureActivityTables: async () => true,
+    });
+
+  assert.equal(result.success, true);
+  assert.equal(result.data.activities.length, 1);
+  assert.equal(
+    result.data.activities[0].title,
+    "員工烤肉",
+  );
+});
+
+test("activity get returns one activity", async () => {
+  const request = new Request(
+    "https://example.test/workspace-api/activity/activity-1",
+    {
+      method: "GET",
+      headers: {
+        authorization: "Bearer session-token",
+      },
+    },
+  );
+
+  const db = {
+    prepare(sql) {
+      return {
+        bind(id) {
+          assert.equal(id, "activity-1");
+          return this;
+        },
+        async first() {
+          return {
+            id: "activity-1",
+            title: "員工烤肉",
+          };
+        },
+      };
+    },
+  };
+
+  const result =
+    await maybeHandleWorkspaceApiRequest({
+      request,
+      url: new URL(request.url),
+      db,
+      requireAdmin: async () => ({
+        ok: true,
+        user: {
+          id: "admin-1",
+        },
+      }),
+      ensureActivityTables: async () => true,
+    });
+
+  assert.equal(result.success, true);
+  assert.equal(result.data.event.id, "activity-1");
+});
+
+test("activity update writes existing activity", async () => {
+  const request = new Request(
+    "https://example.test/workspace-api/activity/activity-1",
+    {
+      method: "PUT",
+      headers: {
+        authorization: "Bearer session-token",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "員工烤肉更新版",
+        description: "更新說明",
+        startAt: "2026-09-20T18:00",
+        endAt: "2026-09-20T21:00",
+        location: "大禮堂",
+      }),
+    },
+  );
+
+  let selectedEvent = null;
+
+  const db = {
+    prepare(sql) {
+      return {
+        bind(...args) {
+          this.args = args;
+          return this;
+        },
+        async first() {
+          if (
+            /cover_image_url/i.test(sql) &&
+            /FROM welfare_activity_events/i.test(sql)
+          ) {
+            return {
+              id: "activity-1",
+              status: "active",
+              cover_image_url:
+                "https://example.test/file/existing.jpg",
+              cover_image_key:
+                "workspace/activity/existing.jpg",
+            };
+          }
+
+          if (/SELECT qr_token/i.test(sql)) {
+            return {
+              qr_token: "qr-token",
+            };
+          }
+
+          if (/SELECT \*/i.test(sql)) {
+            return selectedEvent;
+          }
+
+          return null;
+        },
+        async run() {
+          if (/INSERT INTO welfare_activity_events/i.test(sql)) {
+            selectedEvent = {
+              id: this.args[0],
+              title: this.args[1],
+              description: this.args[2],
+              location: this.args[3],
+              start_at: this.args[4],
+              end_at: this.args[5],
+              status: this.args[8],
+              audience_scope: this.args[9],
+            };
+          }
+
+          return {
+            success: true,
+          };
+        },
+      };
+    },
+  };
+
+  const result =
+    await maybeHandleWorkspaceApiRequest({
+      request,
+      url: new URL(request.url),
+      db,
+      requireAdmin: async () => ({
+        ok: true,
+        user: {
+          id: "admin-1",
+        },
+      }),
+      ensureActivityTables: async () => true,
+      normalizeActivityDate:
+        (value) => String(value || "").trim(),
+    });
+
+  assert.equal(result.success, true);
+  assert.equal(
+    result.data.event.title,
+    "員工烤肉更新版",
+  );
+  assert.equal(
+    result.data.event.location,
+    "大禮堂",
+  );
 });

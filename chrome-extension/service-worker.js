@@ -60,10 +60,55 @@ async function handleWorkspaceMessage(message) {
     );
   }
 
-  if (type === "workspace.photo.upload") {
-    throw new Error(
-      "Photo upload messaging will be connected after the activity API.",
+  if (type === "workspace.activity.list") {
+    return workspace.listActivities();
+  }
+
+  if (type === "workspace.activity.get") {
+    return workspace.getActivity(
+      message.payload?.id,
     );
+  }
+
+  if (type === "workspace.activity.update") {
+    return workspace.updateActivity(
+      message.payload?.id,
+      message.payload?.data || {},
+    );
+  }
+
+  if (type === "workspace.activity.archive") {
+    return workspace.archiveActivity(
+      message.payload?.id,
+    );
+  }
+
+  if (type === "workspace.photo.upload") {
+    const payload = message.payload || {};
+    const bytes = payload.bytes;
+
+    if (!Array.isArray(bytes)) {
+      throw new TypeError(
+        "Photo upload requires byte data.",
+      );
+    }
+
+    const blob = new Blob(
+      [new Uint8Array(bytes)],
+      {
+        type:
+          String(payload.mimeType || "") ||
+          "application/octet-stream",
+      },
+    );
+
+    Object.defineProperty(blob, "name", {
+      value:
+        String(payload.fileName || "") ||
+        "activity-image",
+    });
+
+    return workspace.uploadPhoto(blob);
   }
 
   if (type === "workspace.logout") {

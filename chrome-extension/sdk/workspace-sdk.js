@@ -151,6 +151,72 @@ export class WorkspaceSdk {
           coverImageUrl: String(
             data.coverImageUrl || "",
           ).trim(),
+          coverImageKey: String(
+            data.coverImageKey || "",
+          ).trim(),
+        },
+      },
+    );
+  }
+
+  async listActivities() {
+    return this.request(
+      "/workspace-api/activities",
+    );
+  }
+
+  async getActivity(id) {
+    const activityId =
+      String(id || "").trim();
+
+    if (!activityId) {
+      throw new TypeError(
+        "getActivity() requires an activity id.",
+      );
+    }
+
+    return this.request(
+      `/workspace-api/activity/${encodeURIComponent(activityId)}`,
+    );
+  }
+
+  async updateActivity(id, data = {}) {
+    const activityId =
+      String(id || "").trim();
+
+    if (!activityId) {
+      throw new TypeError(
+        "updateActivity() requires an activity id.",
+      );
+    }
+
+    return this.request(
+      `/workspace-api/activity/${encodeURIComponent(activityId)}`,
+      {
+        method: "PUT",
+        json: {
+          title: String(data.title || "").trim(),
+          description: String(
+            data.description || "",
+          ).trim(),
+          startAt: String(
+            data.startAt || "",
+          ).trim(),
+          endAt: String(
+            data.endAt || "",
+          ).trim(),
+          location: String(
+            data.location || "",
+          ).trim(),
+          status: String(
+            data.status || "active",
+          ).trim(),
+          coverImageUrl: String(
+            data.coverImageUrl || "",
+          ).trim(),
+          coverImageKey: String(
+            data.coverImageKey || "",
+          ).trim(),
         },
       },
     );
@@ -175,6 +241,24 @@ export class WorkspaceSdk {
       {
         method: "POST",
         body: formData,
+      },
+    );
+  }
+
+  async archiveActivity(id) {
+    const activityId =
+      String(id || "").trim();
+
+    if (!activityId) {
+      throw new TypeError(
+        "archiveActivity() requires an activity id.",
+      );
+    }
+
+    return this.request(
+      `/workspace-api/activity/${encodeURIComponent(activityId)}/archive`,
+      {
+        method: "PUT",
       },
     );
   }

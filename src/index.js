@@ -220,6 +220,8 @@ export default {
           ensureActivityCheckinTables,
         normalizeActivityDate:
           normalizeActivityDateInput,
+        bucket: env.R2_BUCKET,
+        origin: url.origin,
       });
 
     if (workspaceApiResult) {
@@ -1183,6 +1185,8 @@ async function ensureActivityCheckinTables(db) {
     )
   `).run();
   try { await db.prepare(`ALTER TABLE welfare_activity_events ADD COLUMN audience_scope TEXT NOT NULL DEFAULT '["all"]'`).run(); } catch (_) {}
+  try { await db.prepare(`ALTER TABLE welfare_activity_events ADD COLUMN cover_image_url TEXT NOT NULL DEFAULT ''`).run(); } catch (_) {}
+  try { await db.prepare(`ALTER TABLE welfare_activity_events ADD COLUMN cover_image_key TEXT NOT NULL DEFAULT ''`).run(); } catch (_) {}
   await db.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS idx_welfare_activity_events_qr_token ON welfare_activity_events(qr_token)`).run();
   await db.prepare(`CREATE INDEX IF NOT EXISTS idx_welfare_activity_events_start ON welfare_activity_events(start_at DESC)`).run();
   await db.prepare(`

@@ -1,4 +1,4 @@
-﻿const ALLOWED_AUDIENCE = new Set([
+const ALLOWED_AUDIENCE = new Set([
   "all",
   "visitor",
   "employee",
@@ -25,10 +25,12 @@ INSERT INTO welfare_activity_events (
   status,
   audience_scope,
   qr_token,
+  cover_image_url,
+  cover_image_key,
   created_at,
   updated_at
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   datetime('now', '+8 hours'),
   datetime('now', '+8 hours')
 )
@@ -43,6 +45,8 @@ ON CONFLICT(id) DO UPDATE SET
   status = excluded.status,
   audience_scope = excluded.audience_scope,
   qr_token = excluded.qr_token,
+  cover_image_url = excluded.cover_image_url,
+  cover_image_key = excluded.cover_image_key,
   updated_at = datetime('now', '+8 hours')
 `;
 
@@ -154,6 +158,8 @@ export async function saveWorkspaceActivity(
           data.audience_scope || data.audience,
         ),
         qrToken,
+        normalizeString(data.cover_image_url || data.coverImageUrl),
+        normalizeString(data.cover_image_key || data.coverImageKey),
       )
       .run();
 
@@ -175,6 +181,12 @@ export async function saveWorkspaceActivity(
         status:
           normalizeString(data.status) || "active",
         qr_token: qrToken,
+        cover_image_url: normalizeString(
+          data.cover_image_url || data.coverImageUrl,
+        ),
+        cover_image_key: normalizeString(
+          data.cover_image_key || data.coverImageKey,
+        ),
       },
     };
   } catch (error) {
