@@ -3,6 +3,7 @@ import { handleDashboardSummaryIntent, handleWorkspacePlaceholderIntent } from "
 import { handleWorkspaceChatCardIntent } from "./workspace/workspace-chat-card-handler.js";
 import { loadVendorReviewSummaryReadOnly, loadChatMonitorSummaryReadOnly, loadRiskSummaryReadOnly } from "./workspace/workspace-live-summary-reader.js";
 import { resolveWorkspaceIdentity } from "./workspace/identity-provider-registry.js";
+import { maybeHandleWorkspaceApiRequest } from "./workspace/workspace-api-handler.js";
 import { createWorkspaceActivityRuntime, handleWorkspaceAgentTurn } from "./workspace/workspace-agent-entry-handler.js";
 /**
  * Cloudflare Worker: ?寥缺件?謕墨缺件缺件?叟缺件ｇ缺件? * - 缺件缺件缺件蹓螞缺件撞?鈭亙眺
@@ -206,6 +207,23 @@ export default {
 
     if (request.method === "OPTIONS") {
       return corsResponse(null);
+    }
+
+    const workspaceApiResult =
+      await maybeHandleWorkspaceApiRequest({
+        request,
+        url,
+        db: DB,
+        loginAdmin,
+        requireAdmin,
+        ensureActivityTables:
+          ensureActivityCheckinTables,
+        normalizeActivityDate:
+          normalizeActivityDateInput,
+      });
+
+    if (workspaceApiResult) {
+      return corsJson(workspaceApiResult);
     }
 
     if (request.method === "GET" && url.pathname === "/" && url.searchParams.has("liff.state")) {
