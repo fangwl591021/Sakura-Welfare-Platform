@@ -1,5 +1,6 @@
-﻿export const WORKSPACE_INTENTS = Object.freeze({
+export const WORKSPACE_INTENTS = Object.freeze({
   DASHBOARD_SUMMARY: "dashboard_summary",
+  VENDOR_PORTAL: "vendor_portal",
   ACTIVITY_PLACEHOLDER: "activity_placeholder",
   PUSH_PLACEHOLDER: "push_placeholder",
   VENDOR_REVIEW_PLACEHOLDER: "vendor_review_placeholder",
@@ -36,6 +37,9 @@ export function resolveWorkspaceIntent(input) {
   const normalized = String(input || "").trim();
   if (normalized === "儀表板" || normalized === "仪表板") {
     return WORKSPACE_INTENTS.DASHBOARD_SUMMARY;
+  }
+  if (normalized === "廠商專區" || normalized === "厂商专区") {
+    return WORKSPACE_INTENTS.VENDOR_PORTAL;
   }
   return WORKSPACE_ACTION_INTENTS.get(normalized) || null;
 }
