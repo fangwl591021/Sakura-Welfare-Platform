@@ -1,6 +1,7 @@
 import { resolveWorkspaceIntent, WORKSPACE_INTENTS } from "./workspace/intent-router.js";
 import { handleDashboardSummaryIntent, handleWorkspacePlaceholderIntent } from "./workspace/dashboard-handler.js";
 import { handleWorkspaceChatCardIntent } from "./workspace/workspace-chat-card-handler.js";
+import { loadVendorReviewSummaryReadOnly, loadChatMonitorSummaryReadOnly, loadRiskSummaryReadOnly } from "./workspace/workspace-live-summary-reader.js";
 import { resolveWorkspaceIdentity } from "./workspace/identity-provider-registry.js";
 /**
  * Cloudflare Worker: ?寥缺件?謕墨缺件缺件?叟缺件ｇ缺件? * - 缺件缺件缺件蹓螞缺件撞?鈭亙眺
@@ -3803,6 +3804,12 @@ async function maybeHandleLineDashboardCommand(db, env, item, origin) {
           findAdmin,
           intent: workspaceIntent,
           buildUrl: (path) => new URL(path, origin).toString(),
+          loadVendorReviewSummary: () =>
+            loadVendorReviewSummaryReadOnly(db),
+          loadChatMonitorSummary: () =>
+            loadChatMonitorSummaryReadOnly(db),
+          loadRiskSummary: () =>
+            loadRiskSummaryReadOnly(db),
         });
     const messages = result.message ? [result.message] : [{ type: "text", text: result.text }];
     const lineResult = await replyLineMessages(env, item.replyToken, messages);
