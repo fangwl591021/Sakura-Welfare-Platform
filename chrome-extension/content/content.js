@@ -1461,40 +1461,44 @@ async function openLoginPrompt() {
     return activitySearchController;
   }
 
-  function updateActivitySummary(
-    activities,
-  ) {
-    const now = Date.now();
+  let activityDashboardController = null;
 
-    let activeCount = 0;
-    let endedCount = 0;
+  function ensureActivityDashboard() {
+    if (activityDashboardController) {
+      return activityDashboardController;
+    }
 
-    activities.forEach((activity) => {
-      const endTime =
-        new Date(
-          String(activity.end_at || "")
-            .replace(" ", "T"),
-        ).getTime();
+    const dashboardModule =
+      globalThis
+        .__SAKURA_AI_WORKSPACE__
+        ?.activity
+        ?.dashboard;
 
-      if (
-        Number.isFinite(endTime) &&
-        endTime < now
-      ) {
-        endedCount += 1;
-      } else {
-        activeCount += 1;
-      }
-    });
+    if (
+      !dashboardModule ||
+      typeof dashboardModule.create !==
+        "function"
+    ) {
+      throw new Error(
+        "Activity dashboard module is unavailable.",
+      );
+    }
 
-    summaryTotal.textContent =
-      String(activities.length);
+    activityDashboardController =
+      dashboardModule.create({
+        totalElement: summaryTotal,
+        activeElement: summaryActive,
+        endedElement: summaryEnded,
+      });
 
-    summaryActive.textContent =
-      String(activeCount);
-
-    summaryEnded.textContent =
-      String(endedCount);
+    return activityDashboardController;
   }
+
+  function updateActivitySummary(activities) {
+    return ensureActivityDashboard()
+      .update(activities);
+  }
+
 
   let activityCardController = null;
 
