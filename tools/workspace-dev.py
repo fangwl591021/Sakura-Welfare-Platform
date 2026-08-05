@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 SAKURA Workspace Developer Tool
 
@@ -28,6 +28,7 @@ JS_FILES = [
     EXTENSION_ROOT / "content" / "shared" / "format.js",
     EXTENSION_ROOT / "content" / "shared" / "toast.js",
     EXTENSION_ROOT / "content" / "shared" / "dialog.js",
+    EXTENSION_ROOT / "content" / "activity" / "activity-card.js",
     EXTENSION_ROOT / "content" / "activity" / "activity-search.js",
     EXTENSION_ROOT / "content" / "content.js",
     EXTENSION_ROOT / "sdk" / "workspace-sdk.js",
@@ -140,6 +141,7 @@ def check_required_order() -> None:
         "content/shared/format.js",
         "content/shared/toast.js",
         "content/shared/dialog.js",
+        "content/activity/activity-card.js",
         "content/activity/activity-search.js",
         "content/content.js",
     ]

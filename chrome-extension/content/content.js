@@ -1496,100 +1496,48 @@ async function openLoginPrompt() {
       String(endedCount);
   }
 
+  let activityCardController = null;
+
+  function ensureActivityCard() {
+    if (activityCardController) {
+      return activityCardController;
+    }
+
+    const cardModule =
+      globalThis
+        .__SAKURA_AI_WORKSPACE__
+        ?.activity
+        ?.card;
+
+    if (
+      !cardModule ||
+      typeof cardModule.create !== "function"
+    ) {
+      throw new Error(
+        "Activity card module is unavailable.",
+      );
+    }
+
+    activityCardController =
+      cardModule.create({
+        container: activityList,
+        format: sharedFormat,
+        emptyText: text.empty,
+        onOpen: (id) => {
+          void openEditActivity(id);
+        },
+      });
+
+    return activityCardController;
+  }
+
   function renderActivities(activities) {
     updateActivitySummary(activities);
 
-    if (!activities.length) {
-      activityList.innerHTML =
-        `<div class="empty">${text.empty}</div>`;
-      return;
-    }
-
-    activityList.innerHTML = activities
-      .map((activity) => {
-        const coverImageUrl =
-          String(
-            activity.cover_image_url || "",
-          ).trim();
-
-        const coverHtml =
-          coverImageUrl
-            ? `
-              <div class="activity-cover">
-                <img
-                  src="${sharedFormat.escapeHtml(coverImageUrl)}"
-                  alt="${sharedFormat.escapeHtml(activity.title || "")}"
-                  loading="lazy"
-                >
-              </div>
-            `
-            : `
-              <div class="activity-cover">
-                <div
-                  class="activity-cover-empty"
-                  aria-hidden="true"
-                >
-                  \u25a3
-                </div>
-              </div>
-            `;
-
-        return `
-          <article
-            class="activity-card"
-            role="button"
-            tabindex="0"
-            data-activity-id="${sharedFormat.escapeHtml(activity.id)}"
-            aria-label="\u7de8\u8f2f\u6d3b\u52d5\uff1a${sharedFormat.escapeHtml(activity.title || "")}"
-          >
-            ${coverHtml}
-
-            <div class="activity-content">
-              <h3>
-                ${sharedFormat.escapeHtml(activity.title || "")}
-              </h3>
-
-              <div class="activity-meta">
-                ${sharedFormat.escapeHtml(sharedFormat.formatDateTime(activity.start_at))}
-                \u2014
-                ${sharedFormat.escapeHtml(sharedFormat.formatDateTime(activity.end_at))}
-                <br>
-                ${sharedFormat.escapeHtml(activity.location || "-")}
-              </div>
-            </div>
-          </article>
-        `;
-      })
-      .join("");
-
-    shadow
-      .querySelectorAll(".activity-card")
-      .forEach((card) => {
-        const openCard = () => {
-          openEditActivity(
-            card.dataset.activityId,
-          );
-        };
-
-        card.addEventListener(
-          "click",
-          openCard,
-        );
-
-        card.addEventListener(
-          "keydown",
-          (event) => {
-            if (
-              event.key === "Enter" ||
-              event.key === " "
-            ) {
-              event.preventDefault();
-              openCard();
-            }
-          },
-        );
-      });
+    ensureActivityCard()
+      .render(activities);
   }
+
 
   async function loadActivities() {
     clearError(listError);
