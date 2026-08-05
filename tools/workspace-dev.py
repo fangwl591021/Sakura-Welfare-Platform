@@ -337,8 +337,10 @@ def progress_bar(
     filled = round(ratio * width)
 
     return (
-        "█" * filled
-        + "░" * (width - filled)
+        "[" +
+        "#" * filled +
+        "-" * (width - filled) +
+        "]"
     )
 
 
