@@ -23,6 +23,7 @@
         "content/workspace-core.js",
         "content/shared/format.js",
         "content/shared/toast.js",
+        "content/shared/dialog.js",
         "content/activity/activity-search.js",
         "content/content.js"
       ],
