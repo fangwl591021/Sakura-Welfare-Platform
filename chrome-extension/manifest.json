@@ -1,4 +1,4 @@
-﻿{
+{
   "manifest_version": 3,
   "name": "SAKURA AI Workspace",
   "version": "0.2.0",
@@ -20,6 +20,8 @@
         "https://chat.line.biz/*"
       ],
       "js": [
+        "content/workspace-core.js",
+        "content/activity/activity-search.js",
         "content/content.js"
       ],
       "run_at": "document_idle",

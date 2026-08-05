@@ -311,6 +311,8 @@ async function handleActivityList({
         end_at,
         status,
         audience_scope,
+        cover_image_url,
+        cover_image_key,
         created_at,
         updated_at
       FROM welfare_activity_events

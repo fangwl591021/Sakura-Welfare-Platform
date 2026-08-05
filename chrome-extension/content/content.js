@@ -107,14 +107,29 @@
       .backdrop.open { display: flex; }
 
       .modal {
-        width: min(820px, 100%);
-        max-height: calc(100vh - 48px);
-        overflow: auto;
-        border-radius: 18px;
+        width: calc(100vw - 32px);
+        max-width: 1440px;
+        height: calc(100vh - 32px);
+        max-height: none;
+        overflow: hidden;
+        border-radius: 16px;
         background: #fff;
         color: #0f172a;
         box-shadow: 0 26px 70px rgba(15, 23, 42, .35);
         font-family: system-ui, sans-serif;
+      }
+
+      .view {
+        height: calc(100% - 69px);
+      }
+
+      .view > .body,
+      .view > form {
+        height: 100%;
+      }
+
+      .list-view .body {
+        overflow: auto;
       }
 
       .header {
@@ -149,15 +164,64 @@
       .body { padding: 22px; }
 
       .toolbar {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 18px;
+        display: grid;
+        grid-template-columns:
+          minmax(240px, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .toolbar-search {
+        position: relative;
+        min-width: 0;
+      }
+
+      .toolbar-search input {
+        width: 100%;
+        height: 42px;
+        padding: 0 42px 0 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        background: #fff;
+        color: #0f172a;
+        outline: none;
+      }
+
+      .toolbar-search input:focus {
+        border-color: #06c755;
+        box-shadow:
+          0 0 0 3px rgba(6, 199, 85, .10);
+      }
+
+      .toolbar-search-clear {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: #64748b;
+        cursor: pointer;
+        transform: translateY(-50%);
+      }
+
+      .toolbar-search-clear:hover {
+        background: #f1f5f9;
       }
 
       .toolbar-actions {
         display: flex;
         gap: 8px;
+      }
+
+      .refresh {
+        width: 42px;
+        padding: 0;
+        font-size: 20px;
       }
 
       .button {
@@ -193,31 +257,119 @@
         cursor: wait;
       }
 
+      .activity-summary {
+        display: grid;
+        grid-template-columns:
+          repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .summary-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 54px;
+        padding: 10px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #ffffff;
+      }
+
+      .summary-card span {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .summary-card strong {
+        color: #0f172a;
+        font-size: 22px;
+        line-height: 1;
+      }
+
       .activity-list {
         display: grid;
-        gap: 12px;
+        gap: 8px;
       }
 
       .activity-card {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: 84px minmax(0, 1fr);
         align-items: center;
-        gap: 16px;
-        padding: 16px;
+        gap: 12px;
+        min-height: 86px;
+        padding: 10px 12px;
         border: 1px solid #e2e8f0;
-        border-radius: 14px;
+        border-radius: 11px;
         background: #fff;
+        cursor: pointer;
+        transition:
+          border-color .16s ease,
+          box-shadow .16s ease,
+          transform .16s ease;
+      }
+
+      .activity-cover {
+        position: relative;
+        width: 84px;
+        height: 64px;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #f1f5f9;
+      }
+
+      .activity-cover img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .activity-cover-empty {
+        display: grid;
+        width: 100%;
+        height: 100%;
+        place-items: center;
+        color: #94a3b8;
+        font-size: 30px;
+        font-weight: 800;
+      }
+
+      .activity-content {
+        min-width: 0;
+      }
+
+      .activity-card:hover {
+        border-color: #86efac;
+        box-shadow:
+          0 10px 28px rgba(15, 23, 42, .10);
+        transform: translateY(-1px);
+      }
+
+      .activity-card:focus-visible {
+        outline: 3px solid rgba(6, 199, 85, .28);
+        outline-offset: 2px;
       }
 
       .activity-card h3 {
-        margin: 0 0 7px;
-        font-size: 17px;
+        margin: 0 0 4px;
+        overflow: hidden;
+        font-size: 15px;
+        line-height: 1.35;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .activity-meta {
+        display: -webkit-box;
+        overflow: hidden;
         color: #64748b;
-        font-size: 13px;
-        line-height: 1.7;
+        font-size: 12px;
+        line-height: 1.5;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
       }
 
       .empty {
@@ -367,47 +519,67 @@
 
       .workspace-login-dialog {
         pointer-events: auto;
-        width: min(380px, calc(100vw - 32px));
+        width: min(340px, calc(100vw - 32px));
         padding: 0;
         border: 0;
-        border-radius: 16px;
+        border-radius: 18px;
         background: #ffffff;
-        color: #0f172a;
-        font-family: system-ui, sans-serif;
+        color: #111827;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
         box-shadow:
-          0 24px 70px rgba(15, 23, 42, .35);
+          0 18px 50px rgba(15, 23, 42, .22);
       }
 
       .workspace-login-dialog::backdrop {
         pointer-events: auto;
-        background: rgba(15, 23, 42, .52);
+        background: rgba(15, 23, 42, .42);
+        backdrop-filter: blur(2px);
       }
 
       .workspace-login-form {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         padding: 24px;
       }
 
       .workspace-login-form h3 {
-        margin: 0 0 10px;
-        font-size: 21px;
+        margin: 0 0 14px;
+        font-size: 22px;
+        line-height: 1.25;
+        font-weight: 800;
+        letter-spacing: -.02em;
       }
 
       .workspace-login-form label {
-        font-weight: 800;
+        margin-top: 4px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
       }
 
       .workspace-login-form input {
         width: 100%;
-        height: 44px;
-        padding: 0 12px;
+        height: 42px;
+        padding: 0 13px;
         border: 1px solid #cbd5e1;
         border-radius: 10px;
         background: #ffffff;
-        color: #0f172a;
+        color: #111827;
+        font-size: 15px;
         outline: none;
+        transition:
+          border-color .15s ease,
+          box-shadow .15s ease;
+      }
+
+      .workspace-login-form input:hover {
+        border-color: #94a3b8;
       }
 
       .workspace-login-form input:focus {
@@ -417,11 +589,13 @@
       }
 
       .workspace-login-error {
-        padding: 10px 12px;
+        margin-top: 4px;
+        padding: 9px 11px;
         border: 1px solid #fecaca;
         border-radius: 9px;
-        background: #fef2f2;
-        color: #991b1b;
+        background: #fff7f7;
+        color: #b91c1c;
+        font-size: 13px;
         line-height: 1.5;
       }
 
@@ -430,23 +604,37 @@
       }
 
       .workspace-login-form menu {
-        display: flex;
-        justify-content: flex-end;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 10px;
-        margin: 12px 0 0;
+        margin: 16px 0 0;
         padding: 0;
       }
 
       .workspace-login-form button {
         min-height: 42px;
-        padding: 0 18px;
-        border: 1px solid #cbd5e1;
+        padding: 0 16px;
+        border: 1px solid #d6dde6;
         border-radius: 10px;
         background: #ffffff;
-        color: #0f172a;
+        color: #334155;
+        font-size: 14px;
         font-weight: 800;
         cursor: pointer;
         pointer-events: auto;
+        transition:
+          transform .15s ease,
+          border-color .15s ease,
+          background .15s ease;
+      }
+
+      .workspace-login-form button:hover {
+        border-color: #94a3b8;
+        background: #f8fafc;
+      }
+
+      .workspace-login-form button:active {
+        transform: translateY(1px);
       }
 
       .workspace-login-form .login-submit {
@@ -455,10 +643,46 @@
         color: #ffffff;
       }
 
+      .workspace-login-form .login-submit:hover {
+        border-color: #05b94f;
+        background: #05b94f;
+      }
+
       @media (max-width: 720px) {
+
+        .toolbar {
+          grid-template-columns: 1fr;
+        }
+
+        .toolbar-actions {
+          justify-content: flex-end;
+        }
+
         .grid { grid-template-columns: 1fr; }
         .field.full { grid-column: auto; }
-        .activity-card { grid-template-columns: 1fr; }
+        .activity-summary {
+          grid-template-columns: 1fr;
+        }
+
+        .modal {
+          width: 100vw;
+          height: 100vh;
+          border-radius: 0;
+        }
+
+        .activity-card {
+          grid-template-columns: 72px minmax(0, 1fr);
+        }
+
+        .activity-cover {
+          width: 72px;
+          height: 56px;
+          aspect-ratio: auto;
+        }
+
+        .activity-summary {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
 
@@ -474,20 +698,62 @@
         <section class="view list-view">
           <main class="body">
             <div class="toolbar">
-              <strong>${text.managerTitle}</strong>
+              <div class="toolbar-search">
+                <input
+                  class="activity-search"
+                  type="search"
+                  placeholder="\u641c\u5c0b\u6d3b\u52d5\u540d\u7a31\u3001\u8aaa\u660e\u6216\u5730\u9ede"
+                  aria-label="\u641c\u5c0b\u6d3b\u52d5"
+                >
+
+                <button
+                  class="toolbar-search-clear"
+                  type="button"
+                  aria-label="\u6e05\u9664\u641c\u5c0b"
+                  hidden
+                >
+                  \u00d7
+                </button>
+              </div>
 
               <div class="toolbar-actions">
-                <button class="button refresh" type="button">
-                  ${text.refresh}
+                <button
+                  class="button refresh"
+                  type="button"
+                  title="${text.refresh}"
+                  aria-label="${text.refresh}"
+                >
+                  \u21bb
                 </button>
 
-                <button class="button primary new-activity" type="button">
+                <button
+                  class="button primary new-activity"
+                  type="button"
+                >
                   ${text.newActivity}
                 </button>
               </div>
             </div>
 
             <div class="list-error error"></div>
+
+            <div class="activity-summary">
+              <div class="summary-card">
+                <span>\u5168\u90e8\u6d3b\u52d5</span>
+                <strong class="summary-total">0</strong>
+              </div>
+
+              <div class="summary-card">
+                <span>\u6d3b\u52d5\u4e2d</span>
+                <strong class="summary-active">0</strong>
+              </div>
+
+              <div class="summary-card">
+                <span>\u5df2\u7d50\u675f</span>
+                <strong class="summary-ended">0</strong>
+              </div>
+            </div>
+
             <div class="activity-list"></div>
           </main>
         </section>
@@ -635,10 +901,26 @@
   const listView = shadow.querySelector(".list-view");
   const formView = shadow.querySelector(".form-view");
   const activityList = shadow.querySelector(".activity-list");
+  const summaryTotal =
+    shadow.querySelector(".summary-total");
+  const summaryActive =
+    shadow.querySelector(".summary-active");
+  const summaryEnded =
+    shadow.querySelector(".summary-ended");
   const listError = shadow.querySelector(".list-error");
   const formError = shadow.querySelector(".form-error");
   const newButton = shadow.querySelector(".new-activity");
   const refreshButton = shadow.querySelector(".refresh");
+  const searchInput =
+    shadow.querySelector(
+      ".activity-search",
+    );
+
+  const searchClearButton =
+    shadow.querySelector(
+      ".toolbar-search-clear",
+    );
+
   const backButton = shadow.querySelector(".back-list");
   const cancelButton = shadow.querySelector(".cancel");
   const form = shadow.querySelector(".activity-form");
@@ -662,6 +944,7 @@
 
 
   let currentActivityId = "";
+  let loadedActivities = [];
   let previewUrl = "";
 
   Workspace.ui.showToast = function(message) {
@@ -1120,7 +1403,83 @@ async function openLoginPrompt() {
     return true;
   }
 
+  let activitySearchController = null;
+
+  function ensureActivitySearch() {
+    if (activitySearchController) {
+      return activitySearchController;
+    }
+
+    const module =
+      globalThis
+        .__SAKURA_AI_WORKSPACE__
+        ?.activity
+        ?.search;
+
+    if (
+      !module ||
+      typeof module.create !== "function"
+    ) {
+      throw new Error(
+        "Activity search module is unavailable.",
+      );
+    }
+
+    activitySearchController =
+      module.create({
+        input: searchInput,
+        clearButton:
+          searchClearButton,
+
+        getActivities: () =>
+          loadedActivities,
+
+        render: (activities) => {
+          renderActivities(activities);
+        },
+      });
+
+    return activitySearchController;
+  }
+
+  function updateActivitySummary(
+    activities,
+  ) {
+    const now = Date.now();
+
+    let activeCount = 0;
+    let endedCount = 0;
+
+    activities.forEach((activity) => {
+      const endTime =
+        new Date(
+          String(activity.end_at || "")
+            .replace(" ", "T"),
+        ).getTime();
+
+      if (
+        Number.isFinite(endTime) &&
+        endTime < now
+      ) {
+        endedCount += 1;
+      } else {
+        activeCount += 1;
+      }
+    });
+
+    summaryTotal.textContent =
+      String(activities.length);
+
+    summaryActive.textContent =
+      String(activeCount);
+
+    summaryEnded.textContent =
+      String(endedCount);
+  }
+
   function renderActivities(activities) {
+    updateActivitySummary(activities);
+
     if (!activities.length) {
       activityList.innerHTML =
         `<div class="empty">${text.empty}</div>`;
@@ -1128,35 +1487,88 @@ async function openLoginPrompt() {
     }
 
     activityList.innerHTML = activities
-      .map((activity) => `
-        <article class="activity-card">
-          <div>
-            <h3>${escapeHtml(activity.title || "")}</h3>
-            <div class="activity-meta">
-              ${escapeHtml(formatDateTime(activity.start_at))}
-              ～ ${escapeHtml(formatDateTime(activity.end_at))}
-              <br>
-              ${escapeHtml(activity.location || "-")}
-            </div>
-          </div>
+      .map((activity) => {
+        const coverImageUrl =
+          String(
+            activity.cover_image_url || "",
+          ).trim();
 
-          <button
-            class="button edit-activity"
-            type="button"
+        const coverHtml =
+          coverImageUrl
+            ? `
+              <div class="activity-cover">
+                <img
+                  src="${escapeHtml(coverImageUrl)}"
+                  alt="${escapeHtml(activity.title || "")}"
+                  loading="lazy"
+                >
+              </div>
+            `
+            : `
+              <div class="activity-cover">
+                <div
+                  class="activity-cover-empty"
+                  aria-hidden="true"
+                >
+                  \u25a3
+                </div>
+              </div>
+            `;
+
+        return `
+          <article
+            class="activity-card"
+            role="button"
+            tabindex="0"
             data-activity-id="${escapeHtml(activity.id)}"
+            aria-label="\u7de8\u8f2f\u6d3b\u52d5\uff1a${escapeHtml(activity.title || "")}"
           >
-            ${text.edit}
-          </button>
-        </article>
-      `)
+            ${coverHtml}
+
+            <div class="activity-content">
+              <h3>
+                ${escapeHtml(activity.title || "")}
+              </h3>
+
+              <div class="activity-meta">
+                ${escapeHtml(formatDateTime(activity.start_at))}
+                \u2014
+                ${escapeHtml(formatDateTime(activity.end_at))}
+                <br>
+                ${escapeHtml(activity.location || "-")}
+              </div>
+            </div>
+          </article>
+        `;
+      })
       .join("");
 
     shadow
-      .querySelectorAll(".edit-activity")
-      .forEach((button) => {
-        button.addEventListener("click", () => {
-          openEditActivity(button.dataset.activityId);
-        });
+      .querySelectorAll(".activity-card")
+      .forEach((card) => {
+        const openCard = () => {
+          openEditActivity(
+            card.dataset.activityId,
+          );
+        };
+
+        card.addEventListener(
+          "click",
+          openCard,
+        );
+
+        card.addEventListener(
+          "keydown",
+          (event) => {
+            if (
+              event.key === "Enter" ||
+              event.key === " "
+            ) {
+              event.preventDefault();
+              openCard();
+            }
+          },
+        );
       });
   }
 
@@ -1185,9 +1597,11 @@ async function openLoginPrompt() {
         "workspace.activity.list",
       );
 
-      renderActivities(
-        result?.data?.activities || [],
-      );
+      loadedActivities =
+        result?.data?.activities || [];
+
+      ensureActivitySearch()
+        .refresh();
     } catch (error) {
       activityList.innerHTML = "";
       showError(
@@ -1263,10 +1677,27 @@ async function openLoginPrompt() {
     }, 0);
   }
 
-  function openModal() {
-    backdrop.classList.add("open");
-    showListView();
-    loadActivities();
+  async function openModal() {
+    try {
+      await ensureWorkspaceLogin();
+
+      resetForm();
+      showListView();
+
+      backdrop.classList.add("open");
+
+      await loadActivities();
+    } catch (error) {
+      if (
+        String(error?.message || "") !==
+        "\u5df2\u53d6\u6d88\u767b\u5165\u3002"
+      ) {
+        console.warn(
+          "[SAKURA Activity] open failed",
+          error,
+        );
+      }
+    }
   }
 
   function closeModal() {
@@ -1544,7 +1975,12 @@ async function openLoginPrompt() {
   const validateForm =
     Workspace.activity.validateForm;
 
-  launcher.addEventListener("click", openModal);
+  launcher.addEventListener(
+    "click",
+    () => {
+      void openModal();
+    },
+  );
   closeButton.addEventListener("click", closeModal);
   newButton.addEventListener("click", openCreateActivity);
   refreshButton.addEventListener("click", loadActivities);
