@@ -27,6 +27,7 @@
         "content/activity/activity-dashboard.js",
         "content/activity/activity-card.js",
         "content/activity/activity-search.js",
+        "content/activity/activity-form-validation.js",
         "content/content.js"
       ],
       "run_at": "document_idle",

@@ -34,6 +34,7 @@ JS_FILES = [
     EXTENSION_ROOT / "content" / "activity" / "activity-dashboard.js",
     EXTENSION_ROOT / "content" / "activity" / "activity-card.js",
     EXTENSION_ROOT / "content" / "activity" / "activity-search.js",
+    EXTENSION_ROOT / "content" / "activity" / "activity-form-validation.js",
     EXTENSION_ROOT / "content" / "content.js",
     EXTENSION_ROOT / "sdk" / "workspace-sdk.js",
     EXTENSION_ROOT / "service-worker.js",
@@ -48,6 +49,7 @@ REQUIRED_ORDER = [
     "content/activity/activity-dashboard.js",
     "content/activity/activity-card.js",
     "content/activity/activity-search.js",
+    "content/activity/activity-form-validation.js",
     "content/content.js",
 ]
 
@@ -64,6 +66,7 @@ FRAMEWORK_MODULES = {
         "content/activity/activity-dashboard.js",
         "content/activity/activity-card.js",
         "content/activity/activity-search.js",
+        "content/activity/activity-form-validation.js",
     ],
 }
 

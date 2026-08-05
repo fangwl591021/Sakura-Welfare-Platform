@@ -1724,213 +1724,29 @@ async function openLoginPrompt() {
     });
   }
 
-  Workspace.activity.validateForm = function() {
-    clearFieldErrors();
+  const formValidationModule =
+    globalThis
+      .__SAKURA_AI_WORKSPACE__
+      ?.activity
+      ?.formValidation;
 
-    const formData =
-      new FormData(form);
+  if (
+    !formValidationModule ||
+    typeof formValidationModule.create !==
+      "function"
+  ) {
+    throw new Error(
+      "Activity form validation module is unavailable.",
+    );
+  }
 
-    const titleValue =
-      String(
-        formData.get("title") || "",
-      ).trim();
+  Workspace.activity.validateForm =
+    formValidationModule.create({
+      form,
+      clearErrors: clearFieldErrors,
+    });
 
-    const description =
-      String(
-        formData.get("description") || "",
-      ).trim();
-
-    const startDate =
-      String(
-        formData.get("startDate") || "",
-      ).trim();
-
-    const startTime =
-      String(
-        formData.get("startTime") || "",
-      ).trim();
-
-    const endDate =
-      String(
-        formData.get("endDate") || "",
-      ).trim();
-
-    const endTime =
-      String(
-        formData.get("endTime") || "",
-      ).trim();
-
-    const locationValue =
-      String(
-        formData.get("location") || "",
-      ).trim();
-
-    const photo =
-      formData.get("photo");
-
-    const currentYear =
-      new Date().getFullYear();
-
-    if (!titleValue) {
-      return {
-        ok: false,
-        field: "title",
-        message:
-          "\u8acb\u8f38\u5165\u6d3b\u52d5\u540d\u7a31\u3002",
-      };
-    }
-
-    if (!startDate) {
-      return {
-        ok: false,
-        field: "startDate",
-        message:
-          "\u8acb\u8f38\u5165\u958b\u59cb\u6708\u65e5\uff0c\u4f8b\u5982 09/20\u3002",
-      };
-    }
-
-    const parsedStart =
-      parseMonthDay(
-        startDate,
-        currentYear,
-      );
-
-    if (!parsedStart) {
-      return {
-        ok: false,
-        field: "startDate",
-        message:
-          "\u8acb\u4f7f\u7528 MM/DD \u683c\u5f0f\uff0c\u4f8b\u5982 09/20\u3002",
-      };
-    }
-
-    if (!startTime) {
-      return {
-        ok: false,
-        field: "startTime",
-        message:
-          "\u8acb\u9078\u64c7\u958b\u59cb\u6642\u9593\u3002",
-      };
-    }
-
-    if (!endDate) {
-      return {
-        ok: false,
-        field: "endDate",
-        message:
-          "\u8acb\u8f38\u5165\u7d50\u675f\u6708\u65e5\uff0c\u4f8b\u5982 09/20\u3002",
-      };
-    }
-
-    const parsedEndCurrentYear =
-      parseMonthDay(
-        endDate,
-        currentYear,
-      );
-
-    if (!parsedEndCurrentYear) {
-      return {
-        ok: false,
-        field: "endDate",
-        message:
-          "\u8acb\u4f7f\u7528 MM/DD \u683c\u5f0f\uff0c\u4f8b\u5982 09/20\u3002",
-      };
-    }
-
-    if (!endTime) {
-      return {
-        ok: false,
-        field: "endTime",
-        message:
-          "\u8acb\u9078\u64c7\u7d50\u675f\u6642\u9593\u3002",
-      };
-    }
-
-    let endYear =
-      currentYear;
-
-    const startOrder =
-      parsedStart.month * 100 +
-      parsedStart.day;
-
-    const endOrder =
-      parsedEndCurrentYear.month * 100 +
-      parsedEndCurrentYear.day;
-
-    if (endOrder < startOrder) {
-      endYear += 1;
-    }
-
-    const startAt =
-      buildActivityDateTime(
-        startDate,
-        startTime,
-        currentYear,
-      );
-
-    const endAt =
-      buildActivityDateTime(
-        endDate,
-        endTime,
-        endYear,
-      );
-
-    if (
-      new Date(endAt).getTime() <=
-      new Date(startAt).getTime()
-    ) {
-      return {
-        ok: false,
-        field: "endTime",
-        message:
-          "\u7d50\u675f\u6642\u9593\u5fc5\u9808\u665a\u65bc\u958b\u59cb\u6642\u9593\u3002",
-      };
-    }
-
-    if (!locationValue) {
-      return {
-        ok: false,
-        field: "location",
-        message:
-          "\u8acb\u8f38\u5165\u6d3b\u52d5\u5730\u9ede\u3002",
-      };
-    }
-
-    if (
-      photo &&
-      typeof photo.arrayBuffer ===
-        "function" &&
-      photo.size >
-        8 * 1024 * 1024
-    ) {
-      return {
-        ok: false,
-        field: "photo",
-        message:
-          "\u5716\u7247\u4e0d\u53ef\u8d85\u904e 8 MB\u3002",
-      };
-    }
-
-    return {
-      ok: true,
-      data: {
-        title: titleValue,
-        description,
-        startAt,
-        endAt,
-        location: locationValue,
-        photo:
-          photo &&
-          typeof photo.arrayBuffer ===
-            "function" &&
-          photo.size > 0
-            ? photo
-            : null,
-      },
-    };
-  };
-
-  const validateForm =
+const validateForm =
     Workspace.activity.validateForm;
 
   launcher.addEventListener(
