@@ -942,6 +942,18 @@
 
   };
 
+  const sharedFormat =
+    globalThis
+      .__SAKURA_AI_WORKSPACE__
+      ?.shared
+      ?.format;
+
+  if (!sharedFormat) {
+    throw new Error(
+      "Workspace shared format module is unavailable.",
+    );
+  }
+
 
   let currentActivityId = "";
   let loadedActivities = [];
@@ -1082,16 +1094,6 @@
       `${pad(parsed.day)}T` +
       normalizedTime
     );
-  }
-
-  function formatDateTime(value) {
-    const source = String(value || "").trim();
-
-    if (!source) {
-      return "-";
-    }
-
-    return source.replace("T", " ").slice(0, 16);
   }
 
   function showListView() {
@@ -1498,8 +1500,8 @@ async function openLoginPrompt() {
             ? `
               <div class="activity-cover">
                 <img
-                  src="${escapeHtml(coverImageUrl)}"
-                  alt="${escapeHtml(activity.title || "")}"
+                  src="${sharedFormat.escapeHtml(coverImageUrl)}"
+                  alt="${sharedFormat.escapeHtml(activity.title || "")}"
                   loading="lazy"
                 >
               </div>
@@ -1520,22 +1522,22 @@ async function openLoginPrompt() {
             class="activity-card"
             role="button"
             tabindex="0"
-            data-activity-id="${escapeHtml(activity.id)}"
-            aria-label="\u7de8\u8f2f\u6d3b\u52d5\uff1a${escapeHtml(activity.title || "")}"
+            data-activity-id="${sharedFormat.escapeHtml(activity.id)}"
+            aria-label="\u7de8\u8f2f\u6d3b\u52d5\uff1a${sharedFormat.escapeHtml(activity.title || "")}"
           >
             ${coverHtml}
 
             <div class="activity-content">
               <h3>
-                ${escapeHtml(activity.title || "")}
+                ${sharedFormat.escapeHtml(activity.title || "")}
               </h3>
 
               <div class="activity-meta">
-                ${escapeHtml(formatDateTime(activity.start_at))}
+                ${sharedFormat.escapeHtml(sharedFormat.formatDateTime(activity.start_at))}
                 \u2014
-                ${escapeHtml(formatDateTime(activity.end_at))}
+                ${sharedFormat.escapeHtml(sharedFormat.formatDateTime(activity.end_at))}
                 <br>
-                ${escapeHtml(activity.location || "-")}
+                ${sharedFormat.escapeHtml(activity.location || "-")}
               </div>
             </div>
           </article>
@@ -1570,19 +1572,6 @@ async function openLoginPrompt() {
           },
         );
       });
-  }
-
-  function escapeHtml(value) {
-    return String(value || "").replace(
-      /[&<>"']/g,
-      (character) => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      })[character],
-    );
   }
 
   async function loadActivities() {

@@ -21,6 +21,7 @@
       ],
       "js": [
         "content/workspace-core.js",
+        "content/shared/format.js",
         "content/activity/activity-search.js",
         "content/content.js"
       ],
