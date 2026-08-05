@@ -959,18 +959,29 @@
   let loadedActivities = [];
   let previewUrl = "";
 
+  const toastModule =
+    globalThis
+      .__SAKURA_AI_WORKSPACE__
+      ?.shared
+      ?.toast;
+
+  if (
+    !toastModule ||
+    typeof toastModule.create !== "function"
+  ) {
+    throw new Error(
+      "Workspace shared toast module is unavailable.",
+    );
+  }
+
+  const sharedToast =
+    toastModule.create({
+      element: toast,
+      duration: 2600,
+    });
+
   Workspace.ui.showToast = function(message) {
-
-    toast.textContent = message;
-
-    toast.classList.add("show");
-
-    window.setTimeout(() => {
-
-      toast.classList.remove("show");
-
-    }, 2600);
-
+    sharedToast.success(message);
   };
 
   const showToast =
