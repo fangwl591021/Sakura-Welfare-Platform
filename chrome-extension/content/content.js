@@ -1130,31 +1130,23 @@
 
 
   let loginDialog = null;
-  let loginRequest = null;
+  let loginDialogController = null;
 
   function finishLoginDialog(result) {
-    if (!loginRequest) {
+    if (!loginDialogController) {
       return;
     }
 
-    const request = loginRequest;
-    loginRequest = null;
-
-    if (loginDialog?.open) {
-      loginDialog.close(
-        result?.ok ? "login" : "cancel",
-      );
-    }
-
     if (result?.ok) {
-      request.resolve(result.credentials);
-    } else {
-      request.reject(
-        new Error(
-          "\u5df2\u53d6\u6d88\u767b\u5165\u3002",
-        ),
+      loginDialogController.resolve(
+        result.credentials,
       );
+      return;
     }
+
+    loginDialogController.cancel(
+      text.loginCancelled,
+    );
   }
 
   function ensureLoginDialog() {
@@ -1316,6 +1308,27 @@
 
     shadow.appendChild(loginDialog);
 
+    const dialogModule =
+      globalThis
+        .__SAKURA_AI_WORKSPACE__
+        ?.shared
+        ?.dialog;
+
+    if (
+      !dialogModule ||
+      typeof dialogModule.create !==
+        "function"
+    ) {
+      throw new Error(
+        "Workspace shared dialog module is unavailable.",
+      );
+    }
+
+    loginDialogController =
+      dialogModule.create({
+        dialog: loginDialog,
+      });
+
     return loginDialog;
   }
 
@@ -1377,14 +1390,7 @@ async function openLoginPrompt() {
       ).focus();
     }, 0);
 
-    return await new Promise(
-      (resolve, reject) => {
-        loginRequest = {
-          resolve,
-          reject,
-        };
-      },
-    );
+    return await loginDialogController.request();
   }
 
   async function ensureWorkspaceLogin() {
