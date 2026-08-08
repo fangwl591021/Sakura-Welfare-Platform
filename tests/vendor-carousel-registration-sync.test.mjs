@@ -21,3 +21,11 @@ test("existing applications require portal account authentication", () => {
 test("post-registration carousel management permits active review states only", () => {
   assert.ok(service.includes('["pending", "rejected", "approved"]'));
 });
+
+test("admin registration editor exposes the shared carousel manager", () => {
+  assert.ok(source.includes("handleAdminVendorCarouselAction"));
+  assert.ok(source.includes('action === "vendor.carousel"'));
+  assert.ok(source.includes("carousel_items = carouselByVendor"));
+  assert.ok(source.includes("上傳到跑馬燈"));
+  assert.ok(source.includes("DM 已同步到廠商專區與店家頁"));
+});
