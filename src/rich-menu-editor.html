@@ -1,671 +1,618 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>圖文選單編輯器</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .sidebar-transition { transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圖文選單編輯器</title>
+    <!-- Version: Sakura-Macro-UI-2026.08.05 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .sidebar-transition { transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
 </head>
+
 <body class="bg-slate-100 flex h-screen overflow-hidden text-slate-800">
-  <aside id="sidebar" class="w-[360px] shrink-0 bg-[#F8F9FA] border-r border-slate-200 h-full flex flex-col sidebar-transition relative z-40 shadow-xl">
-    <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-white">
-      <h2 class="font-black text-slate-800 text-[17px]"><i class="fas fa-layer-group text-[#06C755] mr-2"></i>圖文選單編輯器</h2>
-      <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 transition p-1.5 rounded-lg hover:bg-slate-100"><i class="fas fa-chevron-left text-lg"></i></button>
-    </div>
 
-    <div class="flex-1 overflow-y-auto hide-scrollbar">
-      <div class="p-5 space-y-5 border-b border-slate-200 bg-white">
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-2">1. 載入底圖 (JPG/PNG)</label>
-          <input type="file" id="image-upload" accept="image/jpeg,image/png" class="hidden">
-          <button id="upload-btn" onclick="document.getElementById('image-upload').click()" class="w-full py-3 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
-            <i class="fas fa-cloud-upload-alt"></i>上傳選單圖片檔
-          </button>
+    <aside id="sidebar" class="w-[360px] shrink-0 bg-[#F8F9FA] border-r border-slate-200 h-full flex flex-col sidebar-transition relative z-40 shadow-xl">
+        <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-white">
+            <h2 class="font-black text-slate-800 text-[17px]"><i class="fas fa-layer-group text-[#06C755] mr-2"></i>圖文選單編輯器</h2>
+            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 transition p-1.5 rounded-lg hover:bg-slate-100"><i class="fas fa-chevron-left text-lg"></i></button>
         </div>
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-1">2. 選單名稱</label>
-          <input id="save-filename" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-600 bg-slate-50" value="New Rich Menu" maxlength="300">
+
+        <div class="flex-1 overflow-y-auto hide-scrollbar">
+            <div class="p-5 space-y-5 border-b border-slate-200 bg-white">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">1. 載入底圖 (JPG/PNG)</label>
+                    <input type="file" id="image-upload" accept="image/jpeg, image/png" class="hidden">
+                    <button onclick="document.getElementById('image-upload').click()" class="w-full py-3 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm transition active:scale-95">上傳選單圖片檔</button>
+                </div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">2. 選單名稱</label><input type="text" id="save-filename" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-600 bg-slate-50" value="New Rich Menu" maxlength="300"></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">3. 選單列文字 (ChatBar)</label><input type="text" id="rich-menu-chatbar" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-600 bg-slate-50" value="選單" maxlength="14" placeholder="最多 14 個字"></div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">4. 本頁 Alias ID</label>
+                    <input type="text" id="rich-menu-alias-id" class="w-full border border-emerald-200 rounded-lg px-3 py-2.5 text-sm font-mono font-bold text-emerald-700 bg-emerald-50" value="" maxlength="32" placeholder="例如：indo-menu" onchange="MenuModule.updateMenuAlias(this.value)">
+                    <p class="mt-1.5 text-[11px] leading-5 text-slate-500">這是目前這張選單自己的 Alias ID；其他選單要切換到本頁時，就填這個值。</p>
+                </div>
+            </div>
+
+            <div id="editor-ui" class="bg-[#F8F9FA] pb-6 space-y-4"></div>
         </div>
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-1">3. 選單列文字 (ChatBar)</label>
-          <input id="rich-menu-chatbar" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-600 bg-slate-50" value="選單" maxlength="14">
+
+        <div class="p-5 bg-white border-t border-slate-200 shrink-0">
+            <label class="block text-sm font-bold text-slate-700 mb-2">JSON 輸出</label>
+            <textarea id="json-output" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono h-24 bg-slate-50 resize-none" readonly></textarea>
         </div>
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-1">4. 本頁 Alias ID（這張選單自己的代號）</label>
-          <input id="rich-menu-alias-id" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-600 bg-slate-50" value="" maxlength="32" placeholder="例：main-menu 或 vendor-menu">
-          <p class="mt-1 text-[11px] leading-5 text-slate-500">這裡只代表「目前這張 Rich Menu」的 alias，例如繁中員工 <b>twmem-menu</b>、印尼文員工 <b>vetmem-menu</b>、泰文員工 <b>taimem-menu</b>，或你自訂的 <b>indo-menu</b>。它不是預設首頁開關。</p>
-          <div class="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-800"><b>預設首頁指定：</b>請打開右側「檔案庫」，在要作為首頁的那一筆專案勾選「訪客預設首頁」。系統只保存一筆預設首頁；員工、廠商、管理者仍從「Rich Menu 身分綁定」套用，不受此勾選影響。</div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-100">
+        <button id="expand-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-50 bg-white text-slate-600 border border-slate-200 shadow-md rounded-lg p-2.5 transition hidden"><i class="fas fa-bars text-lg"></i></button>
+
+        <div class="bg-white/90 border-b border-gray-200 w-full py-3 flex justify-between items-center px-6 sticky top-0 z-30 shadow-sm">
+            <button onclick="MenuModule.toggleDrawMode()" id="menu-draw-btn" class="px-10 py-2.5 rounded-md text-sm font-black bg-slate-800 text-white shadow-md">開始劃定區域</button>
+            <div class="flex items-center space-x-2">
+                <button onclick="StorageModule.toggleDrawer()" class="px-6 py-2.5 rounded-md text-sm font-black text-orange-600 bg-orange-50 border border-orange-200 shadow-sm flex items-center gap-2"><i class="fas fa-folder-open"></i> 檔案庫</button>
+                <button onclick="MenuModule.openDeployModal()" class="px-8 py-2.5 rounded-md text-sm font-black text-white bg-indigo-600 shadow-md">部署至 LINE</button>
+            </div>
         </div>
-      </div>
-      <div id="editor-ui" class="bg-[#F8F9FA] pb-6 space-y-4"></div>
-    </div>
 
-    <div class="p-5 bg-white border-t border-slate-200 shrink-0">
-      <label class="block text-sm font-bold text-slate-700 mb-2">JSON 輸出</label>
-      <textarea id="json-output" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono h-24 bg-slate-50 resize-none" readonly></textarea>
-    </div>
-  </aside>
-
-  <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-100">
-    <button id="expand-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-50 bg-white text-slate-600 border border-slate-200 shadow-md rounded-lg p-2.5 transition hidden"><i class="fas fa-bars text-lg"></i></button>
-
-    <div class="bg-white/90 border-b border-gray-200 w-full py-3 flex justify-between items-center px-6 sticky top-0 z-30 shadow-sm">
-      <button onclick="MenuModule.toggleDrawMode()" id="menu-draw-btn" class="px-10 py-2.5 rounded-md text-sm font-black bg-slate-800 text-white shadow-md">開始劃定區域</button>
-      <div class="flex items-center space-x-2">
-        <button onclick="StorageModule.toggleDrawer()" class="px-6 py-2.5 rounded-md text-sm font-black text-orange-600 bg-orange-50 border border-orange-200 shadow-sm flex items-center gap-2"><i class="fas fa-folder-open"></i> 檔案庫</button>
-        <button onclick="StorageModule.runSwitchDiagnose()" class="px-6 py-2.5 rounded-md text-sm font-black text-cyan-700 bg-cyan-50 border border-cyan-200 shadow-sm flex items-center gap-2"><i class="fas fa-stopwatch"></i> 切換診斷</button>
-        <button onclick="MenuModule.openDeployModal()" class="px-8 py-2.5 rounded-md text-sm font-black text-white bg-indigo-600 shadow-md">部署至 LINE</button>
-      </div>
-    </div>
-
-    <div class="p-10 flex flex-col items-center w-full h-full overflow-y-auto">
-      <div id="menu-canvas-container" class="bg-white p-4 rounded-2xl shadow-2xl border border-gray-200 relative min-w-[600px] min-h-[400px] flex items-center justify-center">
-        <canvas id="menu-canvas"></canvas>
-        <div id="canvas-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-50/80 pointer-events-none">
-          <i class="far fa-images text-6xl mb-4 text-slate-300"></i>
-          <p class="font-black text-lg tracking-widest text-slate-400">請從左側上傳底圖</p>
+        <div class="p-10 flex flex-col items-center w-full h-full overflow-y-auto">
+            <div id="menu-canvas-container" class="bg-white p-4 rounded-2xl shadow-2xl border border-gray-200 relative min-w-[600px] min-h-[400px] flex items-center justify-center">
+                <canvas id="menu-canvas"></canvas>
+                <div id="canvas-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-50/80 pointer-events-none"><i class="far fa-images text-6xl mb-4 text-slate-300"></i><p class="font-black text-lg tracking-widest text-slate-400">請從左側上傳底圖</p></div>
+            </div>
         </div>
-      </div>
+    </main>
+
+    <!-- 檔案庫抽屜 -->
+    <div id="right-drawer-overlay" onclick="StorageModule.toggleDrawer()" class="hidden fixed inset-0 bg-slate-800/20 z-40 backdrop-blur-sm"></div>
+    <aside id="right-drawer" class="fixed right-0 top-0 h-full w-[360px] bg-[#F8F9FA] shadow-2xl translate-x-full transition-transform duration-300 z-50 flex flex-col border-l border-slate-200">
+        <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-white"><h2 class="font-black text-slate-800 text-lg">選單檔案庫</h2><button onclick="StorageModule.toggleDrawer()" class="text-slate-400 p-2 hover:bg-slate-50"><i class="fas fa-times"></i></button></div>
+        <div class="p-6 bg-white border-b border-slate-200 flex gap-2"><button onclick="StorageModule.saveCurrent(true)" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-bold shadow-md text-xs">另存新檔</button><button onclick="StorageModule.saveCurrent(false)" class="flex-1 py-3 bg-green-50 text-[#06C755] border border-[#06C755] rounded-xl font-bold text-xs">更新現有</button></div>
+        <div class="flex-1 overflow-y-auto p-5 space-y-4" id="saved-files-list"></div>
+    </aside>
+
+    <!-- 部署彈窗 -->
+    <div id="deploy-modal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-lg p-8">
+            <h3 class="font-black text-xl mb-2 text-indigo-900">確認部署至 LINE</h3>
+            <p class="text-sm text-slate-500 font-bold mb-6">系統將直接連線至 LINE 伺服器進行版面抽換。確定執行？</p>
+
+            <input type="text" id="deploy-api-url" class="w-full border border-slate-200 p-3 rounded-lg bg-slate-50 font-mono text-xs text-slate-400 mb-4" readonly>
+
+            <div id="deploy-error-msg" class="hidden bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl text-sm font-bold mb-6 whitespace-pre-wrap leading-relaxed shadow-sm"></div>
+
+            <div class="flex justify-end gap-3 mt-4">
+                <button onclick="MenuModule.closeDeployModal()" class="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition">取消</button>
+                <button id="deploy-submit-btn" onclick="MenuModule.executeDeploy()" class="px-8 py-3 rounded-xl text-sm font-black text-white bg-indigo-600 shadow-md hover:bg-indigo-700 transition flex items-center gap-2">啟動部署</button>
+            </div>
+        </div>
     </div>
-  </main>
 
-  <div id="right-drawer-overlay" onclick="StorageModule.toggleDrawer()" class="hidden fixed inset-0 bg-slate-800/20 z-40 backdrop-blur-sm"></div>
-  <aside id="right-drawer" class="fixed right-0 top-0 h-full w-[380px] bg-[#F8F9FA] shadow-2xl translate-x-full transition-transform duration-300 z-50 flex flex-col border-l border-slate-200">
-    <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-white">
-      <h2 class="font-black text-slate-800 text-lg">選單檔案庫</h2>
-      <button onclick="StorageModule.toggleDrawer()" class="text-slate-400 p-2 hover:bg-slate-50"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="p-6 bg-white border-b border-slate-200 flex gap-2">
-      <button onclick="StorageModule.saveCurrent(true)" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-bold shadow-md text-xs">另存新檔</button>
-      <button onclick="StorageModule.saveCurrent(false)" class="flex-1 py-3 bg-green-50 text-[#06C755] border border-[#06C755] rounded-xl font-bold text-xs">更新現有</button>
-    </div>
-    <div class="px-5 pt-5">
-      <input id="library-search" oninput="StorageModule.renderList()" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white" placeholder="搜尋選單名稱">
-    </div>
-    <div class="flex-1 overflow-y-auto p-5 space-y-4" id="saved-files-list"></div>
-  </aside>
+    <script>
+        function toggleSidebar() { const s = document.getElementById('sidebar'); const e = document.getElementById('expand-btn'); if (s.classList.contains('-ml-[360px]')) { s.classList.remove('-ml-[360px]'); e.classList.add('hidden'); } else { s.classList.add('-ml-[360px]'); e.classList.remove('hidden'); } }
 
-  <div id="deploy-modal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-lg p-8">
-      <h3 class="font-black text-xl mb-2 text-indigo-900">確認部署至 LINE</h3>
-      <p class="text-sm text-slate-500 font-bold mb-6">系統將透過 Worker 進行版面部署；預設不改全域首頁。如本專案已在檔案庫被勾選為訪客預設首頁，部署時可同步更新 LINE 預設。</p>
-      <input id="deploy-api-url" class="w-full border border-slate-200 p-3 rounded-lg bg-slate-50 font-mono text-xs text-slate-400 mb-4" readonly>
-      <label class="flex items-start gap-3 mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-bold text-amber-800"><input id="set-default-rich-menu" type="checkbox" class="mt-1 h-4 w-4"><span>同步為訪客預設首頁<br><span class="text-xs font-medium text-amber-700">建議先在檔案庫勾選預設專案；部署後會同步 LINE 全域預設與 guest_zh alias。</span></span></label>
-      <div id="deploy-error-msg" class="hidden bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl text-sm font-bold mb-6 whitespace-pre-wrap leading-relaxed shadow-sm"></div>
-      <div class="flex justify-end gap-3 mt-4">
-        <button onclick="MenuModule.closeDeployModal()" class="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition">取消</button>
-        <button id="deploy-submit-btn" onclick="MenuModule.executeDeploy()" class="px-8 py-3 rounded-xl text-sm font-black text-white bg-indigo-600 shadow-md hover:bg-indigo-700 transition flex items-center gap-2">啟動部署</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function toggleSidebar() {
-      const s = document.getElementById("sidebar");
-      const e = document.getElementById("expand-btn");
-      if (s.classList.contains("-ml-[360px]")) {
-        s.classList.remove("-ml-[360px]");
-        e.classList.add("hidden");
-      } else {
-        s.classList.add("-ml-[360px]");
-        e.classList.remove("hidden");
-      }
-    }
-
-    const ApiHelper = {
-      call: async function(action, payload = {}) {
-        const res = await fetch(location.origin + "/api", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action, payload, data: payload })
-        });
-        const json = await res.json();
-        if (json.success === false || json.status === "error") throw new Error(json.message || "API failed");
-        return json.data || json;
-      }
-    };
-
-    window.MenuModule = (function() {
-      let canvas, drawing = false, down = false, currentRect, sx, sy;
-      let currentHeight = 843;
-      let imageBase64 = "";
-      let currentId = "";
-
-      const $ = (id) => document.getElementById(id);
-      const escapeAttr = (v) => String(v || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-      const normalizeAliasId = (v) => String(v || "")
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9_-]+/g, "-")
-        .replace(/^-+|-+$/g, "")
-        .slice(0, 32);
-      const switchDataForAlias = (alias) => {
-        const normalized = normalizeAliasId(alias);
-        return normalized ? "switch:" + normalized : "";
-      };
-
-      function cleanAction(action) {
-        const type = action.type || "uri";
-        if (type === "uri") return { type, uri: action.uri || "https://www.sakura.com.tw/" };
-        if (type === "postback") {
-          const out = { type, data: action.data || "" };
-          if (action.displayText) out.displayText = action.displayText;
-          return out;
-        }
-        if (type === "richmenuswitch") {
-          const richMenuAliasId = normalizeAliasId(action.richMenuAliasId);
-          return { type, richMenuAliasId, data: switchDataForAlias(richMenuAliasId) };
-        }
-        return { type: "message", text: action.text || "" };
-      }
-
-      return {
-        init() {
-          canvas = new fabric.Canvas("menu-canvas", { selection: true });
-          canvas.setWidth(600);
-          canvas.setHeight(405);
-          this.bindEvents();
-          $("image-upload").addEventListener("change", (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const current = this.getSnapshot();
-            const preserved = {
-              ...(current.config || {}),
-              id: current.id || currentId || "",
-              name: current.name || "",
-              chatBarText: current.chatBarText || "選單",
-              aliasId: current.aliasId || "",
-              areas: current.areas || []
-            };
-            const keepExistingMeta = !!(preserved.id || preserved.aliasId || preserved.areas.length || (preserved.name && preserved.name !== "New Rich Menu"));
-            const nextName = keepExistingMeta ? preserved.name : file.name;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-              this.load(nextName, { ...preserved, name: nextName }, ev.target.result);
-              this.showSyncStatus(`已更換底圖，保留 ${preserved.areas.length} 個熱區`, "success");
-            };
-            reader.readAsDataURL(file);
-          });
-          this.updateOutput();
-        },
-        setCurrentId(id) { currentId = id || ""; },
-        getCurrentId() { return currentId; },
-        load(name, data = {}, image = "") {
-          currentId = data.id || currentId || "";
-          $("save-filename").value = data.name || name || "New Rich Menu";
-          $("rich-menu-chatbar").value = data.chatBarText || "選單";
-          $("rich-menu-alias-id").value = data.aliasId || data.aliasID || data.config?.aliasId || "";
-          imageBase64 = image || data.image || imageBase64;
-          if (!imageBase64) return;
-
-          $("canvas-placeholder").style.display = "none";
-          const img = new Image();
-          img.onload = () => {
-            const ratio = img.height / img.width;
-            currentHeight = Math.round(2500 * ratio);
-            canvas.setWidth(600);
-            canvas.setHeight(Math.round(600 * ratio));
-            fabric.Image.fromURL(imageBase64, (bg) => {
-              canvas.setBackgroundImage(bg, canvas.renderAll.bind(canvas), {
-                scaleX: 600 / bg.width,
-                scaleY: (600 * ratio) / bg.height
-              });
-              this.importAreas(data.areas || [], 600 / 2500);
-            }, { crossOrigin: "anonymous" });
-          };
-          img.src = imageBase64;
-        },
-        getSnapshot() {
-          const json = JSON.parse($("json-output").value || "{}");
-          return {
-            id: currentId,
-            isDefaultHome: Boolean(json.isDefaultHome),
-            name: $("save-filename").value || "未命名選單",
-            chatBarText: $("rich-menu-chatbar").value || "選單",
-            aliasId: $("rich-menu-alias-id").value || "",
-            image: imageBase64,
-            imageUrl: imageBase64 && !imageBase64.startsWith("data:image/") ? imageBase64 : "",
-            config: json,
-            areas: json.areas || [],
-            updatedAt: new Date().toISOString()
-          };
-        },
-        getDeployImageBase64() {
-          if (imageBase64 && imageBase64.startsWith("data:image/")) return imageBase64;
-          if (!canvas || !canvas.backgroundImage || !canvas.backgroundImage._element) return "";
-          try {
-            const bg = canvas.backgroundImage;
-            const el = bg._element;
-            const temp = document.createElement("canvas");
-            temp.width = el.naturalWidth || el.width || bg.width || 2500;
-            temp.height = el.naturalHeight || el.height || bg.height || 843;
-            const ctx = temp.getContext("2d");
-            ctx.drawImage(el, 0, 0, temp.width, temp.height);
-            return temp.toDataURL("image/jpeg", 0.92);
-          } catch (err) {
-            console.error("Rich Menu image export failed", err);
-            return "";
-          }
-        },        bindEvents() {
-          canvas.on("mouse:down", (o) => {
-            if (!drawing || canvas.findTarget(o.e)) return;
-            down = true;
-            const p = canvas.getPointer(o.e);
-            sx = p.x; sy = p.y;
-            currentRect = new fabric.Rect({
-              left: sx, top: sy, width: 0, height: 0,
-              fill: "rgba(84,192,97,.3)", stroke: "#54C061", strokeWidth: 1
-            });
-            currentRect.action = { type: "uri", uri: "https://www.sakura.com.tw/" };
-            canvas.add(currentRect);
-          });
-          canvas.on("mouse:move", (o) => {
-            if (!down) return;
-            const p = canvas.getPointer(o.e);
-            currentRect.set({
-              left: Math.min(sx, p.x),
-              top: Math.min(sy, p.y),
-              width: Math.abs(sx - p.x),
-              height: Math.abs(sy - p.y)
-            });
-            canvas.renderAll();
-          });
-          canvas.on("mouse:up", () => {
-            if (!down) return;
-            down = false;
-            drawing = false;
-            $("menu-draw-btn").innerText = "開始劃定區域";
-            this.updateOutput();
-          });
-          canvas.on("object:modified", () => this.updateOutput());
-          canvas.on("object:removed", () => this.updateOutput());
-        },
-        toggleDrawMode() {
-          drawing = true;
-          $("menu-draw-btn").innerText = "繪製區域中...";
-        },
-        updateOutput() {
-          const scale = 2500 / canvas.getWidth();
-          const areas = canvas.getObjects("rect").map((o) => {
-            let x = Math.max(0, Math.round(o.left * scale));
-            let y = Math.max(0, Math.round(o.top * scale));
-            let width = Math.round(o.getScaledWidth() * scale);
-            let height = Math.round(o.getScaledHeight() * scale);
-            if (x + width > 2500) width = 2500 - x;
-            if (y + height > currentHeight) height = currentHeight - y;
-            return { bounds: { x, y, width, height }, action: cleanAction(o.action || {}) };
-          });
-          const config = {
-            size: { width: 2500, height: currentHeight },
-            selected: true,
-            name: $("save-filename").value || "New Rich Menu",
-            chatBarText: $("rich-menu-chatbar").value || "選單",
-            aliasId: $("rich-menu-alias-id").value || "",
-            areas
-          };
-          $("json-output").value = JSON.stringify(config, null, 2);
-          this.renderAreaEditor(areas);
-        },
-        renderAreaEditor(areas) {
-          $("editor-ui").innerHTML = areas.map((area, idx) => {
-            const type = area.action.type || "uri";
-            const value = type === "richmenuswitch" ? (area.action.richMenuAliasId || "") : (area.action.uri || area.action.text || area.action.data || "");
-            const placeholder = type === "richmenuswitch" ? "目標 Alias ID，例如 twmem-menu、indo-menu、taimem-menu" : "網址、文字或 data";
-            const mainChange = type === "richmenuswitch" ? `MenuModule.setValue(${idx}, this.value, 'richMenuAliasId')` : `MenuModule.setValue(${idx}, this.value)`;
-            const extra = type === "postback"
-              ? `<input class="w-full border mt-2 p-3 text-xs rounded-lg" value="${escapeAttr(area.action.displayText || "")}" placeholder="顯示文字（選填）" onchange="MenuModule.setValue(${idx}, this.value, 'displayText')">`
-              : type === "richmenuswitch"
-                ? `<input class="w-full border mt-2 p-3 text-xs rounded-lg bg-slate-100 text-slate-500" value="${escapeAttr(switchDataForAlias(area.action.richMenuAliasId))}" placeholder="系統自動產生 switch:alias" readonly>`
-                : "";
-            return `<div class="p-5 mx-5 my-2 bg-white border border-slate-200 rounded-2xl shadow-sm">
-              <div class="font-black mb-3 text-xs text-slate-400">區域 #${idx + 1}</div>
-              <select class="w-full border mb-3 p-3 rounded-lg text-[14px] font-bold bg-slate-50" onchange="MenuModule.setType(${idx}, this.value)">
-                <option value="uri" ${type === "uri" ? "selected" : ""}>開啟網址</option>
-                <option value="message" ${type === "message" ? "selected" : ""}>傳送文字</option>
-                <option value="postback" ${type === "postback" ? "selected" : ""}>Postback</option>
-                <option value="richmenuswitch" ${type === "richmenuswitch" ? "selected" : ""}>切換選單</option>
-              </select>
-              <input class="w-full border p-3 text-xs rounded-lg" value="${escapeAttr(value)}" placeholder="${placeholder}" onchange="${mainChange}">
-              ${extra}
-              <button onclick="MenuModule.remove(${idx})" class="w-full mt-3 py-2 bg-red-50 text-red-500 rounded-lg text-xs font-bold">刪除區域</button>
-            </div>`;
-          }).join("");
-        },
-        setType(index, type) {
-          const rect = canvas.getObjects("rect")[index];
-          if (!rect) return;
-          if (type === "uri") rect.action = { type, uri: "https://www.sakura.com.tw/" };
-          else if (type === "postback") rect.action = { type, data: "", displayText: "" };
-          else if (type === "richmenuswitch") rect.action = { type, richMenuAliasId: "", data: "" };
-          else rect.action = { type: "message", text: "" };
-          this.updateOutput();
-        },
-        setValue(index, value, prop) {
-          const rect = canvas.getObjects("rect")[index];
-          if (!rect) return;
-          const action = rect.action || { type: "uri" };
-          const key = prop || (action.type === "uri" ? "uri" : action.type === "message" ? "text" : "data");
-          action[key] = value;
-          if (action.type === "richmenuswitch") {
-            action.richMenuAliasId = normalizeAliasId(action.richMenuAliasId);
-            action.data = switchDataForAlias(action.richMenuAliasId);
-          }
-          rect.action = action;
-          this.updateOutput();
-        },
-        remove(index) {
-          const rect = canvas.getObjects("rect")[index];
-          if (rect) canvas.remove(rect);
-          this.updateOutput();
-        },
-        importAreas(areas, scale) {
-          canvas.getObjects("rect").forEach((o) => canvas.remove(o));
-          areas.forEach((area) => {
-            const rect = new fabric.Rect({
-              left: area.bounds.x * scale,
-              top: area.bounds.y * scale,
-              width: area.bounds.width * scale,
-              height: area.bounds.height * scale,
-              fill: "rgba(84,192,97,.3)",
-              stroke: "#54C061",
-              strokeWidth: 1
-            });
-            rect.action = area.action || { type: "uri", uri: "https://www.sakura.com.tw/" };
-            canvas.add(rect);
-          });
-          canvas.renderAll();
-          this.updateOutput();
-        },
-        showSyncStatus(message, type = "loading") {
-          let box = document.getElementById("rich-menu-sync-status");
-          if (!box) {
-            box = document.createElement("div");
-            box.id = "rich-menu-sync-status";
-            box.style.cssText = "position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:200;background:#0f172a;color:#fff;border-radius:999px;padding:10px 18px;font-weight:800;font-size:14px;box-shadow:0 14px 34px rgba(15,23,42,.22);transition:opacity .2s ease, transform .2s ease;";
-            document.body.appendChild(box);
-          }
-          const color = type === "success" ? "#06c755" : type === "error" ? "#e11d48" : "#0f172a";
-          box.style.background = color;
-          box.style.opacity = "1";
-          box.style.transform = "translateX(-50%) translateY(0)";
-          box.textContent = message;
-          if (type !== "loading") {
-            clearTimeout(box._timer);
-            box._timer = setTimeout(() => {
-              box.style.opacity = "0";
-              box.style.transform = "translateX(-50%) translateY(-8px)";
-            }, 3000);
-          }
-        },
-        flashCanvas() {
-          const target = document.getElementById("menu-canvas-container");
-          if (!target) return;
-          target.style.transition = "box-shadow .18s ease, outline-color .18s ease, transform .18s ease";
-          target.style.outline = "4px solid #06c755";
-          target.style.boxShadow = "0 0 0 8px rgba(6,199,85,.16), 0 24px 60px rgba(15,23,42,.18)";
-          target.style.transform = "scale(1.01)";
-          setTimeout(() => {
-            target.style.outline = "0 solid transparent";
-            target.style.boxShadow = "";
-            target.style.transform = "";
-          }, 520);
-        },
-        async reloadFromD1(id, doneMessage) {
-          if (!id) return null;
-          this.showSyncStatus("正在從 D1 重新讀取最新版本...", "loading");
-          const item = await ApiHelper.call("RICH_MENU_LOAD", { id });
-          const config = item.config || {};
-          this.load(item.name || config.name || "Rich Menu", {
-            ...config,
-            id: item.id || id,
-            name: item.name || config.name,
-            chatBarText: item.chatBarText || item.chat_bar_text || config.chatBarText,
-            aliasId: item.aliasId || config.aliasId || config.richMenuAliasId || "",
-            areas: item.areas || config.areas || []
-          }, item.imageUrl || item.image_url || "");
-          this.flashCanvas();
-          this.showSyncStatus(doneMessage || "已從 D1 重新載入最新版本", "success");
-          return item;
-        },        openDeployModal() {
-          $("deploy-api-url").value = location.origin + "/api";
-          $("deploy-error-msg").classList.add("hidden");
-          const defaultBox = $("set-default-rich-menu");
-          if (defaultBox) defaultBox.checked = Boolean(this.getSnapshot().isDefaultHome);
-          $("deploy-modal").classList.remove("hidden");
-        },
-        closeDeployModal() {
-          $("deploy-modal").classList.add("hidden");
-        },
-        async executeDeploy() {
-          const err = $("deploy-error-msg");
-          const btn = $("deploy-submit-btn");
-          const show = (message) => {
-            err.textContent = message;
-            err.classList.remove("hidden");
-          };
-          try {
-            const config = JSON.parse($("json-output").value || "{}");
-            const deployImageBase64 = this.getDeployImageBase64();
-            if (!deployImageBase64) return show("請先上傳底圖，或確認已載入的 D1 圖片可被重新部署。");
-            if (!config.areas || !config.areas.length) return show("請至少劃定一個區域。");
-            if (Math.abs(config.size.height - 1686) < 120) config.size.height = 1686;
-            else if (Math.abs(config.size.height - 843) < 120) config.size.height = 843;
-            else return show("圖片比例不符合 LINE 規範，請使用 2500x1686 或 2500x843。");
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>部署中...';
-            this.showSyncStatus("正在部署至 LINE...", "loading");
-            const aliasForDeploy = $("rich-menu-alias-id").value || config.aliasId || "";
-            const setDefault = $("set-default-rich-menu") && $("set-default-rich-menu").checked === true;
-            const result = await ApiHelper.call("DEPLOY_RICH_MENU", { id: currentId || config.aliasId || config.name, richMenuConfig: { ...config, isDefaultHome: setDefault }, imageBase64: deployImageBase64, aliasId: aliasForDeploy, setDefault });
-            const projectId = result && result.project && result.project.id ? result.project.id : (currentId || config.aliasId || config.name);
-            if (projectId) currentId = projectId;
-            this.closeDeployModal();
-            this.showSyncStatus("LINE 已部署，正在回讀 D1 最新版本...", "loading");
-            if (projectId) await this.reloadFromD1(projectId, "部署完成，已重新載入 D1 最新版本");
-            await StorageModule.renderList();
-          } catch (e) {
-            show(e.message);
-          } finally {
-            btn.disabled = false;
-            btn.textContent = "啟動部署";
-          }
-        }      };
-    })();
-
-    window.StorageModule = (function() {
-      const escapeHtml = (v) => String(v || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-      const formatTime = (v) => {
-        if (!v) return "尚未更新";
-        const d = new Date(v.replace(" ", "T"));
-        return Number.isNaN(d.getTime()) ? v : d.toLocaleString("zh-TW");
-      };
-      async function fetchList() {
-        const data = await ApiHelper.call("RICH_MENU_LIST", {});
-        return Array.isArray(data) ? data : [];
-      }
-      return {
-        closeSwitchDiagnose() {
-          const modal = document.getElementById("switch-diag-modal");
-          if (modal) modal.classList.add("hidden");
-        },
-        formatDiagTime(value) {
-          const text = String(value || "").trim();
-          if (!text) return "";
-          return text.replace("T", " ").replace(/\.\d+Z?$/, "");
-        },
-        renderSwitchRows(rows) {
-          const box = document.getElementById("switch-diag-rows");
-          if (!box) return;
-          const list = Array.isArray(rows) ? rows : [];
-          if (!list.length) {
-            box.innerHTML = '<tr><td colspan="9" class="p-5 text-slate-500">目前沒有切換紀錄。</td></tr>';
-            return;
-          }
-          box.innerHTML = list.map((row) => {
-            const ok = Number(row.ok || 0) === 1;
-            const kind = row.kind === "line_postback" ? "LINE 回報" : (row.kind === "switch_target" ? "目標檢測" : "頁面檢測");
-            const status = row.switch_status || row.switchStatus || (ok ? "OK" : "異常");
-            const badge = ok ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700";
-            const sourceAlias = row.source_alias_id || row.sourceAliasId || "";
-            const targetAlias = row.target_alias_id || row.targetAliasId || "";
-            const latency = row.latency_ms || row.latencyMs || "";
-            return `<tr class="bg-white">
-              <td class="p-3 whitespace-nowrap text-slate-600">${escapeHtml(this.formatDiagTime(row.line_event_at || row.checked_at || row.checkedAt))}</td>
-              <td class="p-3 font-bold">${escapeHtml(kind)}</td>
-              <td class="p-3 text-xs text-slate-500 max-w-[150px] truncate">${escapeHtml(row.line_user_id || row.lineUserId || "")}</td>
-              <td class="p-3"><div class="font-bold">${escapeHtml(targetAlias || "-")}</div><div class="text-xs text-slate-400">from ${escapeHtml(sourceAlias || "-")}</div></td>
-              <td class="p-3 text-xs text-slate-500 max-w-[180px] truncate">${escapeHtml(row.d1_rich_menu_id || row.d1RichMenuId || "")}</td>
-              <td class="p-3 text-xs text-slate-500 max-w-[180px] truncate">${escapeHtml(row.line_rich_menu_id || row.lineRichMenuId || "")}</td>
-              <td class="p-3"><span class="px-2 py-1 rounded-full text-xs font-black ${badge}">${escapeHtml(status)}</span></td>
-              <td class="p-3 whitespace-nowrap">${latency ? escapeHtml(latency + " ms") : "-"}</td>
-              <td class="p-3 text-slate-600">${escapeHtml(row.note || "")}</td>
-            </tr>`;
-          }).join("");
-        },
-        ensureSwitchDiagModal() {
-          let modal = document.getElementById("switch-diag-modal");
-          if (modal) return modal;
-          modal = document.createElement("div");
-          modal.id = "switch-diag-modal";
-          modal.className = "hidden fixed inset-0 bg-black/50 z-[95] flex items-center justify-center backdrop-blur-sm";
-          modal.innerHTML = '<div class="bg-white rounded-2xl shadow-2xl w-[94%] max-w-6xl max-h-[86vh] flex flex-col overflow-hidden"><div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between"><div><h3 class="font-black text-xl text-slate-900">Rich Menu 切換時間紀錄</h3><p class="text-xs text-slate-500 mt-1">包含 LINE 實際 postback 回報與 alias API 主動診斷。</p></div><button onclick="StorageModule.closeSwitchDiagnose()" class="text-slate-400 hover:text-slate-700 text-xl"><i class="fas fa-times"></i></button></div><div id="switch-diag-summary" class="px-6 py-3 bg-slate-50 border-b border-slate-200 text-sm text-slate-600">尚未執行診斷。</div><div class="overflow-auto p-6"><table class="w-full text-sm border border-slate-200 rounded-xl overflow-hidden"><thead class="bg-slate-100 text-slate-600"><tr><th class="text-left p-3">時間</th><th class="text-left p-3">類型</th><th class="text-left p-3">使用者</th><th class="text-left p-3">來源/目標 Alias</th><th class="text-left p-3">D1 richMenuId</th><th class="text-left p-3">LINE richMenuId</th><th class="text-left p-3">狀態</th><th class="text-left p-3">耗時</th><th class="text-left p-3">說明</th></tr></thead><tbody id="switch-diag-rows" class="divide-y divide-slate-200"></tbody></table></div></div>';
-          document.body.appendChild(modal);
-          return modal;
-        },
-        async runSwitchDiagnose() {
-          const modal = this.ensureSwitchDiagModal();
-          const summary = document.getElementById("switch-diag-summary");
-          if (modal) modal.classList.remove("hidden");
-          if (summary) summary.textContent = "正在查詢 LINE alias 與最近切換事件...";
-          this.renderSwitchRows([]);
-          const currentAlias = document.getElementById("rich-menu-alias-id")?.value || "";
-          const diagnosis = await ApiHelper.call("RICH_MENU_SWITCH_DIAGNOSE", { aliasId: currentAlias });
-          const history = await ApiHelper.call("RICH_MENU_SWITCH_CHECKS", { limit: 80 });
-          const rows = Array.isArray(history) ? history : [];
-          const ok = diagnosis && typeof diagnosis.ok === "number" ? diagnosis.ok : (diagnosis.rows || []).filter((row) => row.ok).length;
-          const total = diagnosis && typeof diagnosis.total === "number" ? diagnosis.total : (diagnosis.rows || []).length;
-          const failed = diagnosis && typeof diagnosis.failed === "number" ? diagnosis.failed : Math.max(0, total - ok);
-          if (summary) summary.textContent = `本次主動診斷 ${total} 筆，正常 ${ok} 筆，異常 ${failed} 筆。LINE 原生切換會另以 postback 回報 SUCCESS。`;
-          this.renderSwitchRows(rows);
-        },
-        async toggleDrawer() {
-          const drawer = document.getElementById("right-drawer");
-          const overlay = document.getElementById("right-drawer-overlay");
-          if (drawer.classList.contains("translate-x-full")) {
-            drawer.classList.remove("translate-x-full");
-            overlay.classList.remove("hidden");
-            await this.renderList();
-          } else {
-            drawer.classList.add("translate-x-full");
-            overlay.classList.add("hidden");
-          }
-        },
-        async saveCurrent(asNew, quiet) {
-          const snap = MenuModule.getSnapshot();
-          if (!snap.image) {
-            if (!quiet) alert("請先載入底圖。");
-            return;
-          }
-          const payload = {
-            id: asNew ? "" : (snap.id || MenuModule.getCurrentId() || ""),
-            name: snap.name,
-            chatBarText: snap.chatBarText,
-            config: { ...snap.config, aliasId: snap.aliasId },
-            imageName: snap.name,
-          };
-          if (snap.image && snap.image.startsWith("data:image/")) payload.imageBase64 = snap.image;
-          else payload.imageUrl = snap.imageUrl || snap.image || "";
-          const result = await ApiHelper.call("RICH_MENU_SAVE", payload);
-          if (result && result.id) MenuModule.setCurrentId(result.id);
-          await this.renderList();
-          if (!quiet) alert("已儲存至 D1 檔案庫。");
-        },
-        async load(id) {
-          const item = await ApiHelper.call("RICH_MENU_LOAD", { id });
-          const config = item.config || {};
-          const image = item.imageUrl || item.image_url || "";
-          MenuModule.setCurrentId(item.id || id);
-          MenuModule.load(item.name || config.name || "Rich Menu", {
-            ...config,
-            id: item.id || id,
-            name: item.name || config.name,
-            chatBarText: item.chatBarText || item.chat_bar_text || config.chatBarText,
-            aliasId: item.aliasId || config.aliasId || config.richMenuAliasId || "",
-            areas: item.areas || config.areas || []
-          }, image);
-          const current = MenuModule.getSnapshot();
-          if (item.isDefaultHome || config.isDefaultHome) MenuModule.load(current.name, { ...current.config, isDefaultHome: true }, current.image);
-          const drawer = document.getElementById("right-drawer");
-          const overlay = document.getElementById("right-drawer-overlay");
-          drawer.classList.add("translate-x-full");
-          overlay.classList.add("hidden");
-        },
-        async setDefaultHome(id) {
-          const result = await ApiHelper.call("RICH_MENU_SET_DEFAULT_HOME", { id });
-          await this.renderList();
-          if (MenuModule.getCurrentId() === id) {
-            const current = MenuModule.getSnapshot();
-            MenuModule.load(current.name, { ...current.config, isDefaultHome: true }, current.image);
-          }
-          alert((result && result.message) || "已設定訪客預設首頁。");
-        },
-        async remove(id) {
-          if (!confirm("確定刪除此 D1 Rich Menu 專案？")) return;
-          await ApiHelper.call("RICH_MENU_DELETE", { id });
-          if (MenuModule.getCurrentId() === id) MenuModule.setCurrentId("");
-          await this.renderList();
-        },
-        async renderList() {
-          const box = document.getElementById("saved-files-list");
-          if (!box) return;
-          box.innerHTML = '<div class="bg-white border border-slate-200 rounded-2xl p-5 text-slate-500 text-sm">讀取 D1 檔案庫中...</div>';
-          try {
-            const keyword = (document.getElementById("library-search")?.value || "").toLowerCase();
-            const list = (await fetchList()).filter((item) => !keyword || JSON.stringify(item).toLowerCase().includes(keyword));
-            if (!list.length) {
-              box.innerHTML = '<div class="bg-white border border-dashed border-slate-300 rounded-2xl p-6 text-slate-500 text-sm leading-7">D1 目前沒有 Rich Menu 專案。<br>上傳底圖、劃定區域後，按「另存新檔」即可建立。</div>';
-              return;
+        const ApiHelper = {
+            async request(action, payload = {}) {
+                const response = await fetch(location.origin + "/api", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action, payload, data: payload })
+                });
+                const text = await response.text();
+                let json;
+                try {
+                    json = JSON.parse(text);
+                } catch (_) {
+                    throw new Error("伺服器回應格式錯誤，請稍後再試。");
+                }
+                if (!response.ok || json.success === false || json.status === "error") {
+                    throw new Error(json.message || "操作失敗，請稍後再試。");
+                }
+                return json.data ?? json;
+            },
+            async call(action, payload = {}) {
+                if (action === "UPLOAD_IMAGE") {
+                    return { url: payload.imageBase64 || "" };
+                }
+                if (action === "DEPLOY_RICH_MENU") {
+                    const meta = window.StorageModule?.getCurrentMeta?.() || {};
+                    const config = { ...(payload.richMenuConfig || {}) };
+                    if (meta.aliasId && !config.aliasId) config.aliasId = meta.aliasId;
+                    payload = {
+                        ...payload,
+                        id: payload.id || meta.id || config.name || "",
+                        aliasId: payload.aliasId || config.aliasId || meta.aliasId || "",
+                        richMenuConfig: config
+                    };
+                }
+                return this.request(action, payload);
             }
-            box.innerHTML = list.map((item) => {
-              const deployed = item.deployedRichMenuId || item.deployed_rich_menu_id || "";
-              const alias = item.aliasId || item.alias_id || "";
-              const areaCount = item.areaCount ?? item.area_count ?? 0;
-              const isDefault = item.isDefaultHome === true || item.isDefaultHome === 1;
-              return `
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative">
-                  <button onclick="StorageModule.remove('${escapeHtml(item.id)}')" class="absolute top-4 right-4 text-slate-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
-                  <div class="font-black text-sm mb-1 pr-8">${escapeHtml(item.name)}</div>
-                  <div class="text-[11px] text-slate-400 mb-2">${escapeHtml(formatTime(item.updatedAt || item.updated_at))} / ${areaCount} 區</div>
-                  <div class="flex flex-wrap gap-1 mb-3 text-[11px]">
-                    ${alias ? `<span class="px-2 py-1 rounded-full bg-blue-50 text-blue-700">alias: ${escapeHtml(alias)}</span>` : '<span class="px-2 py-1 rounded-full bg-red-50 text-red-600">未設 alias</span>'}
-                    ${deployed ? '<span class="px-2 py-1 rounded-full bg-green-50 text-green-700">已部署</span>' : '<span class="px-2 py-1 rounded-full bg-amber-50 text-amber-700">未部署</span>'}
-                    ${isDefault ? '<span class="px-2 py-1 rounded-full bg-rose-50 text-rose-700">訪客首頁</span>' : ''}
-                  </div>
-                  <label class="mb-3 flex cursor-pointer items-center justify-between gap-3 rounded-xl border ${isDefault ? 'border-rose-300 bg-rose-50 text-rose-700 ring-2 ring-rose-100' : 'border-slate-200 bg-slate-50 text-slate-700'} px-4 py-3 text-sm font-black">
-                    <span class="flex flex-col leading-5"><span>????????</span><span class="text-[11px] font-medium ${isDefault ? 'text-rose-600' : 'text-slate-400'}">?????? LINE ??????</span></span>
-                    <input type="checkbox" ${isDefault ? 'checked' : ''} onchange="StorageModule.setDefaultHome('${escapeHtml(item.id)}')" class="h-5 w-5 accent-rose-600">
-                  </label>
-                  <div class="flex gap-2">
-                    <button onclick="StorageModule.load('${escapeHtml(item.id)}')" class="flex-1 py-2 bg-orange-50 text-orange-600 font-black rounded-xl border border-orange-100 text-[13px]">??</button>
-                    <button onclick="StorageModule.saveCurrent(false)" class="flex-1 py-2 bg-green-50 text-[#06C755] font-black rounded-xl border border-green-100 text-[13px]">????</button>
-                  </div>
-                </div>`;
-            }).join("");
-          } catch (err) {
-            box.innerHTML = `<div class="bg-red-50 border border-red-100 rounded-2xl p-5 text-red-600 text-sm leading-7">D1 檔案庫讀取失敗：${escapeHtml(err.message || err)}</div>`;
-          }
-        }
-      };
-    })();
-    MenuModule.init();
-  </script>
+        };
+
+        window.MenuModule = (function() {
+            var canvas, isDrawingMode = false, isMouseDown = false, currentRect, startX, startY, currentImgHeight = 843, savedBase64Image = null, deployBase64Image = null, currentMenuConfig = null, uploadGeneration = 0, imageLoadGeneration = 0;
+            return {
+                init: function() {
+                    canvas = new fabric.Canvas('menu-canvas', { selection: true });
+                    this.bindEvents();
+
+                    document.getElementById('image-upload').addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const uploadToken = ++uploadGeneration;
+
+                        const btn = document.querySelector('button[onclick="document.getElementById(\'image-upload\').click()"]');
+                        const origHtml = btn.innerHTML;
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>雲端 R2 上傳中...';
+                        btn.disabled = true;
+
+                        const reader = new FileReader();
+                        reader.onload = (f) => {
+                            if (uploadToken !== uploadGeneration) return;
+                            const img = new Image();
+                            img.onload = async () => {
+                                if (uploadToken !== uploadGeneration) return;
+                                const cvs = document.createElement('canvas');
+                                cvs.width = img.width; cvs.height = img.height;
+                                const ctx = cvs.getContext('2d');
+                                ctx.drawImage(img, 0, 0);
+
+                                let quality = 0.9;
+                                let b64 = cvs.toDataURL('image/jpeg', quality);
+                                while (b64.length > 1000000 && quality > 0.3) {
+                                    quality -= 0.1;
+                                    b64 = cvs.toDataURL('image/jpeg', quality);
+                                }
+
+                                if (b64.length > 1048576) {
+                                    alert('❌ 圖片尺寸過大，無法安全壓縮至 1MB 以下，請自行處理後再上傳');
+                                    btn.innerHTML = origHtml; btn.disabled = false; return;
+                                }
+
+                                try {
+                                    const res = await ApiHelper.call('UPLOAD_IMAGE', { imageBase64: b64 });
+                                    if (uploadToken !== uploadGeneration) return;
+                                    if (res && res.url) {
+                                        // 只替換底圖，保留目前選單名稱、熱區與 action 參數。
+                                        const currentConfig = JSON.stringify(MenuModule.getCurrentConfig());
+                                        MenuModule.load(file.name, encodeURIComponent(currentConfig), res.url, b64);
+                                    } else {
+                                        throw new Error('R2 URL 回傳失敗');
+                                    }
+                                } catch (err) {
+                                    if (uploadToken !== uploadGeneration) return;
+                                    // 若失敗則退回使用純 Base64，但仍保留原本熱區設定。
+                                    const currentConfig = JSON.stringify(MenuModule.getCurrentConfig());
+                                    MenuModule.load(file.name, encodeURIComponent(currentConfig), b64);
+                                } finally {
+                                    if (uploadToken === uploadGeneration) {
+                                        btn.innerHTML = origHtml; btn.disabled = false;
+                                    }
+                                }
+                            };
+                            img.src = f.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                },
+                getCurrentBase64: () => {
+                    if (deployBase64Image && deployBase64Image.startsWith('data:image')) {
+                        return deployBase64Image;
+                    }
+                    if (savedBase64Image && savedBase64Image.startsWith('data:image')) {
+                        return savedBase64Image;
+                    }
+                    if (canvas && canvas.backgroundImage && canvas.backgroundImage._element) {
+                        try {
+                            const tempCvs = document.createElement('canvas');
+                            tempCvs.width = canvas.backgroundImage.width;
+                            tempCvs.height = canvas.backgroundImage.height;
+                            const tCtx = tempCvs.getContext('2d');
+                            tCtx.drawImage(canvas.backgroundImage._element, 0, 0);
+                            return tempCvs.toDataURL('image/jpeg', 0.9);
+                        } catch(e) {
+                            console.error("Canvas 轉換 Base64 失敗:", e);
+                        }
+                    }
+                    return savedBase64Image;
+                },
+                setDeployBase64: (base64) => {
+                    if (base64 && base64.startsWith('data:image')) deployBase64Image = base64;
+                },
+                updateMenuAlias: function(value) {
+                    const aliasId = String(value || "").trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32);
+                    document.getElementById('rich-menu-alias-id').value = aliasId;
+                    this.updateOutput();
+                },
+                getCurrentConfig: function() {
+                    const output = document.getElementById('json-output').value;
+                    try {
+                        const parsed = JSON.parse(output || "{}");
+                        if (parsed && Array.isArray(parsed.areas)) return JSON.parse(JSON.stringify(parsed));
+                    } catch(e) {}
+                    if (currentMenuConfig && Array.isArray(currentMenuConfig.areas)) {
+                        return JSON.parse(JSON.stringify(currentMenuConfig));
+                    }
+                    const scale = canvas && canvas.getWidth() ? 2500 / canvas.getWidth() : 1;
+                    const areas = canvas ? canvas.getObjects('rect').map(o => ({
+                        bounds: {
+                            x: Math.max(0, Math.round(o.left * scale)),
+                            y: Math.max(0, Math.round(o.top * scale)),
+                            width: Math.round(o.getScaledWidth() * scale),
+                            height: Math.round(o.getScaledHeight() * scale)
+                        },
+                        action: JSON.parse(JSON.stringify(o.action || { type: 'message', text: '' }))
+                    })) : [];
+                    return {
+                        size: { width: 2500, height: currentImgHeight },
+                        selected: true,
+                        name: document.getElementById('save-filename').value,
+                        chatBarText: document.getElementById('rich-menu-chatbar').value,
+                        aliasId: document.getElementById('rich-menu-alias-id').value,
+                        areas
+                    };
+                },
+                load: function(name, jsonStr, base64, deployBase64Override, onComplete) {
+                    const loadToken = ++imageLoadGeneration;
+                    try {
+                        var data = {}; try { data = JSON.parse(decodeURIComponent(jsonStr || "{}")); } catch(e) {}
+                        var tempImg = new Image();
+                        tempImg.crossOrigin = "anonymous";
+                        tempImg.onload = () => {
+                            if (loadToken !== imageLoadGeneration) return;
+                            var ratio = tempImg.height / tempImg.width;
+                            var nextImgHeight = Math.round(2500 * ratio);
+                            var img = new fabric.Image(tempImg);
+                            if (loadToken !== imageLoadGeneration) return;
+                            savedBase64Image = base64;
+                            currentImgHeight = nextImgHeight;
+                            deployBase64Image = deployBase64Override && deployBase64Override.startsWith('data:image')
+                                ? deployBase64Override
+                                : (base64 && base64.startsWith('data:image') ? base64 : null);
+                            if (data.name) document.getElementById('save-filename').value = data.name;
+                            if (data.chatBarText) document.getElementById('rich-menu-chatbar').value = data.chatBarText;
+                            document.getElementById('rich-menu-alias-id').value = data.aliasId || data.richMenuAliasId || "";
+                            document.getElementById('canvas-placeholder').style.display = 'none';
+                            canvas.setWidth(600); canvas.setHeight(600 * ratio);
+                            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), { scaleX: 600 / img.width, scaleY: (600 * ratio) / img.height });
+                            this.importAreas(data.areas || [], 600 / 2500);
+                            if (typeof onComplete === 'function') onComplete(true);
+                        };
+                        tempImg.onerror = () => {
+                            if (loadToken !== imageLoadGeneration) return;
+                            const error = new Error('圖片網址載入失敗');
+                            alert('載入底圖失敗，格式可能有誤或網址失效');
+                            if (typeof onComplete === 'function') onComplete(false, error);
+                        };
+                        tempImg.src = base64;
+                    } catch (err) {
+                        alert('載入選單發生錯誤');
+                        console.error(err);
+                        if (typeof onComplete === 'function') onComplete(false, err);
+                    }
+                },
+                bindEvents: function() {
+                    canvas.on('mouse:down', (o) => { if (!isDrawingMode || canvas.findTarget(o.e)) return; isMouseDown = true; var pointer = canvas.getPointer(o.e); startX = pointer.x; startY = pointer.y; currentRect = new fabric.Rect({ left: startX, top: startY, width: 0, height: 0, fill: 'rgba(84, 192, 97, 0.3)', stroke: '#54C061', strokeWidth: 1 }); currentRect.action = { type: 'message', text: '' }; canvas.add(currentRect); });
+                    canvas.on('mouse:move', (o) => { if (!isMouseDown) return; var pointer = canvas.getPointer(o.e); currentRect.set({ left: Math.min(startX, pointer.x), top: Math.min(startY, pointer.y), width: Math.abs(startX - pointer.x), height: Math.abs(startY - pointer.y) }); canvas.renderAll(); });
+                    canvas.on('mouse:up', () => { if (!isMouseDown) return; isMouseDown = false; isDrawingMode = false; document.getElementById('menu-draw-btn').innerText = '開始劃定區域'; this.updateOutput(); });
+                    canvas.on('object:modified', () => this.updateOutput());
+                },
+                toggleDrawMode: function() { isDrawingMode = true; document.getElementById('menu-draw-btn').innerText = '繪製區域中...'; },
+                updateOutput: function() {
+                    var scale = 2500 / canvas.getWidth();
+                    var areas = canvas.getObjects('rect').map(o => {
+                        let x = Math.max(0, Math.round(o.left * scale));
+                        let y = Math.max(0, Math.round(o.top * scale));
+                        let w = Math.round(o.getScaledWidth() * scale);
+                        let h = Math.round(o.getScaledHeight() * scale);
+
+                        if (x + w > 2500) w = 2500 - x;
+                        if (y + h > currentImgHeight) h = currentImgHeight - y;
+
+                        return { bounds: { x: x, y: y, width: w, height: h }, action: o.action };
+                    });
+                    var res = { size: { width: 2500, height: currentImgHeight }, selected: true, name: document.getElementById('save-filename').value, chatBarText: document.getElementById('rich-menu-chatbar').value, aliasId: document.getElementById('rich-menu-alias-id').value, areas: areas };
+                    currentMenuConfig = JSON.parse(JSON.stringify(res));
+                    document.getElementById('json-output').value = JSON.stringify(res, null, 2); this.renderAreaEditor(areas); this.refreshCanvasLabels();
+                },
+                refreshCanvasLabels: function() { canvas.getObjects('text').forEach(l => canvas.remove(l)); canvas.getObjects('rect').forEach((r, idx) => { canvas.add(new fabric.Text('#' + (idx + 1), { left: r.left + 5, top: r.top + 5, fontSize: 14, fill: '#fff', backgroundColor: '#54C061', selectable: false })); }); },
+                renderAreaEditor: function(areas) {
+                    var container = document.getElementById('editor-ui'); container.innerHTML = '';
+                    const esc = (value) => String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    areas.forEach((a, idx) => {
+                        var div = document.createElement('div'); div.className = "p-5 mx-5 my-2 bg-white border border-slate-200 rounded-2xl shadow-sm";
+                        a.action = a.action || { type: "uri", uri: "" };
+                        var type = a.action.type || "uri";
+                        var html = `<div class='font-black mb-3 text-xs text-slate-400 uppercase tracking-tighter'>區域 #${idx+1}</div>
+                        <select class='w-full border mb-3 p-3 rounded-lg text-[14px] font-bold bg-slate-50' onchange='MenuModule.updateAreaProp(${idx}, "type", this.value)'>
+                            <option value="uri" ${type==="uri"?"selected":""}>開啟網址 (URI)</option>
+                            <option value="message" ${type==="message"?"selected":""}>傳送文字 (Message)</option>
+                            <option value="postback" ${type==="postback"?"selected":""}>回傳指令 (Postback)</option>
+                            <option value="richmenuswitch" ${type==="richmenuswitch"?"selected":""}>切換選單 (Switch)</option>
+                        </select>`;
+
+                        if (type === 'uri') {
+                            html += `<input class='w-full border p-3 text-xs font-mono rounded-lg' value="${esc(a.action.uri)}" placeholder='https://' onchange='MenuModule.updateAreaProp(${idx}, "uri", this.value)'>`;
+                        } else if (type === 'message') {
+                            html += `<input class='w-full border p-3 text-xs rounded-lg' value="${esc(a.action.text)}" placeholder='點擊後發送的文字' onchange='MenuModule.updateAreaProp(${idx}, "text", this.value)'>`;
+                        } else if (type === 'postback') {
+                            html += `<input class='w-full border mb-2 p-3 text-xs font-mono rounded-lg bg-indigo-50 border-indigo-200 text-indigo-700 font-bold placeholder-indigo-300' value="${esc(a.action.data)}" placeholder='回傳 Data (須跟後台"觸發關鍵字"完全相同)' onchange='MenuModule.updateAreaProp(${idx}, "data", this.value)'>
+                                     <input class='w-full border p-3 text-xs rounded-lg' value="${esc(a.action.displayText || a.action.text)}" placeholder='畫面上顯示的文字 (讓學員知道有點成功)' onchange='MenuModule.updateAreaProp(${idx}, "displayText", this.value)'>`;
+                        } else if (type === 'richmenuswitch') {
+                            var switchAliasId = String(a.action.richMenuAliasId || '').trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32);
+                            a.action.richMenuAliasId = switchAliasId;
+                            a.action.data = switchAliasId ? 'switch:' + switchAliasId : '';
+                            html += `<div class='mb-3 rounded-xl border border-sky-200 bg-sky-50 p-3 text-xs leading-5 text-sky-800'>
+                                        <div class='font-black'>切換目標設定</div>
+                                        <p class='mt-1'>請填「要切換前往的選單」Alias ID；data 會由系統自動產生。</p>
+                                     </div>
+                                     <div class='mb-3'>
+                                        <label class='mb-1.5 block text-xs font-black text-slate-700'>切換目標 Alias ID <span class='text-red-500'>必填</span></label>
+                                        <input class='w-full border p-3 text-xs font-mono rounded-lg' value="${esc(a.action.richMenuAliasId)}" placeholder='例如：guest_zh、twmem-menu、taimem-menu' onchange='MenuModule.updateAreaProp(${idx}, "richMenuAliasId", this.value)'>
+                                        <p class='mt-1.5 text-[11px] leading-5 text-slate-500'>填目標選單的 Alias ID，不要填選單名稱（例如 SKU-Tw）或 richmenu-xxxx。</p>
+                                     </div>
+                                     <div>
+                                        <label class='mb-1.5 block text-xs font-black text-slate-700'>回傳參數 data <span class='text-emerald-600'>系統自動產生</span></label>
+                                        <input class='w-full border p-3 text-xs font-mono rounded-lg bg-slate-100 text-slate-600' value="${esc(a.action.data)}" placeholder='填入 Alias ID 後自動產生' readonly aria-readonly='true'>
+                                        <p class='mt-1.5 text-[11px] leading-5 text-slate-500'>格式為 switch:Alias ID，例如 <b>switch:twmem-menu</b>，不需要自行輸入。</p>
+                                     </div>`;
+                        }
+
+                        html += `<button onclick='MenuModule.removeAreaFromCanvas(${idx})' class='w-full mt-3 py-2 bg-red-50 text-red-500 rounded-lg text-xs font-bold hover:bg-red-100 transition'>刪除區域</button>`;
+
+                        div.innerHTML = html; container.appendChild(div);
+                    });
+                },
+                updateAreaProp: function(idx, prop, val) {
+                    var objects = canvas.getObjects('rect');
+                    if(objects[idx]) {
+                        if(prop==="type") {
+                            var old = objects[idx].action;
+                            objects[idx].action = { type: val };
+                            if(val==="uri") objects[idx].action.uri = old.uri || "";
+                            else if(val==="message") objects[idx].action.text = old.text || "";
+                            else if(val==="postback") {
+                                objects[idx].action.data = old.data || "";
+                                objects[idx].action.displayText = old.displayText || old.text || "";
+                            }
+                            else if(val==="richmenuswitch") {
+                                var existingAlias = String(old.richMenuAliasId || "").trim();
+                                objects[idx].action.richMenuAliasId = existingAlias;
+                                objects[idx].action.data = existingAlias ? "switch:" + existingAlias : "";
+                            }
+                        } else {
+                            if (objects[idx].action.type === "richmenuswitch" && prop === "richMenuAliasId") {
+                                var aliasId = String(val || "").trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32);
+                                objects[idx].action.richMenuAliasId = aliasId;
+                                objects[idx].action.data = aliasId ? "switch:" + aliasId : "";
+                            } else {
+                                objects[idx].action[prop] = val;
+                            }
+                        }
+                        this.updateOutput();
+                    }
+                },
+                removeAreaFromCanvas: function(idx) { var objects = canvas.getObjects('rect'); if(objects[idx]) { canvas.remove(objects[idx]); this.updateOutput(); } },
+                importAreas: function(areas, scale) { canvas.getObjects('rect').forEach(o => canvas.remove(o)); areas.forEach(a => { var r = new fabric.Rect({ left: a.bounds.x * scale, top: a.bounds.y * scale, width: a.bounds.width * scale, height: a.bounds.height * scale, fill: 'rgba(84, 192, 97, 0.3)', stroke: '#54C061', strokeWidth: 1 }); r.action = JSON.parse(JSON.stringify(a.action || { type: 'message', text: '' })); canvas.add(r); }); canvas.renderAll(); this.updateOutput(); },
+                openDeployModal: () => {
+                    document.getElementById('deploy-api-url').value = location.origin + '/api';
+                    document.getElementById('deploy-error-msg').classList.add('hidden');
+                    document.getElementById('deploy-modal').classList.remove('hidden');
+                },
+                closeDeployModal: () => {
+                    document.getElementById('deploy-error-msg').classList.add('hidden');
+                    document.getElementById('deploy-modal').classList.add('hidden');
+                },
+
+                executeDeploy: async function() {
+                    const menuObjStr = document.getElementById('json-output').value;
+                    const errBox = document.getElementById('deploy-error-msg');
+                    errBox.classList.add('hidden');
+
+                    const showError = (msg) => {
+                        errBox.innerText = `🚫 發生錯誤：\n${msg}`;
+                        errBox.classList.remove('hidden');
+                    };
+
+                    if (!menuObjStr || menuObjStr === '{}') return showError('請先上傳底圖並劃定至少一個區域！');
+
+                    const menuObj = JSON.parse(menuObjStr);
+
+                    if (!menuObj.name) return showError('左側「選單名稱」不可為空！');
+                    if (!menuObj.chatBarText) return showError('左側「選單列文字」不可為空！');
+                    if (!menuObj.areas || menuObj.areas.length === 0) return showError('請至少在畫面上劃定一個熱區！');
+
+                    // ✅ 深度淨化 Action：確保 Postback 的 Data 必填，並且正確支援 displayText
+                    for (let i = 0; i < menuObj.areas.length; i++) {
+                        const action = menuObj.areas[i].action;
+                        if (action.type === 'message' && !action.text) return showError(`區域 #${i+1} 尚未填寫「傳送文字」內容！`);
+                        if (action.type === 'uri' && !action.uri) return showError(`區域 #${i+1} 尚未填寫「開啟網址」連結！`);
+                        if (action.type === 'postback' && !action.data) return showError(`區域 #${i+1} 尚未填寫「回傳 Data」！這是觸發後台功能的必填參數。`);
+
+                        const pureAction = { type: action.type };
+                        if (action.type === 'uri') pureAction.uri = action.uri;
+                        if (action.type === 'message') pureAction.text = action.text;
+                        if (action.type === 'postback') {
+                            pureAction.data = action.data;
+                            if (action.displayText) pureAction.displayText = action.displayText;
+                            else if (action.text) pureAction.displayText = action.text;
+                        }
+                        if (action.type === 'richmenuswitch') {
+                            pureAction.richMenuAliasId = action.richMenuAliasId;
+                            pureAction.data = action.data;
+                        }
+                        menuObj.areas[i].action = pureAction;
+                    }
+
+                    const h = menuObj.size.height;
+                    if (Math.abs(h - 1686) < 100) menuObj.size.height = 1686;
+                    else if (Math.abs(h - 843) < 100) menuObj.size.height = 843;
+                    else return showError(`您上傳的圖片比例不符合 LINE 規範！\n目前尺寸為：2500x${h}\nLINE 規定必須為：2500x1686 (大選單) 或 2500x843 (小選單)\n請重新裁切圖片後上傳。`);
+
+                    const b64ToSend = this.getCurrentBase64();
+                    if (!b64ToSend || !b64ToSend.startsWith('data:image')) {
+                        return showError('❌ 缺少「選單底圖」！LINE 官方規定部署時必須夾帶圖片。請在畫面上重新上傳您的圖片。');
+                    }
+
+                    const btn = document.getElementById('deploy-submit-btn');
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>部署中...';
+                    btn.disabled = true;
+
+                    try {
+                        const data = await ApiHelper.call('DEPLOY_RICH_MENU', {
+                            richMenuConfig: menuObj,
+                            imageBase64: b64ToSend,
+                            areas: menuObj.areas,
+                            size: menuObj.size,
+                            name: menuObj.name,
+                            chatBarText: menuObj.chatBarText
+                        });
+                        if(data) {
+                            alert('✅ 部署成功！請至 LINE 官方帳號查看最新選單。');
+                            this.closeDeployModal();
+                        }
+                    } catch (e) {
+                        showError(e.message);
+                    } finally {
+                        btn.innerHTML = '啟動部署';
+                        btn.disabled = false;
+                    }
+                }
+            };
+        })();
+
+        window.StorageModule = (function() {
+            let currentSaves = [];
+            let currentMeta = { id: "", aliasId: "" };
+            let libraryLoadGeneration = 0;
+            const escapeHtml = (value) => String(value || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+            const formatTime = (value) => {
+                if (!value) return "尚未更新";
+                const date = new Date(String(value).replace(" ", "T"));
+                return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString("zh-TW");
+            };
+            return {
+                getCurrentMeta() {
+                    return { ...currentMeta };
+                },
+                toggleDrawer() {
+                    const drawer = document.getElementById("right-drawer");
+                    const overlay = document.getElementById("right-drawer-overlay");
+                    const opening = drawer.classList.contains("translate-x-full");
+                    drawer.classList.toggle("translate-x-full", !opening);
+                    overlay.classList.toggle("hidden", !opening);
+                    if (opening) this.renderList();
+                },
+                async saveCurrent(isNew) {
+                    const image = MenuModule.getCurrentBase64();
+                    if (!image) return alert("請先載入選單圖片。");
+                    let config = {};
+                    try {
+                        config = JSON.parse(document.getElementById("json-output").value || "{}");
+                    } catch (_) {
+                        return alert("選單設定格式錯誤。");
+                    }
+                    const name = document.getElementById("save-filename").value || "未命名選單";
+                    const chatBarText = document.getElementById("rich-menu-chatbar").value || "選單";
+                    const aliasId = String(document.getElementById("rich-menu-alias-id").value || config.aliasId || currentMeta.aliasId || "").trim();
+                    const payload = {
+                        id: isNew ? "" : currentMeta.id,
+                        name,
+                        chatBarText,
+                        aliasId,
+                        config: { ...config, name, chatBarText, aliasId },
+                        imageName: name
+                    };
+                    if (image.startsWith("data:image/")) payload.imageBase64 = image;
+                    else payload.imageUrl = image;
+                    try {
+                        const saved = await ApiHelper.call("RICH_MENU_SAVE", payload);
+                        currentMeta = { id: saved.id || payload.id, aliasId };
+                        document.getElementById("rich-menu-alias-id").value = aliasId;
+                        await this.renderList();
+                        alert("已儲存至 D1 檔案庫。");
+                    } catch (error) {
+                        alert("儲存失敗：" + error.message);
+                    }
+                },
+                async loadFromIndex(index) {
+                    const summary = currentSaves[index];
+                    if (!summary) return;
+                    const loadToken = ++libraryLoadGeneration;
+                    try {
+                        const item = await ApiHelper.call("RICH_MENU_LOAD", { id: summary.id });
+                        if (loadToken !== libraryLoadGeneration) return;
+                        const config = item.config || {};
+                        const nextMeta = {
+                            id: item.id || summary.id,
+                            aliasId: item.aliasId || config.aliasId || ""
+                        };
+                        MenuModule.load(
+                            item.name || config.name || "Rich Menu",
+                            encodeURIComponent(JSON.stringify({
+                                ...config,
+                                name: item.name || config.name,
+                                chatBarText: item.chatBarText || item.chat_bar_text || config.chatBarText || "選單",
+                                aliasId: nextMeta.aliasId
+                            })),
+                            item.imageUrl || item.image_url || "",
+                            undefined,
+                            (success) => {
+                                if (loadToken !== libraryLoadGeneration || !success) return;
+                                currentMeta = nextMeta;
+                                this.toggleDrawer();
+                            }
+                        );
+                    } catch (error) {
+                        if (loadToken === libraryLoadGeneration) alert("載入失敗：" + error.message);
+                    }
+                },
+                async deleteFromIndex(index) {
+                    const item = currentSaves[index];
+                    if (!item || !confirm("確定刪除此圖文選單？")) return;
+                    try {
+                        await ApiHelper.call("RICH_MENU_DELETE", { id: item.id });
+                        if (currentMeta.id === item.id) currentMeta = { id: "", aliasId: "" };
+                        await this.renderList();
+                    } catch (error) {
+                        alert("刪除失敗：" + error.message);
+                    }
+                },
+                async renderList() {
+                    const container = document.getElementById("saved-files-list");
+                    container.innerHTML = '<div class="text-center text-slate-400 font-bold py-8"><i class="fas fa-spinner fa-spin mr-2"></i>讀取選單檔案庫...</div>';
+                    try {
+                        const result = await ApiHelper.call("RICH_MENU_LIST", {});
+                        currentSaves = Array.isArray(result) ? result : [];
+                    } catch (error) {
+                        container.innerHTML = '<div class="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl text-sm font-bold">讀取失敗：' + escapeHtml(error.message) + '</div>';
+                        return;
+                    }
+                    if (!currentSaves.length) {
+                        container.innerHTML = '<div class="text-center text-slate-400 font-bold py-8">目前沒有已儲存的圖文選單</div>';
+                        return;
+                    }
+                    container.innerHTML = currentSaves.map((item, index) =>
+                        '<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative">' +
+                            '<button onclick="StorageModule.deleteFromIndex(' + index + ')" class="absolute top-4 right-4 text-slate-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>' +
+                            '<div class="font-black text-sm mb-1 pr-8">' + escapeHtml(item.name) + '</div>' +
+                            '<div class="text-[11px] text-slate-400 mb-4">' + escapeHtml(formatTime(item.updatedAt || item.updated_at)) + '</div>' +
+                            '<button onclick="StorageModule.loadFromIndex(' + index + ')" class="w-full py-2 bg-orange-50 text-orange-600 font-black rounded-xl border border-orange-100 text-[13px]">載入選單</button>' +
+                        '</div>'
+                    ).join("");
+                }
+            };
+        })();
+        MenuModule.init();
+    </script>
 </body>
 </html>
-

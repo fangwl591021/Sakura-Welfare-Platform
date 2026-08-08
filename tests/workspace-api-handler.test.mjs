@@ -282,6 +282,31 @@ test("activity API rejects invalid time range", async () => {
   );
 });
 
+test("activity API requires the QR check-in start time", async () => {
+  const request = createRequest(
+    "/workspace-api/activity",
+    {
+      token: "session-token",
+      body: {
+        title: "員工活動",
+        startAt: "2026-09-20T18:00",
+        endAt: "2026-09-20T21:00",
+        location: "本廠",
+      },
+    },
+  );
+
+  const result = await maybeHandleWorkspaceApiRequest({
+    request,
+    url: new URL(request.url),
+    db: createActivityDb(),
+    requireAdmin: async () => ({ ok: true }),
+  });
+
+  assert.equal(result.success, false);
+  assert.match(result.message, /報到開始時間/);
+});
+
 test("authorized admin creates employee activity", async () => {
   const db = createActivityDb();
 
@@ -294,7 +319,11 @@ test("authorized admin creates employee activity", async () => {
         description: " 員工限定 ",
         startAt: "2026-09-20T18:00",
         endAt: "2026-09-20T21:00",
+        checkinStartAt: "2026-09-20T17:30",
+        checkinEndAt: "2026-09-20T21:30",
         location: " 本廠 ",
+        audienceScope: ["employee"],
+        status: "active",
       },
     },
   );
@@ -473,7 +502,10 @@ test("activity update writes existing activity", async () => {
         description: "更新說明",
         startAt: "2026-09-20T18:00",
         endAt: "2026-09-20T21:00",
+        checkinStartAt: "2026-09-20T17:30",
+        checkinEndAt: "2026-09-20T21:30",
         location: "大禮堂",
+        audienceScope: ["all", "employee"],
       }),
     },
   );

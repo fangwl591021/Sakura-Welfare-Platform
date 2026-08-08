@@ -145,8 +145,22 @@ export class WorkspaceSdk {
             data.startAt || "",
           ).trim(),
           endAt: String(data.endAt || "").trim(),
+          checkinStartAt: String(
+            data.checkinStartAt || "",
+          ).trim(),
+          checkinEndAt: String(
+            data.checkinEndAt || "",
+          ).trim(),
           location: String(
             data.location || "",
+          ).trim(),
+          audienceScope: Array.isArray(
+            data.audienceScope,
+          )
+            ? data.audienceScope
+            : [],
+          status: String(
+            data.status || "active",
           ).trim(),
           coverImageUrl: String(
             data.coverImageUrl || "",
@@ -205,9 +219,20 @@ export class WorkspaceSdk {
           endAt: String(
             data.endAt || "",
           ).trim(),
+          checkinStartAt: String(
+            data.checkinStartAt || "",
+          ).trim(),
+          checkinEndAt: String(
+            data.checkinEndAt || "",
+          ).trim(),
           location: String(
             data.location || "",
           ).trim(),
+          audienceScope: Array.isArray(
+            data.audienceScope,
+          )
+            ? data.audienceScope
+            : [],
           status: String(
             data.status || "active",
           ).trim(),

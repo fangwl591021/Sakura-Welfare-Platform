@@ -137,6 +137,16 @@
           formData.get("endTime") || "",
         ).trim();
 
+      const checkinStartAt =
+        String(
+          formData.get("checkinStartAt") || "",
+        ).trim();
+
+      const checkinEndAt =
+        String(
+          formData.get("checkinEndAt") || "",
+        ).trim();
+
       const location =
         String(
           formData.get("location") || "",
@@ -144,6 +154,16 @@
 
       const photo =
         formData.get("photo");
+
+      const audienceScope = formData
+        .getAll("audienceScope")
+        .map((value) => String(value).trim())
+        .filter(Boolean);
+
+      const status =
+        String(
+          formData.get("status") || "active",
+        ).trim();
 
       const currentDate =
         now();
@@ -278,6 +298,39 @@
         };
       }
 
+      if (!checkinStartAt) {
+        return {
+          ok: false,
+          field: "checkinStartAt",
+          message: "請選擇報到開始時間。",
+        };
+      }
+
+      const checkinStartTime = new Date(checkinStartAt).getTime();
+
+      if (!Number.isFinite(checkinStartTime)) {
+        return {
+          ok: false,
+          field: "checkinStartAt",
+          message: "報到開始時間格式不正確。",
+        };
+      }
+
+      if (checkinEndAt) {
+        const checkinEndTime = new Date(checkinEndAt).getTime();
+
+        if (
+          !Number.isFinite(checkinEndTime) ||
+          checkinEndTime <= checkinStartTime
+        ) {
+          return {
+            ok: false,
+            field: "checkinEndAt",
+            message: "報到截止時間必須晚於報到開始時間。",
+          };
+        }
+      }
+
       if (
         photo &&
         typeof photo.arrayBuffer ===
@@ -299,7 +352,14 @@
           description,
           startAt,
           endAt,
+          checkinStartAt,
+          checkinEndAt,
           location,
+          audienceScope:
+            audienceScope.length
+              ? audienceScope
+              : ["all"],
+          status,
           photo:
             photo &&
             typeof photo.arrayBuffer ===

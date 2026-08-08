@@ -6,6 +6,36 @@ function normalizeString(value) {
   return String(value || "").trim();
 }
 
+const ALLOWED_ACTIVITY_STATUSES = new Set([
+  "active",
+  "draft",
+  "closed",
+  "archived",
+]);
+
+function normalizeAudienceScope(value) {
+  const items = Array.isArray(value)
+    ? value
+    : normalizeString(value).split(",");
+
+  const allowed = new Set([
+    "all",
+    "visitor",
+    "employee",
+    "manager",
+  ]);
+
+  const normalized = [
+    ...new Set(
+      items
+        .map(normalizeString)
+        .filter((item) => allowed.has(item)),
+    ),
+  ];
+
+  return normalized.length ? normalized : ["all"];
+}
+
 export function getWorkspaceBearerToken(request) {
   const authorization = normalizeString(
     request?.headers?.get?.("authorization"),
@@ -27,6 +57,12 @@ function validateActivityInput(data = {}) {
   );
   const endAt = normalizeString(
     data.endAt || data.end_at,
+  );
+  const checkinStartAt = normalizeString(
+    data.checkinStartAt || data.checkin_start_at,
+  );
+  const checkinEndAt = normalizeString(
+    data.checkinEndAt || data.checkin_end_at,
   );
   const location = normalizeString(data.location);
 
@@ -78,6 +114,45 @@ function validateActivityInput(data = {}) {
     };
   }
 
+  if (!checkinStartAt) {
+    return {
+      ok: false,
+      message: "請選擇報到開始時間。",
+    };
+  }
+
+  const checkinStartTime = new Date(checkinStartAt).getTime();
+
+  if (!Number.isFinite(checkinStartTime)) {
+    return {
+      ok: false,
+      message: "報到開始時間格式不正確。",
+    };
+  }
+
+  if (checkinEndAt) {
+    const checkinEndTime = new Date(checkinEndAt).getTime();
+
+    if (!Number.isFinite(checkinEndTime)) {
+      return {
+        ok: false,
+        message: "報到截止時間格式不正確。",
+      };
+    }
+
+    if (checkinEndTime <= checkinStartTime) {
+      return {
+        ok: false,
+        message: "報到截止時間必須晚於報到開始時間。",
+      };
+    }
+  }
+
+  const requestedStatus = normalizeString(data.status || "active");
+  const status = ALLOWED_ACTIVITY_STATUSES.has(requestedStatus)
+    ? requestedStatus
+    : "active";
+
   return {
     ok: true,
     data: {
@@ -87,7 +162,13 @@ function validateActivityInput(data = {}) {
       ),
       startAt,
       endAt,
+      checkinStartAt,
+      checkinEndAt,
       location,
+      audienceScope: normalizeAudienceScope(
+        data.audienceScope || data.audience_scope,
+      ),
+      status,
       coverImageUrl: normalizeString(
         data.coverImageUrl ||
         data.cover_image_url,
@@ -309,6 +390,8 @@ async function handleActivityList({
         location,
         start_at,
         end_at,
+        checkin_start_at,
+        checkin_end_at,
         status,
         audience_scope,
         cover_image_url,
@@ -471,12 +554,11 @@ async function handleActivityUpdate({
       description: data.description,
       start_at: data.startAt,
       end_at: data.endAt,
+      checkin_start_at: data.checkinStartAt,
+      checkin_end_at: data.checkinEndAt,
       location: data.location,
-      status:
-        normalizeString(incoming.status) ||
-        existing.status ||
-        "active",
-      audience_scope: ["employee"],
+      status: data.status || existing.status || "active",
+      audience_scope: data.audienceScope,
       cover_image_url:
         data.coverImageUrl ||
         normalizeString(existing.cover_image_url),
@@ -643,9 +725,11 @@ async function handleActivityCreate({
       description: data.description,
       start_at: data.startAt,
       end_at: data.endAt,
+      checkin_start_at: data.checkinStartAt,
+      checkin_end_at: data.checkinEndAt,
       location: data.location,
-      status: "active",
-      audience_scope: ["employee"],
+      status: data.status,
+      audience_scope: data.audienceScope,
       cover_image_url: data.coverImageUrl,
       cover_image_key: data.coverImageKey,
     },

@@ -399,7 +399,8 @@
       }
 
       .field input,
-      .field textarea {
+      .field textarea,
+      .field select {
         width: 100%;
         min-height: 44px;
         padding: 10px 12px;
@@ -416,7 +417,8 @@
       }
 
       .field.invalid input,
-      .field.invalid textarea {
+      .field.invalid textarea,
+      .field.invalid select {
         border-color: #dc2626;
         box-shadow: 0 0 0 3px rgba(220, 38, 38, .10);
       }
@@ -430,7 +432,8 @@
       }
 
       .field input:focus,
-      .field textarea:focus {
+      .field textarea:focus,
+      .field select:focus {
         border-color: #06c755;
         box-shadow: 0 0 0 3px rgba(6, 199, 85, .12);
       }
@@ -443,6 +446,29 @@
 
       .date-time-row input {
         min-width: 0;
+      }
+
+      .audience-options {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .audience-option {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        margin: 0 !important;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-weight: 700 !important;
+      }
+
+      .audience-option input {
+        width: auto;
+        min-height: auto;
+        margin: 0;
       }
 
       .hint {
@@ -786,6 +812,16 @@
                   ></textarea>
                 </div>
 
+                <div class="field full">
+                  <label>可見對象</label>
+                  <div class="audience-options">
+                    <label class="audience-option"><input type="checkbox" name="audienceScope" value="all" checked>全體可看</label>
+                    <label class="audience-option"><input type="checkbox" name="audienceScope" value="visitor">一般訪客</label>
+                    <label class="audience-option"><input type="checkbox" name="audienceScope" value="employee">廠區員工</label>
+                    <label class="audience-option"><input type="checkbox" name="audienceScope" value="manager">公司幹部</label>
+                  </div>
+                </div>
+
                 <div class="field">
                   <label for="activity-start-date">${text.start} *</label>
 
@@ -836,6 +872,26 @@
                   </div>
                 </div>
 
+                <div class="field">
+                  <label for="activity-checkin-start">報到開始時間 *</label>
+                  <input
+                    id="activity-checkin-start"
+                    name="checkinStartAt"
+                    type="datetime-local"
+                    required
+                  >
+                  <div class="hint">QR 核銷會從這個時間開始開放。</div>
+                </div>
+
+                <div class="field">
+                  <label for="activity-checkin-end">報到截止時間</label>
+                  <input
+                    id="activity-checkin-end"
+                    name="checkinEndAt"
+                    type="datetime-local"
+                  >
+                </div>
+
                 <div class="field full">
                   <label for="activity-location">${text.location} *</label>
                   <input
@@ -846,6 +902,16 @@
                     placeholder="${text.locationPlaceholder}"
                     required
                   >
+                </div>
+
+                <div class="field full">
+                  <label for="activity-status">狀態</label>
+                  <select id="activity-status" name="status">
+                    <option value="active">啟用</option>
+                    <option value="draft">草稿</option>
+                    <option value="closed">關閉</option>
+                    <option value="archived">封存</option>
+                  </select>
                 </div>
 
                 <div class="field full">
@@ -1035,6 +1101,29 @@
       date: `${match[2]}/${match[3]}`,
       time: `${match[4]}:${match[5]}`,
     };
+  }
+
+  function toDateTimeLocalValue(value) {
+    return String(value || "")
+      .trim()
+      .replace(" ", "T")
+      .slice(0, 16);
+  }
+
+  function parseAudienceScope(value) {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    try {
+      const parsed = JSON.parse(String(value || "[]"));
+      return Array.isArray(parsed) ? parsed : ["all"];
+    } catch {
+      return String(value || "all")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
   }
 
   function parseMonthDay(value, year) {
@@ -1614,8 +1703,24 @@ async function openLoginPrompt() {
 
       form.elements.endTime.value =
         endParts.time;
+      form.elements.checkinStartAt.value =
+        toDateTimeLocalValue(activity.checkin_start_at);
+      form.elements.checkinEndAt.value =
+        toDateTimeLocalValue(activity.checkin_end_at);
       form.elements.location.value =
         activity.location || "";
+      form.elements.status.value =
+        activity.status || "active";
+
+      const audience = parseAudienceScope(
+        activity.audience_scope,
+      );
+
+      form
+        .querySelectorAll('input[name="audienceScope"]')
+        .forEach((checkbox) => {
+          checkbox.checked = audience.includes(checkbox.value);
+        });
 
       showFormView("edit");
     } catch (error) {

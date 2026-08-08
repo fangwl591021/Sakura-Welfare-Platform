@@ -1,6 +1,7 @@
 export const WORKSPACE_INTENTS = Object.freeze({
   DASHBOARD_SUMMARY: "dashboard_summary",
   VENDOR_PORTAL: "vendor_portal",
+  VENDOR_MANAGEMENT: "vendor_management",
   ACTIVITY_PLACEHOLDER: "activity_placeholder",
   PUSH_PLACEHOLDER: "push_placeholder",
   VENDOR_REVIEW_PLACEHOLDER: "vendor_review_placeholder",
@@ -40,6 +41,9 @@ export function resolveWorkspaceIntent(input) {
   }
   if (normalized === "廠商專區" || normalized === "厂商专区") {
     return WORKSPACE_INTENTS.VENDOR_PORTAL;
+  }
+  if (normalized === "廠商管理" || normalized === "厂商管理") {
+    return WORKSPACE_INTENTS.VENDOR_MANAGEMENT;
   }
   if (normalized === "新增活動" || normalized === "新增活动") {
     return WORKSPACE_INTENTS.ACTIVITY_PLACEHOLDER;

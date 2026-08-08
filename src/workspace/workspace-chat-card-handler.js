@@ -1,4 +1,4 @@
-﻿import { WORKSPACE_INTENTS } from "./intent-router.js";
+import { WORKSPACE_INTENTS } from "./intent-router.js";
 
 const UNAUTHORIZED_MESSAGE = "此功能僅限已授權管理員使用。";
 
@@ -273,11 +273,50 @@ export async function handleWorkspaceChatCardIntent({
   lineUserId,
   findAdmin,
   intent,
+  buildVendorPortalCard,
   buildUrl,
   loadVendorReviewSummary,
   loadChatMonitorSummary,
   loadRiskSummary,
 } = {}) {
+  if (
+    intent === WORKSPACE_INTENTS.VENDOR_PORTAL ||
+    intent === WORKSPACE_INTENTS.VENDOR_MANAGEMENT
+  ) {
+    if (
+      typeof buildVendorPortalCard !==
+      "function"
+    ) {
+      return {
+        handled: true,
+        authorized: false,
+        authenticated: false,
+        vendorId: null,
+        text:
+          "廠商專區暫時無法開啟，請稍後再試。",
+      };
+    }
+
+    const result =
+      await buildVendorPortalCard({
+        lineUserId,
+      });
+
+    return {
+      handled: true,
+      authorized:
+        result?.authorized === true,
+      authenticated:
+        result?.authenticated === true,
+      vendorId:
+        result?.vendorId || null,
+      message:
+        result?.message || null,
+      text:
+        result?.text || "",
+    };
+  }
+
   const admin =
     typeof findAdmin === "function"
       ? await findAdmin(lineUserId)

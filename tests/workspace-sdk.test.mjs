@@ -99,7 +99,11 @@ test("createActivity sends normalized data and bearer token", async () => {
     description: " 活動說明 ",
     startAt: "2026-09-20T18:00",
     endAt: "2026-09-20T21:00",
+    checkinStartAt: "2026-09-20T17:30",
+    checkinEndAt: "2026-09-20T21:30",
     location: " 本廠 ",
+    audienceScope: ["employee"],
+    status: "active",
   });
 
   assert.equal(
@@ -120,6 +124,10 @@ test("createActivity sends normalized data and bearer token", async () => {
 
   assert.equal(body.title, "員工烤肉");
   assert.equal(body.location, "本廠");
+  assert.equal(body.checkinStartAt, "2026-09-20T17:30");
+  assert.equal(body.checkinEndAt, "2026-09-20T21:30");
+  assert.deepEqual(body.audienceScope, ["employee"]);
+  assert.equal(body.status, "active");
 });
 
 test("API errors become JavaScript errors", async () => {
@@ -260,7 +268,10 @@ test("updateActivity sends PUT payload", async () => {
       description: "說明",
       startAt: "2026-09-20T18:00",
       endAt: "2026-09-20T21:00",
+      checkinStartAt: "2026-09-20T17:45",
+      checkinEndAt: "2026-09-20T21:15",
       location: "本廠",
+      audienceScope: ["all", "employee"],
     },
   );
 
@@ -275,4 +286,7 @@ test("updateActivity sends PUT payload", async () => {
 
   assert.equal(body.title, "更新後活動");
   assert.equal(body.location, "本廠");
+  assert.equal(body.checkinStartAt, "2026-09-20T17:45");
+  assert.equal(body.checkinEndAt, "2026-09-20T21:15");
+  assert.deepEqual(body.audienceScope, ["all", "employee"]);
 });
