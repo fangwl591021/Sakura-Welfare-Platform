@@ -30,4 +30,9 @@ test("admin registration editor exposes the shared carousel manager", () => {
   assert.ok(source.includes("DM 已同步到廠商專區與店家頁"));
   assert.ok(source.includes("$$('[data-carousel-delete]').forEach"));
   assert.ok(source.includes("$$('[data-carousel-move]').forEach"));
+  assert.ok(source.includes("function bindFormSections()"));
+  assert.ok(source.includes("$$(\\\".form-section\\\").forEach"));
+  assert.ok(source.includes("section.classList.toggle(\\\"collapsed\\\",index!==0)"));
+  assert.ok(source.includes("heading.setAttribute(\\\"aria-expanded\\\""));
+  assert.ok(source.includes("function bind(){ bindFormSections(); bindVendorCarousel();"));
 });
