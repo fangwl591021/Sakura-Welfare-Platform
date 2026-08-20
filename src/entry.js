@@ -102,13 +102,14 @@ function localeForPath(pathname) {
 
 function favoriteAddon(locale) {
   const copy = {
-    zh: { add: "加入收藏", remove: "取消收藏", auth: "請從 LINE 開啟後再收藏", failed: "收藏更新失敗" },
-    id: { add: "Tambah favorit", remove: "Hapus favorit", auth: "Buka dari LINE untuk menyimpan favorit", failed: "Gagal memperbarui favorit" },
-    th: { add: "เพิ่มรายการโปรด", remove: "ยกเลิกรายการโปรด", auth: "กรุณาเปิดจาก LINE เพื่อบันทึกรายการโปรด", failed: "อัปเดตรายการโปรดไม่สำเร็จ" },
+    zh: { add: "加入收藏", remove: "取消收藏", auth: "請從 LINE 開啟後再收藏", failed: "收藏更新失敗", filter: "收藏", noFavorite: "目前沒有符合條件的收藏店家" },
+    id: { add: "Tambah favorit", remove: "Hapus favorit", auth: "Buka dari LINE untuk menyimpan favorit", failed: "Gagal memperbarui favorit", filter: "Favorit", noFavorite: "Tidak ada toko favorit yang sesuai" },
+    th: { add: "เพิ่มรายการโปรด", remove: "ยกเลิกรายการโปรด", auth: "กรุณาเปิดจาก LINE เพื่อบันทึกรายการโปรด", failed: "อัปเดตรายการโปรดไม่สำเร็จ", filter: "รายการโปรด", noFavorite: "ไม่มีร้านโปรดที่ตรงเงื่อนไข" },
   }[locale] || null;
 
   return `<style id="sakura-favorite-style">
 .favorite-heart{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;margin:-2px 0;color:#e32636;font-size:23px;line-height:1;font-weight:900;cursor:pointer;user-select:none}.favorite-heart.busy{opacity:.45;pointer-events:none}.favorite-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,12px);z-index:90;background:#071a33;color:#fff;border-radius:999px;padding:9px 13px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:.16s}.favorite-toast.show{opacity:1;transform:translate(-50%,0)}
+.filters.sakura-favorite-filter-ready{grid-template-columns:repeat(4,minmax(0,1fr))}.favorite-filter-wrap{display:block}.favorite-filter-wrap label{display:block;font-size:11px;color:#526984;margin:0 0 3px;font-weight:800}.favorite-filter-btn{width:100%;min-height:38px;border:1px solid #cbd8ea;border-radius:10px;background:#fff;color:#df1748;font-size:14px;font-weight:800;padding:7px 6px;cursor:pointer;white-space:nowrap}.favorite-filter-btn.active{background:#ffe9ef;border-color:#f6a8bb;color:#d41445}.favorite-filter-btn .heart{font-size:18px;vertical-align:-1px;margin-right:3px}@media(max-width:430px){.filters.sakura-favorite-filter-ready{grid-template-columns:repeat(3,minmax(0,1fr))}.favorite-filter-wrap{grid-column:1/-1}.favorite-filter-btn{min-height:36px}}
 </style>
 <script id="sakura-favorite-addon">
 (function(){
@@ -117,6 +118,8 @@ function favoriteAddon(locale) {
   const COPY=${JSON.stringify(copy)};
   let token="";
   let favorites=new Set();
+  let favoritesLoaded=false;
+  let favoriteOnly=false;
   let currentStore=null;
   let sdkPromise=null;
 
@@ -125,17 +128,21 @@ function favoriteAddon(locale) {
   function loadSdk(){if(window.liff)return Promise.resolve();if(sdkPromise)return sdkPromise;sdkPromise=new Promise((resolve,reject)=>{const s=document.createElement("script");s.src="https://static.line-scdn.net/liff/edge/2/sdk.js";s.async=true;s.onload=resolve;s.onerror=reject;document.body.appendChild(s)});return sdkPromise}
   async function ensureToken(interactive){if(token)return token;try{await loadSdk();await liff.init({liffId:LIFF_ID});if(!liff.isLoggedIn()){if(interactive)liff.login({redirectUri:location.href});return ""}token=liff.getIDToken()||"";return token}catch(_){if(interactive)toast(COPY.auth);return ""}}
   function updateHeart(h,store){const active=favorites.has(sid(store));const next=active?"♥":"♡";if(h.textContent!==next)h.textContent=next;h.title=active?COPY.remove:COPY.add;h.setAttribute("aria-label",h.title)}
-  async function toggle(store,h){const id=sid(store);if(!id)return;const t=await ensureToken(true);if(!t)return;const desired=!favorites.has(id);h.classList.add("busy");try{const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+t},body:JSON.stringify({store_id:id,favorite:desired})});const d=await r.json();if(!r.ok||!d.success)throw new Error(d.message||COPY.failed);if(desired)favorites.add(id);else favorites.delete(id);refresh()}catch(e){toast(e&&e.message||COPY.failed)}finally{h.classList.remove("busy")}}
+  function updateFilterButton(){const b=document.getElementById("favoriteFilterBtn");if(!b)return;b.classList.toggle("active",favoriteOnly);b.innerHTML='<span class="heart">'+(favoriteOnly?'♥':'♡')+'</span>'+COPY.filter;b.setAttribute("aria-pressed",favoriteOnly?'true':'false')}
+  function applyFavoriteFilter(){const stores=window.__visibleStores||[];const cards=document.querySelectorAll("#grid .card");let visibleCount=0;cards.forEach((card,i)=>{const store=stores[i];const show=!favoriteOnly||(store&&favorites.has(sid(store)));card.style.display=show?'':'none';if(show)visibleCount++});const empty=document.getElementById("empty");if(empty){if(!empty.dataset.favoriteOriginalText)empty.dataset.favoriteOriginalText=empty.textContent||'';if(favoriteOnly&&visibleCount===0){empty.textContent=COPY.noFavorite;empty.style.display='block'}else if(favoriteOnly){empty.style.display='none'}else{empty.textContent=empty.dataset.favoriteOriginalText}}
+  async function loadFavorites(interactive){if(favoritesLoaded)return true;const t=await ensureToken(!!interactive);if(!t)return false;try{const r=await fetch(API+"?ts="+Date.now(),{headers:{authorization:"Bearer "+t},cache:"no-store"});const d=await r.json();if(!r.ok||!d.success)throw new Error(d.message||COPY.failed);favorites=new Set(Array.isArray(d.favorites)?d.favorites.map(String):[]);favoritesLoaded=true;refresh();return true}catch(e){if(interactive)toast(e&&e.message||COPY.failed);return false}}
+  async function toggle(store,h){const id=sid(store);if(!id)return;const t=await ensureToken(true);if(!t)return;const desired=!favorites.has(id);h.classList.add("busy");try{const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+t},body:JSON.stringify({store_id:id,favorite:desired})});const d=await r.json();if(!r.ok||!d.success)throw new Error(d.message||COPY.failed);if(desired)favorites.add(id);else favorites.delete(id);favoritesLoaded=true;refresh()}catch(e){toast(e&&e.message||COPY.failed)}finally{h.classList.remove("busy")}}
   function makeHeart(store){const h=document.createElement("span");h.className="favorite-heart";h.dataset.storeId=sid(store);h.setAttribute("role","button");h.setAttribute("tabindex","0");updateHeart(h,store);const activate=function(e){e.preventDefault();e.stopPropagation();if(!h.classList.contains("busy"))toggle(store,h)};h.addEventListener("click",activate);h.addEventListener("pointerdown",function(e){e.stopPropagation()});h.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" ")activate(e)});return h}
   function bindCard(card,store){if(card.dataset.favoriteCardBound===sid(store))return;card.dataset.favoriteCardBound=sid(store);card.addEventListener("click",function(){currentStore=store;setTimeout(decorateSheet,0)})}
-  function decorateCards(){const stores=window.__visibleStores||[];const cards=document.querySelectorAll("#grid .card");cards.forEach((card,i)=>{const store=stores[i];if(!store)return;bindCard(card,store);const cat=card.querySelector(".pill.cat");if(!cat)return;let h=card.querySelector(".favorite-heart");if(!h||h.dataset.storeId!==sid(store)){if(h)h.remove();h=makeHeart(store);cat.insertAdjacentElement("afterend",h)}else updateHeart(h,store)})}
+  function decorateCards(){const stores=window.__visibleStores||[];const cards=document.querySelectorAll("#grid .card");cards.forEach((card,i)=>{const store=stores[i];if(!store)return;bindCard(card,store);const cat=card.querySelector(".pill.cat");if(!cat)return;let h=card.querySelector(".favorite-heart");if(!h||h.dataset.storeId!==sid(store)){if(h)h.remove();h=makeHeart(store);cat.insertAdjacentElement("afterend",h)}else updateHeart(h,store)});applyFavoriteFilter()}
   function decorateSheet(){const tags=document.getElementById("sheetTags");if(!tags||!currentStore)return;const cat=tags.querySelector(".pill.cat");if(!cat)return;let h=tags.querySelector(".favorite-heart");if(!h||h.dataset.storeId!==sid(currentStore)){if(h)h.remove();h=makeHeart(currentStore);cat.insertAdjacentElement("afterend",h)}else updateHeart(h,currentStore)}
-  function refresh(){decorateCards();decorateSheet()}
-  async function loadFavorites(){const t=await ensureToken(false);if(!t)return;try{const r=await fetch(API+"?ts="+Date.now(),{headers:{authorization:"Bearer "+t},cache:"no-store"});const d=await r.json();if(r.ok&&d.success&&Array.isArray(d.favorites)){favorites=new Set(d.favorites.map(String));refresh()}}catch(_){}}
+  function refresh(){decorateCards();decorateSheet();updateFilterButton();applyFavoriteFilter()}
+  function ensureFilterControl(){const filters=document.querySelector(".filters");if(!filters||document.getElementById("favoriteFilterBtn"))return;const wrap=document.createElement("div");wrap.className="favorite-filter-wrap";const label=document.createElement("label");label.textContent=COPY.filter;const btn=document.createElement("button");btn.id="favoriteFilterBtn";btn.type="button";btn.className="favorite-filter-btn";btn.setAttribute("aria-pressed","false");btn.innerHTML='<span class="heart">♡</span>'+COPY.filter;btn.addEventListener("click",async function(e){e.preventDefault();e.stopPropagation();if(!favoriteOnly){const ok=await loadFavorites(true);if(!ok)return}favoriteOnly=!favoriteOnly;updateFilterButton();applyFavoriteFilter()});wrap.appendChild(label);wrap.appendChild(btn);filters.appendChild(wrap);filters.classList.add("sakura-favorite-filter-ready")}
 
-  ["keyword","categoryFilter","regionFilter","businessFilter"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener(id==="keyword"?"input":"change",()=>setTimeout(decorateCards,0))});
+  ["keyword","categoryFilter","regionFilter","businessFilter"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener(id==="keyword"?"input":"change",()=>setTimeout(()=>{decorateCards();applyFavoriteFilter()},0))});
 
-  let tries=0;const timer=setInterval(()=>{tries++;decorateCards();if(document.querySelector("#grid .card")||tries>=16){clearInterval(timer);setTimeout(loadFavorites,300)}},250);
+  ensureFilterControl();
+  let tries=0;const timer=setInterval(()=>{tries++;ensureFilterControl();decorateCards();if(document.querySelector("#grid .card")||tries>=16){clearInterval(timer);setTimeout(()=>loadFavorites(false),300)}},250);
 })();
 </script>`;
 }
