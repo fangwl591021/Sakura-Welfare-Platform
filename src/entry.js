@@ -1,7 +1,14 @@
 import worker from "./index.js";
 
+const SAKURA_LIFF_ID = "2009117474-pwyW1R4u";
 const SAKURA_LINE_LOGIN_CHANNEL_ID = "2009117474";
 const FAVORITES_API_PATH = "/api/partner-store-favorites";
+const PARTNER_STORE_PATHS = new Set([
+  "/partner-stores",
+  "/partner-stores-id",
+  "/partner-stores-vi",
+  "/partner-stores-th",
+]);
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -22,80 +29,51 @@ function getBearerToken(request) {
 async function verifyLineIdToken(idToken) {
   const token = String(idToken || "").trim();
   if (!token) return null;
-
   const body = new URLSearchParams();
   body.set("id_token", token);
   body.set("client_id", SAKURA_LINE_LOGIN_CHANNEL_ID);
-
-  let response;
   try {
-    response = await fetch("https://api.line.me/oauth2/v2.1/verify", {
+    const response = await fetch("https://api.line.me/oauth2/v2.1/verify", {
       method: "POST",
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body: body.toString(),
     });
+    if (!response.ok) return null;
+    const data = await response.json();
+    const userId = String((data && data.sub) || "").trim();
+    return userId ? { userId, name: String(data.name || "") } : null;
   } catch (_) {
     return null;
   }
-
-  if (!response.ok) return null;
-
-  let data;
-  try {
-    data = await response.json();
-  } catch (_) {
-    return null;
-  }
-
-  const userId = String((data && data.sub) || "").trim();
-  return userId ? { userId, name: String(data.name || "") } : null;
 }
 
 async function handleFavoriteApi(request, env) {
-  if (!env.DB) {
-    return jsonResponse({ success: false, message: "D1 binding DB is not configured." }, 500);
-  }
-
+  if (!env.DB) return jsonResponse({ success: false, message: "D1 binding DB is not configured." }, 500);
   const identity = await verifyLineIdToken(getBearerToken(request));
-  if (!identity) {
-    return jsonResponse({ success: false, message: "LINE 身分驗證失敗，請從 LINE 重新開啟。" }, 401);
-  }
+  if (!identity) return jsonResponse({ success: false, message: "LINE 身分驗證失敗，請從 LINE 重新開啟。" }, 401);
 
   if (request.method === "GET") {
     try {
       const result = await env.DB.prepare(
         "SELECT store_id FROM welfare_store_favorites WHERE line_user_id = ? ORDER BY created_at DESC"
       ).bind(identity.userId).all();
-
       return jsonResponse({
         success: true,
         favorites: (result.results || []).map((row) => String(row.store_id || "")).filter(Boolean),
       });
     } catch (error) {
-      return jsonResponse({
-        success: false,
-        message: "收藏資料尚未就緒。",
-        detail: String((error && error.message) || error),
-      }, 500);
+      return jsonResponse({ success: false, message: "收藏資料尚未就緒。", detail: String((error && error.message) || error) }, 500);
     }
   }
 
   if (request.method === "POST") {
     let payload;
-    try {
-      payload = await request.json();
-    } catch (_) {
-      return jsonResponse({ success: false, message: "請提供有效的 JSON。" }, 400);
-    }
+    try { payload = await request.json(); }
+    catch (_) { return jsonResponse({ success: false, message: "請提供有效的 JSON。" }, 400); }
 
     const storeId = String((payload && payload.store_id) || "").trim();
-    if (!storeId || storeId.length > 200) {
-      return jsonResponse({ success: false, message: "店家識別碼無效。" }, 400);
-    }
-
-    if (typeof payload.favorite !== "boolean") {
-      return jsonResponse({ success: false, message: "favorite 必須為布林值。" }, 400);
-    }
+    if (!storeId || storeId.length > 200) return jsonResponse({ success: false, message: "店家識別碼無效。" }, 400);
+    if (typeof payload.favorite !== "boolean") return jsonResponse({ success: false, message: "favorite 必須為布林值。" }, 400);
 
     try {
       if (payload.favorite) {
@@ -107,31 +85,84 @@ async function handleFavoriteApi(request, env) {
           "DELETE FROM welfare_store_favorites WHERE line_user_id = ? AND store_id = ?"
         ).bind(identity.userId, storeId).run();
       }
-
       return jsonResponse({ success: true, store_id: storeId, favorite: payload.favorite });
     } catch (error) {
-      return jsonResponse({
-        success: false,
-        message: "收藏更新失敗。",
-        detail: String((error && error.message) || error),
-      }, 500);
+      return jsonResponse({ success: false, message: "收藏更新失敗。", detail: String((error && error.message) || error) }, 500);
     }
   }
 
   return jsonResponse({ success: false, message: "Method not allowed." }, 405);
 }
 
+function localeForPath(pathname) {
+  if (pathname.endsWith("-th")) return "th";
+  if (pathname.endsWith("-id") || pathname.endsWith("-vi")) return "id";
+  return "zh";
+}
+
+function favoriteAddon(locale) {
+  const copy = {
+    zh: { add: "加入收藏", remove: "取消收藏", auth: "請從 LINE 開啟後再收藏", failed: "收藏更新失敗" },
+    id: { add: "Tambah favorit", remove: "Hapus favorit", auth: "Buka dari LINE untuk menyimpan favorit", failed: "Gagal memperbarui favorit" },
+    th: { add: "เพิ่มรายการโปรด", remove: "ยกเลิกรายการโปรด", auth: "กรุณาเปิดจาก LINE เพื่อบันทึกรายการโปรด", failed: "อัปเดตรายการโปรดไม่สำเร็จ" },
+  }[locale] || null;
+
+  return `<style id="sakura-favorite-style">
+.favorite-heart{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;margin:-2px 0;color:#e32636;font-size:23px;line-height:1;font-weight:900;cursor:pointer;user-select:none}.favorite-heart.busy{opacity:.45;pointer-events:none}.favorite-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,12px);z-index:90;background:#071a33;color:#fff;border-radius:999px;padding:9px 13px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:.16s}.favorite-toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+<script id="sakura-favorite-addon">
+(function(){
+  const LIFF_ID=${JSON.stringify(SAKURA_LIFF_ID)};
+  const API=${JSON.stringify(FAVORITES_API_PATH)};
+  const COPY=${JSON.stringify(copy)};
+  let token="";
+  let favorites=new Set();
+  let currentStore=null;
+  let sdkPromise=null;
+
+  function sid(s){return String(s&&s.id||"").trim()}
+  function toast(msg){let el=document.getElementById("sakuraFavoriteToast");if(!el){el=document.createElement("div");el.id="sakuraFavoriteToast";el.className="favorite-toast";document.body.appendChild(el)}el.textContent=msg;el.classList.add("show");clearTimeout(window.__favToast);window.__favToast=setTimeout(()=>el.classList.remove("show"),1500)}
+  function loadSdk(){if(window.liff)return Promise.resolve();if(sdkPromise)return sdkPromise;sdkPromise=new Promise((resolve,reject)=>{const s=document.createElement("script");s.src="https://static.line-scdn.net/liff/edge/2/sdk.js";s.async=true;s.onload=resolve;s.onerror=reject;document.body.appendChild(s)});return sdkPromise}
+  async function ensureToken(interactive){if(token)return token;try{await loadSdk();await liff.init({liffId:LIFF_ID});if(!liff.isLoggedIn()){if(interactive)liff.login({redirectUri:location.href});return ""}token=liff.getIDToken()||"";return token}catch(_){if(interactive)toast(COPY.auth);return ""}}
+  function makeHeart(store){const h=document.createElement("span");h.className="favorite-heart";h.dataset.storeId=sid(store);h.setAttribute("role","button");h.setAttribute("tabindex","0");updateHeart(h,store);return h}
+  function updateHeart(h,store){const active=favorites.has(sid(store));const next=active?"♥":"♡";if(h.textContent!==next)h.textContent=next;h.title=active?COPY.remove:COPY.add;h.setAttribute("aria-label",h.title)}
+  function decorateCards(){const stores=window.__visibleStores||[];const cards=document.querySelectorAll("#grid .card");cards.forEach((card,i)=>{const store=stores[i];if(!store)return;const cat=card.querySelector(".pill.cat");if(!cat)return;let h=card.querySelector(".favorite-heart");if(!h||h.dataset.storeId!==sid(store)){if(h)h.remove();h=makeHeart(store);cat.insertAdjacentElement("afterend",h)}else updateHeart(h,store)})}
+  function decorateSheet(){const tags=document.getElementById("sheetTags");if(!tags||!currentStore)return;const cat=tags.querySelector(".pill.cat");if(!cat)return;let h=tags.querySelector(".favorite-heart");if(!h||h.dataset.storeId!==sid(currentStore)){if(h)h.remove();h=makeHeart(currentStore);cat.insertAdjacentElement("afterend",h)}else updateHeart(h,currentStore)}
+  function refresh(){decorateCards();decorateSheet()}
+  async function loadFavorites(){const t=await ensureToken(false);if(!t)return;try{const r=await fetch(API+"?ts="+Date.now(),{headers:{authorization:"Bearer "+t},cache:"no-store"});const d=await r.json();if(r.ok&&d.success&&Array.isArray(d.favorites)){favorites=new Set(d.favorites.map(String));refresh()}}catch(_){}}
+  async function toggle(store,h){const id=sid(store);if(!id)return;const t=await ensureToken(true);if(!t)return;const desired=!favorites.has(id);h.classList.add("busy");try{const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+t},body:JSON.stringify({store_id:id,favorite:desired})});const d=await r.json();if(!r.ok||!d.success)throw new Error(d.message||COPY.failed);if(desired)favorites.add(id);else favorites.delete(id);refresh()}catch(e){toast(e&&e.message||COPY.failed)}finally{h.classList.remove("busy")}}
+
+  document.addEventListener("click",function(e){const h=e.target.closest&&e.target.closest(".favorite-heart");if(h){e.preventDefault();e.stopPropagation();const id=h.dataset.storeId;const store=(window.__visibleStores||[]).find(s=>sid(s)===id)||currentStore;if(store)toggle(store,h);return}const card=e.target.closest&&e.target.closest("#grid .card");if(card){const cards=Array.from(document.querySelectorAll("#grid .card"));const i=cards.indexOf(card);currentStore=(window.__visibleStores||[])[i]||null;setTimeout(decorateSheet,0)}} ,true);
+  ["keyword","categoryFilter","regionFilter","businessFilter"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener(id==="keyword"?"input":"change",()=>setTimeout(decorateCards,0))});
+
+  let tries=0;const timer=setInterval(()=>{tries++;decorateCards();if(document.querySelector("#grid .card")||tries>=16){clearInterval(timer);setTimeout(loadFavorites,300)}},250);
+})();
+</script>`;
+}
+
+async function handlePartnerStorePage(request, env, ctx, pathname) {
+  const response = await worker.fetch(request, env, ctx);
+  if (!response || !response.ok) return response;
+  const type = String(response.headers.get("content-type") || "").toLowerCase();
+  if (!type.includes("text/html")) return response;
+  const html = await response.text();
+  const addon = favoriteAddon(localeForPath(pathname));
+  const next = html.includes("</body>") ? html.replace("</body>", addon + "</body>") : html + addon;
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  headers.set("cache-control", "no-store");
+  return new Response(next, { status: response.status, statusText: response.statusText, headers });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-
     if (url.pathname === FAVORITES_API_PATH && (request.method === "GET" || request.method === "POST")) {
       return handleFavoriteApi(request, env);
     }
-
-    // Emergency compatibility rule:
-    // every existing Sakura route, including /partner-stores and /api/partner-stores,
-    // is returned directly by the original Worker with zero HTML rewriting.
+    if (request.method === "GET" && PARTNER_STORE_PATHS.has(url.pathname)) {
+      return handlePartnerStorePage(request, env, ctx, url.pathname);
+    }
     return worker.fetch(request, env, ctx);
   },
 };
