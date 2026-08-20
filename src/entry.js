@@ -135,10 +135,12 @@ function favoriteUiScript(locale) {
   function heartTitle(active){ return active ? COPY.remove : COPY.add; }
   function setHeartState(el,active){
     if(!el) return;
-    el.textContent=heartText(active);
-    el.classList.toggle("active",!!active);
-    el.setAttribute("title",heartTitle(active));
-    el.setAttribute("aria-label",heartTitle(active));
+    const text=heartText(active);
+    const title=heartTitle(active);
+    if(el.textContent!==text) el.textContent=text;
+    if(el.classList.contains("active")!==!!active) el.classList.toggle("active",!!active);
+    if(el.getAttribute("title")!==title) el.setAttribute("title",title);
+    if(el.getAttribute("aria-label")!==title) el.setAttribute("aria-label",title);
   }
   function flash(message){
     let toast=document.getElementById("sakuraFavoriteToast");
@@ -148,7 +150,7 @@ function favoriteUiScript(locale) {
       toast.className="favorite-toast";
       document.body.appendChild(toast);
     }
-    toast.textContent=message;
+    if(toast.textContent!==message) toast.textContent=message;
     toast.classList.add("show");
     clearTimeout(window.__sakuraFavoriteToastTimer);
     window.__sakuraFavoriteToastTimer=setTimeout(function(){toast.classList.remove("show")},1600);
@@ -227,6 +229,8 @@ function favoriteUiScript(locale) {
     const tags=document.getElementById("sheetTags");
     if(!tags||!currentStore) return;
     let heart=tags.querySelector(".favorite-heart");
+    const id=storeId(currentStore);
+    if(heart&&heart.dataset.storeId!==id){heart.remove();heart=null;}
     if(!heart){
       const category=tags.querySelector(".pill.cat");
       if(category){heart=makeHeart(currentStore);category.insertAdjacentElement("afterend",heart);}
@@ -246,9 +250,17 @@ function favoriteUiScript(locale) {
     wrapped.__favoritesWrapped=true;
     window.openSheet=wrapped;
   }
-  const observer=new MutationObserver(function(){wrapOpenSheet();enhanceCards();enhanceSheet()});
-  observer.observe(document.documentElement,{childList:true,subtree:true});
+  function watchStoreGrid(){
+    const grid=document.getElementById("grid");
+    if(!grid) return;
+    const observer=new MutationObserver(function(mutations){
+      if(!mutations.some(function(m){return m.type==="childList"&&m.target===grid})) return;
+      enhanceCards();
+    });
+    observer.observe(grid,{childList:true});
+  }
   wrapOpenSheet();
+  watchStoreGrid();
   enhanceCards();
   loadFavorites();
 })();
