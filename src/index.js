@@ -10505,11 +10505,7 @@ async function listFlexTemplates(db) {
     FROM welfare_flex_templates
     WHERE category IS NULL OR category <> 'share_draft'
     ORDER BY
-      CASE
-        WHEN status = 'approved' THEN 0
-        WHEN status = 'pending' THEN 1
-        ELSE 2
-      END,
+      active DESC,
       updated_at DESC
     LIMIT 200
   `).all();
@@ -18327,7 +18323,6 @@ const sakuraAdminHtml = `
 </body>
 </html>
 `;
-
 
 
 
