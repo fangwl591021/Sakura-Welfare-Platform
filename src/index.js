@@ -2151,6 +2151,12 @@ const vendorStoreHtml = `<!doctype html>
     :root{--red:#e9103b;--green:#06c755;--ink:#071226;--muted:#64748b;--line:#f2cbd2;--cream:#fff4ef;--card:#fffaf7;--gold:#d6972d;--brown:#6b3d15}
     *{box-sizing:border-box}body{margin:0;background:#e5e7eb;color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;font-size:15px}.phone{width:min(100%,430px);min-height:100vh;margin:0 auto;background:linear-gradient(180deg,#ffe1df 0,#fff8f4 52%,#fff 100%);position:relative;box-shadow:0 0 0 1px rgba(15,23,42,.08),0 28px 90px rgba(15,23,42,.20);overflow:hidden}.safe{padding:16px 16px calc(92px + env(safe-area-inset-bottom))}.top{display:flex;align-items:center;gap:12px;padding-top:6px}.logo{width:62px;height:62px;border-radius:999px;background:var(--brown);color:#fff;display:grid;place-items:center;font-weight:950;overflow:hidden;border:3px solid rgba(255,255,255,.78);box-shadow:0 10px 22px rgba(107,61,21,.20)}.logo img{width:100%;height:100%;object-fit:cover}.title{min-width:0}.title h1{font-size:27px;line-height:1.12;margin:0;font-weight:950;letter-spacing:0}.title p{margin:5px 0 0;color:#4b5563;font-weight:850;line-height:1.35}.cover{margin:14px 0 16px;height:178px;border-radius:18px;background:#ddd center/cover;box-shadow:0 12px 30px rgba(107,61,21,.18);border:1px solid rgba(255,255,255,.75)}.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid #f4d8d2;border-radius:20px;overflow:hidden;background:#f4d8d2;box-shadow:0 12px 30px rgba(107,61,21,.10)}.tile{border:0;background:rgba(255,255,255,.82);min-height:100px;padding:10px 5px 9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:#1f2937;text-decoration:none;font-weight:950}.tile:active{transform:scale(.985)}.ico{width:46px;height:46px;border-radius:999px;background:#fff;border:2px solid #f0b79d;display:grid;place-items:center;font-size:23px;box-shadow:0 7px 16px rgba(107,61,21,.12)}.ico.green{background:#37a94a;color:#fff;border-color:#e2f8e5}.line-logo{width:48px;height:40px;border-radius:14px;background:#06c755;color:#fff;display:grid;place-items:center;position:relative;font-size:13px;font-weight:950;letter-spacing:0;box-shadow:0 7px 16px rgba(6,199,85,.22)}.line-logo:after{content:"";position:absolute;right:7px;bottom:-5px;border-width:7px 0 0 10px;border-style:solid;border-color:transparent transparent transparent #06c755;transform:rotate(-16deg)}.line-logo span{position:relative;z-index:1}.ico.gold{background:linear-gradient(180deg,#f7c75c,#d79420);color:#fff;border-color:#f8d382}.ico.red{background:#fff0f3;color:#e11d48;border-color:#f7b7c5}.section{margin-top:16px;background:rgba(255,255,255,.82);border:1px solid #f2d3ce;border-radius:18px;padding:14px;box-shadow:0 8px 22px rgba(107,61,21,.06)}.section h2{font-size:18px;margin:0 0 8px}.muted{color:var(--muted);line-height:1.7}.offer{border-top:1px solid #f0ddd8;padding-top:12px;margin-top:12px;display:grid;grid-template-columns:1fr auto;gap:12px}.offer:first-of-type{border-top:0;margin-top:0;padding-top:0}.price{font-size:21px;font-weight:950;color:var(--red);white-space:nowrap}.badge{display:inline-flex;border-radius:999px;background:#fff0c7;color:#9a5b00;padding:4px 9px;font-size:12px;font-weight:950;margin-right:5px}.showcase-card{border:1px solid #f0ddd8;border-radius:16px;overflow:hidden;background:#fff;margin-top:12px}.showcase-img{width:100%;max-height:360px;object-fit:cover;background:#f8fafc;display:block}.showcase-body{padding:13px}.showcase-type{display:inline-flex;border-radius:999px;background:#fff0c7;color:#9a5b00;padding:4px 9px;font-size:12px;font-weight:950;margin-bottom:7px}.showcase-title{font-size:18px;font-weight:950}.showcase-desc{margin-top:6px;color:#475569;line-height:1.65}.showcase-item{border-top:1px solid #f1e2de;margin-top:10px;padding-top:10px}.showcase-item b{display:block}.showcase-cta{display:block;text-align:center;margin-top:12px;background:var(--green);color:#fff;text-decoration:none;font-weight:950;border-radius:12px;padding:11px}.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,430px);display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-top:1px solid #f1d6d0;padding:10px 12px calc(10px + env(safe-area-inset-bottom))}.bottom a,.bottom button{min-height:44px;border-radius:14px;border:1px solid #f0c9c2;background:#fff;color:#8a3512;font-weight:950;text-decoration:none;display:grid;place-items:center}.bottom .primary{background:var(--green);border-color:var(--green);color:#fff}.builder{display:none}.builder.open{display:block}.owner-only{display:none!important}.can-edit .owner-only{display:grid!important}.can-edit section.owner-only{display:none!important}.can-edit section.owner-only.open{display:block!important}.field{margin-top:10px}.field label{display:block;color:#475569;font-size:12px;font-weight:950;margin-bottom:5px}.field input,.field textarea{width:100%;min-height:42px;border:1px solid #d5ddea;border-radius:10px;padding:9px 10px;background:#fff;font:inherit}.field textarea{min-height:90px;resize:vertical}.save{width:100%;margin-top:12px;min-height:46px;border:0;border-radius:12px;background:var(--green);color:#fff;font-weight:950}.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);width:min(390px,calc(100% - 28px));background:#111827;color:#fff;border-radius:14px;padding:12px 14px;display:none;z-index:20}.empty{color:#94a3b8}.hide{display:none!important}@media(min-width:760px){body{padding:18px 0}.phone{border-radius:34px;min-height:calc(100vh - 36px)}.bottom{position:sticky;transform:none;left:auto;width:100%;bottom:0}}
   </style>
+  <style>
+    .rich-content{display:block;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
+    .rich-content p,.rich-content div{margin:0 0 8px}.rich-content p:last-child,.rich-content div:last-child{margin-bottom:0}
+    .rich-content h2,.rich-content h3{margin:10px 0 6px;line-height:1.35}.rich-content ul,.rich-content ol{margin:6px 0;padding-left:24px}
+    .rich-content a{color:#0879c9;text-decoration:underline}
+  </style>
 </head>
 <body>
   <main class="phone">
@@ -2170,7 +2176,7 @@ const vendorStoreHtml = `<!doctype html>
       </nav>
       <section class="section" id="introSec">
         <h2>營業說明</h2>
-        <div class=\"muted\" id="introText"></div>
+        <div class=\"muted rich-content\" id="introText"></div>
       </section>
       <section class="section" id="offerSec">
         <h2>優惠活動</h2>
@@ -2211,6 +2217,29 @@ const vendorStoreHtml = `<!doctype html>
     const portalToken = params.get("portal_token") || params.get("token") || params.get("vendor_portal_token") || "";
     const editMode = params.get("edit") === "1";
     const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+    function safeRichHtml(value){
+      const source=String(value||"");
+      if(!source)return "店家尚未填寫介紹。";
+      const doc=new DOMParser().parseFromString(source,"text/html");
+      const out=document.createElement("div");
+      const allowed=new Set(["P","BR","DIV","H2","H3","STRONG","B","EM","I","U","UL","OL","LI","A","SPAN"]);
+      const blocked=new Set(["SCRIPT","STYLE","IFRAME","OBJECT","EMBED","SVG","MATH"]);
+      const clean=node=>{
+        if(node.nodeType===Node.TEXT_NODE)return document.createTextNode(node.textContent||"");
+        if(node.nodeType!==Node.ELEMENT_NODE||blocked.has(node.tagName))return null;
+        const box=allowed.has(node.tagName)?document.createElement(node.tagName.toLowerCase()):document.createDocumentFragment();
+        if(node.tagName==="A"&&box.nodeType===Node.ELEMENT_NODE){
+          const href=node.getAttribute("href")||"";
+          if(/^(https?:|mailto:|tel:)/i.test(href)){box.setAttribute("href",href);box.setAttribute("target","_blank");box.setAttribute("rel","noopener noreferrer");}
+        }
+        if(node.tagName==="SPAN"&&box.nodeType===Node.ELEMENT_NODE&&node.style.color)box.style.color=node.style.color;
+        [...node.childNodes].forEach(child=>{const safe=clean(child);if(safe)box.appendChild(safe);});
+        return box;
+      };
+      [...doc.body.childNodes].forEach(node=>{const safe=clean(node);if(safe)out.appendChild(safe);});
+      if(!out.innerHTML.trim()&&source.trim())out.textContent=source;
+      return out.innerHTML.split(String.fromCharCode(10)).join("<br>");
+    }
     let state = null;
     function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.style.display="block"; clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(()=>t.style.display="none",2600); }
     function toBase64(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(String(r.result || "")); r.onerror=()=>reject(r.error || new Error("檔案讀取失敗")); r.readAsDataURL(file); }); }
@@ -2231,7 +2260,7 @@ const vendorStoreHtml = `<!doctype html>
       document.getElementById("storeSubtitle").textContent = v.subtitle || "櫻花福委會特約店";
       document.getElementById("cover").style.backgroundImage = 'url("'+(v.cover_image_url || "")+'")';
       setLogo(v.logo_url, v.name);
-      document.getElementById("introText").textContent = v.intro || "店家尚未填寫介紹。";
+      document.getElementById("introText").innerHTML = safeRichHtml(v.intro || v.discount_policy || "");
       document.getElementById("mapBtn").href = v.map_url || "#";
       document.getElementById("phoneBtn").href = v.phone ? "tel:" + v.phone : "#";
       document.getElementById("lineBtn").href = v.line_url || "#";
@@ -18323,8 +18352,6 @@ const sakuraAdminHtml = `
 </body>
 </html>
 `;
-
-
 
 
 
