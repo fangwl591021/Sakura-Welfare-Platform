@@ -1,7 +1,11 @@
-﻿name = "sakura-welfare-platform"
-main = "src/entry.js"
+keep_vars = true
+name = "sakura-welfare-platform"
+main = "src/index.js"
 compatibility_date = "2026-05-08"
 workers_dev = true
+
+[triggers]
+crons = ["*/5 * * * *", "* * * * *"]
 
 [[r2_buckets]]
 binding = "R2_BUCKET"
@@ -11,3 +15,9 @@ bucket_name = "sakurakitchen-files"
 binding = "DB"
 database_name = "sakura-welfare-db"
 database_id = "0a4bf3ce-5827-46a7-9629-155639dc7ac2"
+
+[vars]
+AI_ADS_ENABLED = "1"
+AI_ADS_IMAGE_MODEL = "gemini-3.1-flash-image"
+AI_ADS_IMAGE_RESERVATION_MICROS = "100000"
+AI_ADS_DAILY_BUDGET_MICROS = "1000000"

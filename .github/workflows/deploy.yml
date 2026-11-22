@@ -2,40 +2,111 @@ name: Deploy Sakura Welfare
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 隔離驗證或正式部署
+        type: choice
+        required: true
+        default: isolated
+        options:
+          - isolated
+          - production
 
 permissions:
   contents: read
 
 concurrency:
-  group: sakura-welfare-production
+  group: sakura-welfare-${{ inputs.mode }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: production
     steps:
+      - name: Reject production runs outside main
+        if: inputs.mode == 'production' && github.ref != 'refs/heads/main'
+        run: |
+          echo 'Production deployment must run on main.'
+          exit 1
+
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Check Worker syntax
-        run: npm run check:welfare
+      - name: Check Worker syntax and full deployment guard
+        run: |
+          npm run check:welfare
+          npm run predeploy:welfare
 
-      - name: Verify Sakura deployment bindings
-        run: npm run predeploy:welfare
+      - name: Install Playwright Chromium
+        run: npm exec -- playwright install --with-deps chromium
 
-      - name: Deploy Sakura Worker
-        run: npx wrangler deploy -c wrangler.sakura-welfare.toml
+      - name: Run isolated smoke tests and retain the tested bundle
+        run: npm run test:welfare:smoke -- --bundle-out "$RUNNER_TEMP/sakura-release/index.js"
+
+      - name: Rehearse version upload, activation and verification with fixtures
+        if: inputs.mode == 'isolated'
+        run: |
+          export STORE_APP_BUNDLE="$RUNNER_TEMP/sakura-release/index.js"
+          node --test tests/verify-welfare-deployment.test.mjs
+
+      - name: Pass the exact tested bundle to the production job
+        if: inputs.mode == 'production' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tested-sakura-worker
+          path: ${{ runner.temp }}/sakura-release/index.js
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    if: inputs.mode == 'production' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Retrieve the exact tested bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: tested-sakura-worker
+          path: ${{ runner.temp }}/sakura-release
+
+      - name: Deploy tested Sakura Worker version
+        id: deployment
+        run: node scripts/deploy-welfare-release.mjs "$RUNNER_TEMP/sakura-release/index.js"
         env:
+          WELFARE_RELEASE_MODE: ${{ inputs.mode }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Verify production read-only
+        run: |
+          npm run verify:welfare -- --bundle "$RUNNER_TEMP/sakura-release/index.js" \
+            --version "$DEPLOYED_VERSION" --previous-version "$PREVIOUS_VERSION"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_READ_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DEPLOYED_VERSION: ${{ steps.deployment.outputs.version }}
+          PREVIOUS_VERSION: ${{ steps.deployment.outputs.previous_version }}

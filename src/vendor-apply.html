@@ -9,6 +9,12 @@
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;font-size:15px}
     .wrap{max-width:960px;margin:0 auto;padding:24px}.hero{background:#fff;border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:14px}h1{font-size:26px;margin:0}.hint{color:var(--muted);line-height:1.7;margin:8px 0 0}.card{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}.section{padding:18px;border-top:1px solid var(--line)}.section:first-child{border-top:0}.section h2{font-size:17px;margin:0 0 14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:13px;font-weight:900;color:#475569;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;border:1px solid #cfd8e6;border-radius:8px;min-height:42px;padding:9px 11px;background:#fff}.field input[type=file]{padding:8px;background:#f8fafc}.field textarea{min-height:96px;resize:vertical}.full{grid-column:1/-1}.btn{width:100%;min-height:48px;border:0;border-radius:9px;background:var(--green);color:#fff;font-weight:950;font-size:16px;cursor:pointer}.btn:disabled{opacity:.6;cursor:wait}.msg{display:none;margin-top:14px;padding:12px;border-radius:8px;background:#ecfdf5;color:#166534;font-weight:800}.msg.err{background:#fee2e2;color:#991b1b}.note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}@media(max-width:720px){.grid{grid-template-columns:1fr}.wrap{padding:14px}}
   </style>
+  <style>
+    .field.invalid-field input,.field.invalid-field select,.field.invalid-field textarea{border:2px solid #b91c1c;background:#fff7f7}
+    .field.invalid-field label,.field-error{color:#991b1b}
+    .field-error{font-size:13px;font-weight:700;line-height:1.5;margin:6px 0 0}
+    .msg.err{border:1px solid #b91c1c;border-left:5px solid #b91c1c;line-height:1.6}
+  </style>
 </head>
 <body>
   <main class="wrap">
@@ -16,24 +22,26 @@
       <h1>櫻花福委會特約廠商申請表</h1>
       <p class="hint">請填寫公司登記、聯絡人、證照合約與員工優惠政策。送出後會進入福委會審核清單，核准後才能上架商品與優惠。</p>
     </section>
-    <form class="card" id="vendorApplyForm">
+    <form class="card" id="vendorApplyForm" novalidate>
       <section class="section">
         <h2>1. 公司與品牌資料</h2>
         <div class="grid">
           <div class="field"><label>店家/品牌名稱 *</label><input name="name" required placeholder="例：櫻花特約咖啡"></div>
-          <div class="field"><label>分類</label><select name="category"><option>食</option><option>衣</option><option>住</option><option>行</option><option>育</option><option>樂</option><option>醫療</option><option>生活服務</option><option>其他</option></select></div>
+          <div class="field"><label>分類</label><select name="category"><option value="">請選擇</option><option>食</option><option>衣</option><option>住</option><option>行</option><option>育</option><option>樂</option><option>醫療</option><option>生活服務</option><option>其他</option></select></div>
           <div class="field"><label>公司登記名稱</label><input name="legal_name"></div>
           <div class="field"><label>統一編號</label><input name="tax_id"></div>
           <div class="field full"><label>公司地址</label><input name="company_address"></div>
         </div>
       </section>
       <section class="section">
-        <h2>2. 聯絡人與 LINE 帳號</h2>
+        <h2>2. 聯絡人、店家登入帳密與 LINE 帳號</h2>
         <div class="grid">
           <div class="field"><label>負責人</label><input name="owner_name"></div>
           <div class="field"><label>主要聯絡人 *</label><input name="contact_name" required></div>
           <div class="field"><label>電話 *</label><input name="phone" required></div>
           <div class="field"><label>Email</label><input name="email" type="email"></div>
+          <div class="field"><label for="vendorPortalUsername">店家登入帳號 *</label><input id="vendorPortalUsername" name="vendor_portal_username" required autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="vendorPortalUsernameNote"><div class="note" id="vendorPortalUsernameNote">4 至 64 個字元，不可包含空白。</div></div>
+          <div class="field"><label for="vendorPortalPassword">店家登入密碼 *</label><input id="vendorPortalPassword" name="vendor_portal_password" type="password" required autocomplete="new-password" aria-describedby="vendorPortalPasswordNote"><div class="note" id="vendorPortalPasswordNote">新申請必填，8 至 128 個字元；核准後使用此帳密登入廠商專區。</div></div>
           <div class="field full"><label>LINE User ID / LINE OA ID</label><input name="contact_line_user_id" placeholder="可先留空，後續由系統綁定"></div>
         </div>
       </section>
@@ -72,17 +80,18 @@
         </div>
       </section>
       <section class="section">
-        <h2>4. 對外資訊與員工優惠政策</h2>
+        <h2>4. 對外資訊、店家介紹與員工優惠政策</h2>
         <div class="grid">
           <div class="field"><label>官方網站連結</label><input name="website_url" type="url"></div>
           <div class="field"><label>Facebook / 社群連結</label><input name="facebook_url" type="url"></div>
           <div class="field full"><label>標籤</label><input name="tags" placeholder="例：中彰投,餐飲,員工優惠,可外送"></div>
-          <div class="field full"><label>提供給櫻花員工的優惠政策 *</label><textarea name="discount_policy" required placeholder="例：員工憑 QR Code 享 8 折；訪客不得低於員工價。"></textarea></div>
+          <div class="field full" data-vendor-content="store_intro"><label>店家介紹</label><textarea name="store_intro"></textarea></div>
+          <div class="field full" data-vendor-content="discount_policy"><label>提供給櫻花員工的優惠政策 *</label><textarea name="discount_policy" required></textarea></div>
         </div>
       </section>
       <section class="section">
         <button class="btn" id="submitBtn" type="submit">送出申請</button>
-        <div id="msg" class="msg"></div>
+        <div id="msg" class="msg" role="alert" aria-live="polite"></div>
       </section>
     </form>
   </main>
@@ -91,6 +100,79 @@
     const msg = document.getElementById("msg");
     const submitBtn = document.getElementById("submitBtn");
     const fileFields = ["business_license_file", "food_registration_file", "insurance_file"];
+    window.SakuraVendorContent.mount(form);
+
+    function fieldLabel(control) {
+      return (control.closest(".field")?.querySelector("label")?.textContent || control.name).replace(/\s*\*$/, "").trim();
+    }
+
+    function clearFieldError(control) {
+      control.setCustomValidity("");
+      control.removeAttribute("aria-invalid");
+      control.closest(".field")?.querySelector("[data-rich-editor]")?.removeAttribute("aria-invalid");
+      control.closest(".field")?.classList.remove("invalid-field");
+      const errorId = control.id + "Error";
+      const error = document.getElementById(errorId);
+      if (error) error.remove();
+      const describedBy = (control.getAttribute("aria-describedby") || "").split(/\s+/).filter(id => id && id !== errorId);
+      if (describedBy.length) control.setAttribute("aria-describedby", describedBy.join(" "));
+      else control.removeAttribute("aria-describedby");
+    }
+
+    function reportFieldErrors(issues) {
+      msg.style.display = "block";
+      msg.className = "msg err";
+      msg.textContent = "請修正以下欄位：" + issues.map(({ control }) => fieldLabel(control)).join("、") + "。";
+      for (const { control, message } of issues) {
+        control.setAttribute("aria-invalid", "true");
+        control.closest(".field")?.querySelector("[data-rich-editor]")?.setAttribute("aria-invalid", "true");
+        const field = control.closest(".field");
+        field.classList.add("invalid-field");
+        let error = document.getElementById(control.id + "Error");
+        if (!error) {
+          error = document.createElement("div");
+          error.id = control.id + "Error";
+          error.className = "field-error";
+          field.append(error);
+        }
+        error.textContent = message;
+        const describedBy = new Set((control.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean));
+        describedBy.add(error.id);
+        control.setAttribute("aria-describedby", Array.from(describedBy).join(" "));
+      }
+      const first = issues[0].control.closest(".field")?.querySelector("[data-rich-editor]") || issues[0].control;
+      first.scrollIntoView({ block: "center" });
+      first.focus({ preventScroll: true });
+    }
+
+    for (const control of form.querySelectorAll(".field input,.field select,.field textarea")) {
+      if (!control.id) control.id = "apply-" + control.name;
+      const label = control.closest(".field").querySelector("label");
+      if (label) label.htmlFor = control.id;
+      control.addEventListener("input", () => clearFieldError(control));
+      control.addEventListener("change", () => clearFieldError(control));
+    }
+
+    function validateFields() {
+      window.SakuraVendorContent.sync(form);
+      const issues = [];
+      for (const control of form.elements) {
+        if ((!control.willValidate && !control.closest("[data-vendor-content]")) || !control.closest(".field")) continue;
+        clearFieldError(control);
+        const value = control.closest("[data-vendor-content]") ? control.closest(".field").querySelector("[data-rich-editor]").textContent.trim() : String(control.value || "").trim();
+        let message = "";
+        if (control.required && !value && control.type !== "file") message = "請填寫" + fieldLabel(control) + "。";
+        if (control.name === "vendor_portal_username") {
+          if (!value) message = "請設定店家登入帳號。";
+          else if (value.length < 4 || value.length > 64 || /\s/.test(value)) message = "店家登入帳號需為 4 至 64 個字元，且不可包含空白。";
+        }
+        if (control.name === "vendor_portal_password" && value && (value.length < 8 || value.length > 128)) message = "店家登入密碼需為 8 至 128 個字元。";
+        if (message) control.setCustomValidity(message);
+        if (!control.validity.valid) issues.push({ control, message: message || control.validationMessage });
+      }
+      if (issues.length) reportFieldErrors(issues);
+      return issues.length === 0;
+    }
 
     function toBase64(file) {
       return new Promise((resolve, reject) => {
@@ -114,6 +196,7 @@
 
     form.onsubmit = async (e) => {
       e.preventDefault();
+      if (!validateFields()) return;
       msg.style.display = "block";
       msg.className = "msg";
       msg.textContent = "送出中，檔案上傳需要一點時間...";
@@ -135,11 +218,25 @@
         });
         const json = await res.json();
         if (!json.success) throw new Error(json.message || "送出失敗");
-        msg.textContent = "申請已送出，請等待福委會審核。申請編號：" + (json.data && json.data.id || "");
+        const binding=json.data && json.data.line_binding_code;
+        msg.style.whiteSpace="pre-wrap";
+        msg.textContent = "申請已送出，請等待福委會審核。申請編號：" + (json.data && json.data.id || "") + (json.warning ? "\n" + json.warning : "");
+        if (binding || (json.warning && String(json.warning).includes('LINE 綁定序號'))) {
+          let panel=document.getElementById('vendorBindingCodeOnce');
+          if(!panel){panel=document.createElement('div');panel.id='vendorBindingCodeOnce';panel.className='msg';panel.setAttribute('role','status');panel.style.whiteSpace='pre-wrap';msg.insertAdjacentElement('afterend',panel);}
+          panel.textContent=binding ? '請在櫻花福委會 LINE 官方帳號的一對一聊天室輸入：\n'+binding.instruction+'\n序號只顯示這一次，可供同一家廠商的負責人使用，請妥善保管。序號有效直到管理員更換或停用。' : String(json.warning);
+          panel.style.display='block';
+        }
         form.reset();
       } catch (err) {
-        msg.className = "msg err";
-        msg.textContent = err.message;
+        const name = /店家登入帳號/.test(err.message) ? "vendor_portal_username" : /店家登入密碼/.test(err.message) ? "vendor_portal_password" : "";
+        const control = name && form.elements[name];
+        if (control) reportFieldErrors([{ control, message: err.message }]);
+        else {
+          msg.className = "msg err";
+          msg.textContent = err.message;
+          msg.scrollIntoView({ block: "center" });
+        }
       } finally {
         submitBtn.disabled = false;
       }

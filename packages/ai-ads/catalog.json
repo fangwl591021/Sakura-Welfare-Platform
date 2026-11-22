@@ -1,0 +1,5294 @@
+{
+  "schemaVersion": 1,
+  "version": "3.4.0",
+  "items": [
+    {
+      "id": "1",
+      "sourceId": 1,
+      "kind": "effect",
+      "group": "巨型廣告與城市奇觀",
+      "command": "/Giant Product",
+      "name": "巨型商品",
+      "description": "把主體誇張放大成高過摩天大樓的城市巨物",
+      "direction": "把主體誇張放大成高過摩天大樓的城市巨物",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/1.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "8b706847f6119df22266e92c5fafd3831e2bae02a44035d88a98b7a7364dfc63"
+      }
+    },
+    {
+      "id": "2",
+      "sourceId": 2,
+      "kind": "effect",
+      "group": "巨型廣告與城市奇觀",
+      "command": "/Billboard",
+      "name": "巨型廣告牌",
+      "description": "把主體呈現在城市中心的巨型 3D 廣告牌",
+      "direction": "把主體呈現在城市中心的巨型 3D 廣告牌",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/2.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "bf6d18b742a427f31b51f83bc6575d1e53a484f44ee20129f8a1bb25c803b091"
+      }
+    },
+    {
+      "id": "3",
+      "sourceId": 3,
+      "kind": "effect",
+      "group": "巨型廣告與城市奇觀",
+      "command": "/Surreal Ad",
+      "name": "超現實廣告",
+      "description": "讓主體進入打破現實物理規則的場景",
+      "direction": "讓主體進入打破現實物理規則的場景",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/3.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "fc04652e66def07fe6c64d0712aa73ae9d03020451e1abcceb2c1f73d05f691a"
+      }
+    },
+    {
+      "id": "4",
+      "sourceId": 4,
+      "kind": "effect",
+      "group": "巨型廣告與城市奇觀",
+      "command": "/Ecommerce",
+      "name": "高級電商廣告",
+      "description": "以專業商業攝影呈現主體與商品特色",
+      "direction": "以專業商業攝影呈現主體與商品特色",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/4.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0a3ffbdb5a6c503e2fcb02276dfaee0e04ca8e40f0d77758eb218f72b13d3711"
+      }
+    },
+    {
+      "id": "5",
+      "sourceId": 5,
+      "kind": "effect",
+      "group": "巨型廣告與城市奇觀",
+      "command": "/Mini Workers",
+      "name": "迷你工人",
+      "description": "讓微型工作人員圍繞主體施工與搬運",
+      "direction": "讓微型工作人員圍繞主體施工與搬運",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/5.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "cb4ddfa0df4e9907d196c49f35f031726a74f5c052e972c78303ea468eedd661"
+      }
+    },
+    {
+      "id": "6",
+      "sourceId": 6,
+      "kind": "effect",
+      "group": "巨型廣告與城市奇觀",
+      "command": "/Exploded View",
+      "name": "產品爆炸分解",
+      "description": "將產品組件整齊懸浮分解以展現結構",
+      "direction": "將產品組件整齊懸浮分解以展現結構",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/6.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "496e01f641cf2002421388c2f794379fa7f5f54142cba7b692a2d8274fe06fe4"
+      }
+    },
+    {
+      "id": "7",
+      "sourceId": 7,
+      "kind": "effect",
+      "group": "巨型廣告與城市奇觀",
+      "command": "/Cutaway",
+      "name": "產品剖面",
+      "description": "透過局部剖面呈現產品內部層次",
+      "direction": "透過局部剖面呈現產品內部層次",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/7.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "be9f0b00cdc06e9b598a5bad213f0c2d2cd2d0db3b9626c054de4d87e07f3339"
+      }
+    },
+    {
+      "id": "8",
+      "sourceId": 8,
+      "kind": "effect",
+      "group": "巨型廣告與城市奇觀",
+      "command": "/X Ray",
+      "name": "X 光透視",
+      "description": "以 X 光視覺呈現產品的概念性內部構造",
+      "direction": "以 X 光視覺呈現產品的概念性內部構造",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/8.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d99cb8c11be5b3c7ea96c8a17e9efe8dcf87d989ce0724b52a4307d6bd6aa56c"
+      }
+    },
+    {
+      "id": "9",
+      "sourceId": 9,
+      "kind": "effect",
+      "group": "巨型廣告與城市奇觀",
+      "command": "/Product Building",
+      "name": "產品建築化",
+      "description": "把產品造型轉化為城市高樓",
+      "direction": "把產品造型轉化為城市高樓",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/9.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "b51a5480d86a37f237dc5f789c957e23062171555db6d36d3913dc0981e36a22"
+      }
+    },
+    {
+      "id": "10",
+      "sourceId": 10,
+      "kind": "effect",
+      "group": "巨型廣告與城市奇觀",
+      "command": "/Luxury Ad",
+      "name": "精品廣告",
+      "description": "以高級精品商業攝影呈現主體",
+      "direction": "以高級精品商業攝影呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/10.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0f559aa4a9ac5554fee142af9536ded0350da6ff546ea6d8e924be136e812fb6"
+      }
+    },
+    {
+      "id": "11",
+      "sourceId": 11,
+      "kind": "effect",
+      "group": "城市巨物與空間反差",
+      "command": "/Giant Street",
+      "name": "巨物街頭",
+      "description": "巨大主體佔據城市街道並形成比例反差",
+      "direction": "巨大主體佔據城市街道並形成比例反差",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/11.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "342ad522dd9188208bab533ddfae02346c6bdda4c99b5edf83f80cb3b325e1c1"
+      }
+    },
+    {
+      "id": "12",
+      "sourceId": 12,
+      "kind": "effect",
+      "group": "城市巨物與空間反差",
+      "command": "/Floating City",
+      "name": "漂浮城市",
+      "description": "讓主體與城市建築漂浮於天空",
+      "direction": "讓主體與城市建築漂浮於天空",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/12.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0f8b32ce3cbaa947e942fc0be259b62ff7929abda5a750bade6477a4db761688"
+      }
+    },
+    {
+      "id": "13",
+      "sourceId": 13,
+      "kind": "effect",
+      "group": "城市巨物與空間反差",
+      "command": "/Bridge Installation",
+      "name": "巨型橋梁裝置",
+      "description": "把主體設計成跨越橋梁的城市裝置",
+      "direction": "把主體設計成跨越橋梁的城市裝置",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/13.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "4bebed5065ad03adc466b5d4fbaf8ed93c0d81a18d2f138ad1cb8cb151b1b2bf"
+      }
+    },
+    {
+      "id": "14",
+      "sourceId": 14,
+      "kind": "effect",
+      "group": "城市巨物與空間反差",
+      "command": "/Stadium Reveal",
+      "name": "體育館巨型展示",
+      "description": "在大型體育場中心呈現巨大主體",
+      "direction": "在大型體育場中心呈現巨大主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/14.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "bd5c02dd8f78bee0619025904ef284cb110df990df8241be1020ba566a8db2eb"
+      }
+    },
+    {
+      "id": "15",
+      "sourceId": 15,
+      "kind": "effect",
+      "group": "城市巨物與空間反差",
+      "command": "/Urban Wrap",
+      "name": "建築廣告包圍",
+      "description": "以品牌視覺包裝整棟城市大樓",
+      "direction": "以品牌視覺包裝整棟城市大樓",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/15.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "f06478db06ac6fcbd98a2f27229ef8086b7540423e536b2bedbb9b7b8babbfa8"
+      }
+    },
+    {
+      "id": "16",
+      "sourceId": 16,
+      "kind": "effect",
+      "group": "城市巨物與空間反差",
+      "command": "/Rooftop Drop",
+      "name": "巨物降落屋頂",
+      "description": "巨大主體置於摩天大樓屋頂",
+      "direction": "巨大主體置於摩天大樓屋頂",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/16.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "3116ee8c3d7b92f25dcb55717b34adc7a53a8f0e4aa7aafdad4de2b86ac63589"
+      }
+    },
+    {
+      "id": "17",
+      "sourceId": 17,
+      "kind": "effect",
+      "group": "城市巨物與空間反差",
+      "command": "/Container Port",
+      "name": "貨櫃碼頭巨物",
+      "description": "以貨櫃碼頭起重機突顯巨大主體",
+      "direction": "以貨櫃碼頭起重機突顯巨大主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/17.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d497ebd1865f7eb1c371ff78e121174eb0aa7b749d6a5bd7643c1b5ebb5501ae"
+      }
+    },
+    {
+      "id": "18",
+      "sourceId": 18,
+      "kind": "effect",
+      "group": "城市巨物與空間反差",
+      "command": "/Product Monument",
+      "name": "產品紀念碑",
+      "description": "讓主體成為具有地標感的雕塑",
+      "direction": "讓主體成為具有地標感的雕塑",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/18.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "e0a572362d20e7565880bb68d52b65f2a834c85dce6b2de37efd89bddd454075"
+      }
+    },
+    {
+      "id": "19",
+      "sourceId": 19,
+      "kind": "effect",
+      "group": "城市巨物與空間反差",
+      "command": "/Street Invasion",
+      "name": "產品佔領街道",
+      "description": "以大量重複主體排滿城市街道",
+      "direction": "以大量重複主體排滿城市街道",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/19.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "412d8a4633cf249eb3dfdd1b3af64df8644ddc7b3962d988dca9da7bc7aa9e6b"
+      }
+    },
+    {
+      "id": "20",
+      "sourceId": 20,
+      "kind": "effect",
+      "group": "城市巨物與空間反差",
+      "command": "/Tiny Humans",
+      "name": "迷你人類",
+      "description": "以極小人物對比正常尺寸的主體",
+      "direction": "以極小人物對比正常尺寸的主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/20.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "fcdf7dda279b5dd61afd90e878227d8605757d8f3e17254a1013cd62bdfabbda"
+      }
+    },
+    {
+      "id": "21",
+      "sourceId": 21,
+      "kind": "effect",
+      "group": "電商與品牌商業廣告",
+      "command": "/Facebook Ad",
+      "name": "Facebook 廣告圖",
+      "description": "呈現適合社群動態的商業宣傳視覺",
+      "direction": "呈現適合社群動態的商業宣傳視覺",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/21.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "c8fdadd8c7512d709bacae1810e4fcd178653afe25620398b728fd0eca6dbee4"
+      }
+    },
+    {
+      "id": "22",
+      "sourceId": 22,
+      "kind": "effect",
+      "group": "電商與品牌商業廣告",
+      "command": "/Shopee Hero",
+      "name": "電商商品主圖",
+      "description": "設計乾淨、聚焦商品的主視覺",
+      "direction": "設計乾淨、聚焦商品的主視覺",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/22.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "a5831a56416be8966fea9dcccb63fd845dcbcf789157a5865ec9751e7f97323d"
+      }
+    },
+    {
+      "id": "23",
+      "sourceId": 23,
+      "kind": "effect",
+      "group": "電商與品牌商業廣告",
+      "command": "/Magazine Cover",
+      "name": "雜誌封面",
+      "description": "打造有封面構圖感的時尚雜誌廣告",
+      "direction": "打造有封面構圖感的時尚雜誌廣告",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/23.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "06b040ec2faeefd5a53960f8b074767e0c773084cffe36958bbd86e12b5273d3"
+      }
+    },
+    {
+      "id": "24",
+      "sourceId": 24,
+      "kind": "effect",
+      "group": "電商與品牌商業廣告",
+      "command": "/Bus Wrap",
+      "name": "巴士車身廣告",
+      "description": "把品牌視覺應用於巴士車體",
+      "direction": "把品牌視覺應用於巴士車體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/24.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d83c37d731af379654805b08e09f5995ace6bcc710f6be061db52aa68ded6479"
+      }
+    },
+    {
+      "id": "25",
+      "sourceId": 25,
+      "kind": "effect",
+      "group": "電商與品牌商業廣告",
+      "command": "/Subway Ad",
+      "name": "捷運廣告",
+      "description": "模擬捷運站燈箱和大型牆面廣告",
+      "direction": "模擬捷運站燈箱和大型牆面廣告",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/25.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "fdea317328356c255627a28d14af8c46b60705195d5407ba5ce052e80de3bd2a"
+      }
+    },
+    {
+      "id": "26",
+      "sourceId": 26,
+      "kind": "effect",
+      "group": "電商與品牌商業廣告",
+      "command": "/Mall Atrium",
+      "name": "商場巨型廣告",
+      "description": "在商場挑高空間展示主體裝置",
+      "direction": "在商場挑高空間展示主體裝置",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/26.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "1a44aecf02c057945819d027c278b5bb2657cb9f42522a5ff7f9b59e393d3835"
+      }
+    },
+    {
+      "id": "27",
+      "sourceId": 27,
+      "kind": "effect",
+      "group": "電商與品牌商業廣告",
+      "command": "/Storefront Takeover",
+      "name": "店面品牌改造",
+      "description": "把店面呈現為品牌風格的旗艦門面",
+      "direction": "把店面呈現為品牌風格的旗艦門面",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/27.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "39622ebf021842f865cd20dd6edd05874b7b9673c9f5819883361191cafa9613"
+      }
+    },
+    {
+      "id": "28",
+      "sourceId": 28,
+      "kind": "effect",
+      "group": "電商與品牌商業廣告",
+      "command": "/Pop Up Store",
+      "name": "品牌快閃店",
+      "description": "設計品牌體驗空間與快閃展區",
+      "direction": "設計品牌體驗空間與快閃展區",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/28.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "4d57e4bda6e9046290ea747431d975fd8b47d9460b70f41562de1ef31fd80e72"
+      }
+    },
+    {
+      "id": "29",
+      "sourceId": 29,
+      "kind": "effect",
+      "group": "電商與品牌商業廣告",
+      "command": "/Product Pedestal",
+      "name": "高級展示台",
+      "description": "以大理石玻璃等材質展示產品",
+      "direction": "以大理石玻璃等材質展示產品",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/29.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "62727030707983bfbf3417c79805b7511b440de8563fadb42b098515b2d704ae"
+      }
+    },
+    {
+      "id": "30",
+      "sourceId": 30,
+      "kind": "effect",
+      "group": "電商與品牌商業廣告",
+      "command": "/Fashion Editorial",
+      "name": "時尚大片",
+      "description": "以國際時尚攝影視覺呈現主體",
+      "direction": "以國際時尚攝影視覺呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/30.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "3854a9bb484d14cdf1020d98ab4e0fe4598002502f09eee7c610b84ca1986ae4"
+      }
+    },
+    {
+      "id": "31",
+      "sourceId": 31,
+      "kind": "effect",
+      "group": "迷你世界與創意工廠",
+      "command": "/Macro World",
+      "name": "超微距世界",
+      "description": "把表面紋理呈現成壯觀的微距地形",
+      "direction": "把表面紋理呈現成壯觀的微距地形",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/31.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "b971b3e9d0c0d0cdad8fba539f075fd46d8e850e037fb9ba2ea9b29e219a6751"
+      }
+    },
+    {
+      "id": "32",
+      "sourceId": 32,
+      "kind": "effect",
+      "group": "迷你世界與創意工廠",
+      "command": "/Miniature Factory",
+      "name": "微縮工廠",
+      "description": "以微型機器人和工人圍繞主體",
+      "direction": "以微型機器人和工人圍繞主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/32.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "bcad04be79cab71ccc50fe576b92f034984c8bbe8dbb7f801342829b0f38ccac"
+      }
+    },
+    {
+      "id": "33",
+      "sourceId": 33,
+      "kind": "effect",
+      "group": "迷你世界與創意工廠",
+      "command": "/Micro City",
+      "name": "產品微型城市",
+      "description": "在主體上呈現微型道路與建築",
+      "direction": "在主體上呈現微型道路與建築",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/33.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "5afe2559a9d34c3b615d3aba45862bbff8353626f64ef6c7ed481645ca3a317b"
+      }
+    },
+    {
+      "id": "34",
+      "sourceId": 34,
+      "kind": "effect",
+      "group": "迷你世界與創意工廠",
+      "command": "/Tiny Chefs",
+      "name": "迷你廚師",
+      "description": "微型廚師圍繞大型食物忙碌",
+      "direction": "微型廚師圍繞大型食物忙碌",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/34.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "144e43e19e960f79b075785ae8bf95afe919af816c4b984e733a41f2be3b6524"
+      }
+    },
+    {
+      "id": "35",
+      "sourceId": 35,
+      "kind": "effect",
+      "group": "迷你世界與創意工廠",
+      "command": "/Toy World",
+      "name": "玩具世界",
+      "description": "把主體融入精緻的模型玩具場景",
+      "direction": "把主體融入精緻的模型玩具場景",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/35.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "268eb52c734f758093107adc4c9148b2fd658c1458db545ad8f6f00b75ade3ca"
+      }
+    },
+    {
+      "id": "36",
+      "sourceId": 36,
+      "kind": "effect",
+      "group": "迷你世界與創意工廠",
+      "command": "/Miniature Garden",
+      "name": "迷你花園",
+      "description": "在主體周圍打造微型自然園景",
+      "direction": "在主體周圍打造微型自然園景",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/36.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "b7d0c9153bca66b35b0727a11e2add8e58b7adfd2ce0df8a6c6a7defe63c8174"
+      }
+    },
+    {
+      "id": "37",
+      "sourceId": 37,
+      "kind": "effect",
+      "group": "迷你世界與創意工廠",
+      "command": "/Clockwork World",
+      "name": "發條機械世界",
+      "description": "用齒輪和精密發條營造機械世界",
+      "direction": "用齒輪和精密發條營造機械世界",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/37.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "7e9db9fe205c44d3600b797c91fd37dd92d9d8be66b1171bfd98d19ed429b78c"
+      }
+    },
+    {
+      "id": "38",
+      "sourceId": 38,
+      "kind": "effect",
+      "group": "迷你世界與創意工廠",
+      "command": "/Dollhouse Scene",
+      "name": "娃娃屋場景",
+      "description": "呈現精緻微型房間與生活環境",
+      "direction": "呈現精緻微型房間與生活環境",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/38.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "c3e04e7aaaec5e64e76cf5f03a5f318182ebbccd413b0c62c3dfebab0ae75328"
+      }
+    },
+    {
+      "id": "39",
+      "sourceId": 39,
+      "kind": "effect",
+      "group": "迷你世界與創意工廠",
+      "command": "/Food Construction",
+      "name": "食物施工現場",
+      "description": "以吊車和工人施工巨大食物",
+      "direction": "以吊車和工人施工巨大食物",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/39.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "5e6460e2dea7376c3a23072029ec91bd12f626ddb4d1f9581c5ed03470737a44"
+      }
+    },
+    {
+      "id": "40",
+      "sourceId": 40,
+      "kind": "effect",
+      "group": "迷你世界與創意工廠",
+      "command": "/Pocket Universe",
+      "name": "口袋宇宙",
+      "description": "在主體內呈現概念性的星際世界",
+      "direction": "在主體內呈現概念性的星際世界",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/40.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d1d5a3475ce93135720de8e9b824b440cf3b231fc1793e4691e75a54c671e564"
+      }
+    },
+    {
+      "id": "41",
+      "sourceId": 41,
+      "kind": "effect",
+      "group": "水火冰雷與自然衝擊",
+      "command": "/Water Splash",
+      "name": "水花衝擊",
+      "description": "透明水花、水霧與高速飛濺水滴包圍主體",
+      "direction": "透明水花、水霧與高速飛濺水滴包圍主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/41.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "a22b4070ed651fd49363a5253afac6b08dd58c7eabda74bca00ded219c50b106"
+      }
+    },
+    {
+      "id": "42",
+      "sourceId": 42,
+      "kind": "effect",
+      "group": "水火冰雷與自然衝擊",
+      "command": "/Ice Blast",
+      "name": "冰塊爆裂",
+      "description": "主體周圍冰晶爆裂飛散",
+      "direction": "主體周圍冰晶爆裂飛散",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/42.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "afccaf0a8c2bbbf403e9c356c3b6d6b45f9176c8011fb40be05d19c6c7f8ab54"
+      }
+    },
+    {
+      "id": "43",
+      "sourceId": 43,
+      "kind": "effect",
+      "group": "水火冰雷與自然衝擊",
+      "command": "/Volcanic Forge",
+      "name": "火山熔岩",
+      "description": "以火山岩漿與火焰營造視覺張力",
+      "direction": "以火山岩漿與火焰營造視覺張力",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/43.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "e81352a77422275b9eba9e9e4378ff300746dd8068c30c673cca8da4f93dfd38"
+      }
+    },
+    {
+      "id": "44",
+      "sourceId": 44,
+      "kind": "effect",
+      "group": "水火冰雷與自然衝擊",
+      "command": "/Sandstorm Reveal",
+      "name": "沙暴降臨",
+      "description": "主體從沙漠風暴中出現",
+      "direction": "主體從沙漠風暴中出現",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/44.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "21e3cfedd8a3218cd6a20078b160fbe640e8baa3039a36a44676f2dcc816af43"
+      }
+    },
+    {
+      "id": "45",
+      "sourceId": 45,
+      "kind": "effect",
+      "group": "水火冰雷與自然衝擊",
+      "command": "/Powder Blast",
+      "name": "彩色粉末爆炸",
+      "description": "以彩色粉末飛散增加背景衝擊力",
+      "direction": "以彩色粉末飛散增加背景衝擊力",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/45.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "ffce8bbddb2f03c614f2d3104802953c56d3439bac4fd402b5b9b13a162b9771"
+      }
+    },
+    {
+      "id": "46",
+      "sourceId": 46,
+      "kind": "effect",
+      "group": "水火冰雷與自然衝擊",
+      "command": "/Smoke Sculpture",
+      "name": "煙霧雕塑",
+      "description": "以煙霧環繞主體形成藝術圖形",
+      "direction": "以煙霧環繞主體形成藝術圖形",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/46.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "f1cb99c50390e8c46f09f98bb459af55245ff1f8aeffda543a669252fe172523"
+      }
+    },
+    {
+      "id": "47",
+      "sourceId": 47,
+      "kind": "effect",
+      "group": "水火冰雷與自然衝擊",
+      "command": "/Rain Freeze",
+      "name": "雨滴時間凍結",
+      "description": "讓雨滴凝結在空中形成定格視覺",
+      "direction": "讓雨滴凝結在空中形成定格視覺",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/47.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "4a85da382172fda932b077016762a510d3cf587f98ae82c712068044a70153df"
+      }
+    },
+    {
+      "id": "48",
+      "sourceId": 48,
+      "kind": "effect",
+      "group": "水火冰雷與自然衝擊",
+      "command": "/Ocean Vortex",
+      "name": "海洋漩渦",
+      "description": "以環繞主體的海浪漩渦構圖",
+      "direction": "以環繞主體的海浪漩渦構圖",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/48.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "5ba0fd2ec8cd8a7641ff9c1b83c95a03871293f31a671141a6c2e03cab1a32c4"
+      }
+    },
+    {
+      "id": "49",
+      "sourceId": 49,
+      "kind": "effect",
+      "group": "水火冰雷與自然衝擊",
+      "command": "/Crystal Bloom",
+      "name": "水晶生長",
+      "description": "在主體表面呈現水晶藝術質感",
+      "direction": "在主體表面呈現水晶藝術質感",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/49.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "114a4246682e8e3ea027790213d7189d0c24dc614d6081b598121641a396efbf"
+      }
+    },
+    {
+      "id": "50",
+      "sourceId": 50,
+      "kind": "effect",
+      "group": "水火冰雷與自然衝擊",
+      "command": "/Liquid Metal",
+      "name": "液態金屬",
+      "description": "以反光液態金屬包裹主體",
+      "direction": "以反光液態金屬包裹主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/50.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "799f734e4483f27080bf90cfcd535eb204a98fd152ac7047dda92a1cb59314f6"
+      }
+    },
+    {
+      "id": "51",
+      "sourceId": 51,
+      "kind": "effect",
+      "group": "空間錯覺與不可能世界",
+      "command": "/Gravity Break",
+      "name": "反重力世界",
+      "description": "讓主體與物件違反重力漂浮",
+      "direction": "讓主體與物件違反重力漂浮",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/51.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "15b8a9a2594d7030743ca43127af3d08e54aaaacc03acb3a1f7823407c028370"
+      }
+    },
+    {
+      "id": "52",
+      "sourceId": 52,
+      "kind": "effect",
+      "group": "空間錯覺與不可能世界",
+      "command": "/Reality Tear",
+      "name": "撕裂現實",
+      "description": "以空間撕裂展現另一個世界",
+      "direction": "以空間撕裂展現另一個世界",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/52.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "40f8ddaebcd6c8b611a2f7ffd87695bf51411dd990875e54be2b0560bf73dfe6"
+      }
+    },
+    {
+      "id": "53",
+      "sourceId": 53,
+      "kind": "effect",
+      "group": "空間錯覺與不可能世界",
+      "command": "/Dimension Portal",
+      "name": "異次元傳送門",
+      "description": "讓主體出現在跨越場景的光門中",
+      "direction": "讓主體出現在跨越場景的光門中",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/53.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "ce88230a28ff2259fead58ca7abb7dae3fd5ab83bc49a20b7495cc262b34b269"
+      }
+    },
+    {
+      "id": "54",
+      "sourceId": 54,
+      "kind": "effect",
+      "group": "空間錯覺與不可能世界",
+      "command": "/Shadow Illusion",
+      "name": "神秘影子",
+      "description": "讓投影呈現不同於本體的創意形象",
+      "direction": "讓投影呈現不同於本體的創意形象",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/54.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "bcb5f83b8b30158aca7d335c2c73812793df921a644bf3d7422b3d1e9283d798"
+      }
+    },
+    {
+      "id": "55",
+      "sourceId": 55,
+      "kind": "effect",
+      "group": "空間錯覺與不可能世界",
+      "command": "/Impossible Architecture",
+      "name": "不可能建築",
+      "description": "把主體放在超現實建築空間",
+      "direction": "把主體放在超現實建築空間",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/55.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "05d6beed62cd698c19bc133858b3f83eadc717e0683c12ee576617ca8e75ba82"
+      }
+    },
+    {
+      "id": "56",
+      "sourceId": 56,
+      "kind": "effect",
+      "group": "空間錯覺與不可能世界",
+      "command": "/Mirror World",
+      "name": "鏡像世界",
+      "description": "以鏡面反射營造對稱與深度",
+      "direction": "以鏡面反射營造對稱與深度",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/56.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "914677cd0d84801431badc9fa6c94bb317f21652a568e7901d84a421e7658a75"
+      }
+    },
+    {
+      "id": "57",
+      "sourceId": 57,
+      "kind": "effect",
+      "group": "空間錯覺與不可能世界",
+      "command": "/Infinite Corridor",
+      "name": "無限走廊",
+      "description": "讓主體位於無限延伸的走廊",
+      "direction": "讓主體位於無限延伸的走廊",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/57.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "71594459946a8af5acf332607feadc136281275db10fe76f45443d14b05f9d39"
+      }
+    },
+    {
+      "id": "58",
+      "sourceId": 58,
+      "kind": "effect",
+      "group": "空間錯覺與不可能世界",
+      "command": "/Upside Down City",
+      "name": "倒立城市",
+      "description": "以顛倒城市場景呈現視覺反差",
+      "direction": "以顛倒城市場景呈現視覺反差",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/58.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "3cf32b57a72708ca7ca7c778b83dd587e3c86cc511a2e248c1f6bf5a5a169441"
+      }
+    },
+    {
+      "id": "59",
+      "sourceId": 59,
+      "kind": "effect",
+      "group": "空間錯覺與不可能世界",
+      "command": "/Optical Illusion",
+      "name": "視覺錯覺",
+      "description": "讓空間與造型產生錯覺",
+      "direction": "讓空間與造型產生錯覺",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/59.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "b4da47807215e4a32a8c8a09f1f9614e08bcae4091ee6e40d743adda5a70fe96"
+      }
+    },
+    {
+      "id": "60",
+      "sourceId": 60,
+      "kind": "effect",
+      "group": "空間錯覺與不可能世界",
+      "command": "/Perspective Trick",
+      "name": "透視魔術",
+      "description": "運用遠近透視改變主體視覺尺寸",
+      "direction": "運用遠近透視改變主體視覺尺寸",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/60.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "3bf4b5cf6d6f49c844dcb4bc2b6a6f31721f91f04185a92e5ef32030e6697efd"
+      }
+    },
+    {
+      "id": "61",
+      "sourceId": 61,
+      "kind": "effect",
+      "group": "科技機械與精密拆解",
+      "command": "/Hologram Scan",
+      "name": "全息掃描",
+      "description": "以實驗室全息投影呈現主體輪廓",
+      "direction": "以實驗室全息投影呈現主體輪廓",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/61.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "6ae34d00ff27d60f0177933f89c9c5f412912132b9ff64e3c071e5648fdda590"
+      }
+    },
+    {
+      "id": "62",
+      "sourceId": 62,
+      "kind": "effect",
+      "group": "科技機械與精密拆解",
+      "command": "/Transparent Shell",
+      "name": "透明外殼",
+      "description": "以透明材質呈現概念性內部層次",
+      "direction": "以透明材質呈現概念性內部層次",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/62.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "83b06d283407c7bef06d52050be287d7bdf0534395775afad80d75167243c789"
+      }
+    },
+    {
+      "id": "63",
+      "sourceId": 63,
+      "kind": "effect",
+      "group": "科技機械與精密拆解",
+      "command": "/Mechanical Transform",
+      "name": "機械變形",
+      "description": "將主體展開成機械變形場景",
+      "direction": "將主體展開成機械變形場景",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/63.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "c78e2f16e6579ffb9ec1044c2d1aff1882584ad19474582bd89113235b77955c"
+      }
+    },
+    {
+      "id": "64",
+      "sourceId": 64,
+      "kind": "effect",
+      "group": "科技機械與精密拆解",
+      "command": "/Blueprint Reality",
+      "name": "工程藍圖成真",
+      "description": "由平面藍圖轉化成立體主體",
+      "direction": "由平面藍圖轉化成立體主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/64.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "2a7c7dc1a4e7d7d33d30839868ae9f873db7f44506f33806bf18af2a7c9b22f4"
+      }
+    },
+    {
+      "id": "65",
+      "sourceId": 65,
+      "kind": "effect",
+      "group": "科技機械與精密拆解",
+      "command": "/Assembly Line",
+      "name": "自動化生產線",
+      "description": "以機械手臂與產線呈現主體",
+      "direction": "以機械手臂與產線呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/65.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "a4b1d51f60d7444d3153d776c9168b1d37c7aebcdbd2ef096f0001487f89f147"
+      }
+    },
+    {
+      "id": "66",
+      "sourceId": 66,
+      "kind": "effect",
+      "group": "科技機械與精密拆解",
+      "command": "/Product Anatomy",
+      "name": "產品結構解剖",
+      "description": "以科學式剖面呈現概念性構造",
+      "direction": "以科學式剖面呈現概念性構造",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/66.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "23ce7b92430d2630709959b22374f5547ca5d2ef20c5f0ae7faeafdc523dde01"
+      }
+    },
+    {
+      "id": "67",
+      "sourceId": 67,
+      "kind": "effect",
+      "group": "科技機械與精密拆解",
+      "command": "/Deconstructed Layers",
+      "name": "產品分層懸浮",
+      "description": "將包裝與外層分開懸浮展示",
+      "direction": "將包裝與外層分開懸浮展示",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/67.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "9df12cfaf2c7fd1c12334bcb38ae78eaad79f8016e9217e822e350efa7b7ac7d"
+      }
+    },
+    {
+      "id": "68",
+      "sourceId": 68,
+      "kind": "effect",
+      "group": "科技機械與精密拆解",
+      "command": "/Wireframe Object",
+      "name": "線框模型",
+      "description": "讓主體部分呈現立體線框",
+      "direction": "讓主體部分呈現立體線框",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/68.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "c77330fdeac86841c2766d9266a4314256ced38788f07516470181d1f8286af8"
+      }
+    },
+    {
+      "id": "69",
+      "sourceId": 69,
+      "kind": "effect",
+      "group": "科技機械與精密拆解",
+      "command": "/Time Freeze",
+      "name": "時間暫停",
+      "description": "讓物體碎片與水滴凝結在空中",
+      "direction": "讓物體碎片與水滴凝結在空中",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/69.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "5d316a5992f499d1db051c5c7ca3000e63fdc12c647798e2a4733812a644d8a7"
+      }
+    },
+    {
+      "id": "70",
+      "sourceId": 70,
+      "kind": "effect",
+      "group": "科技機械與精密拆解",
+      "command": "/Motion Trail",
+      "name": "高速運動軌跡",
+      "description": "以多重殘影與光軌營造速度感",
+      "direction": "以多重殘影與光軌營造速度感",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/70.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "01a3a0dac5fb6a1a6a063cea1be51d2197cd0b62cf4c592f180ecdf01328e43f"
+      }
+    },
+    {
+      "id": "71",
+      "sourceId": 71,
+      "kind": "effect",
+      "group": "奇幻場景與自然世界",
+      "command": "/Space Orbit",
+      "name": "宇宙軌道",
+      "description": "主體漂浮在行星星雲和銀河之間",
+      "direction": "主體漂浮在行星星雲和銀河之間",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/71.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0ef3ce82a295d446f65b059e9e915aa41ec43dcc5ad0c14fac0aa859f0fd6037"
+      }
+    },
+    {
+      "id": "72",
+      "sourceId": 72,
+      "kind": "effect",
+      "group": "奇幻場景與自然世界",
+      "command": "/Underwater World",
+      "name": "深海世界",
+      "description": "呈現珊瑚、魚群與水下光線",
+      "direction": "呈現珊瑚、魚群與水下光線",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/72.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "4afc14b21ad8d527109c78841978e75169a090610387fda82580021a4a025fcd"
+      }
+    },
+    {
+      "id": "73",
+      "sourceId": 73,
+      "kind": "effect",
+      "group": "奇幻場景與自然世界",
+      "command": "/Cloud Kingdom",
+      "name": "雲端王國",
+      "description": "主體置於雲海與天空平台",
+      "direction": "主體置於雲海與天空平台",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/73.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "882b10b7fca4b3f1afc685bc126de7c9fb7546e4699a61513e0a4986fbafaa31"
+      }
+    },
+    {
+      "id": "74",
+      "sourceId": 74,
+      "kind": "effect",
+      "group": "奇幻場景與自然世界",
+      "command": "/Jungle Takeover",
+      "name": "叢林吞噬",
+      "description": "以藤蔓與綠植包圍主體",
+      "direction": "以藤蔓與綠植包圍主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/74.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "95d1a33bd96e46a2755377fb0c4131721f61254f04059edc66dc3a44b84dc805"
+      }
+    },
+    {
+      "id": "75",
+      "sourceId": 75,
+      "kind": "effect",
+      "group": "奇幻場景與自然世界",
+      "command": "/Desert Mirage",
+      "name": "沙漠幻境",
+      "description": "以沙丘和熱浪呈現主體",
+      "direction": "以沙丘和熱浪呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/75.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "a5ae603c58a2c5f0c1796de8c8e315b41cc834aa4df0da446df88f81edef2db0"
+      }
+    },
+    {
+      "id": "76",
+      "sourceId": 76,
+      "kind": "effect",
+      "group": "奇幻場景與自然世界",
+      "command": "/Mountain Summit",
+      "name": "山巔巨物",
+      "description": "主體在高山雪峰上呈現",
+      "direction": "主體在高山雪峰上呈現",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/76.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "f7c19c38171796ee60d8edf2c0de84d5fd8613d55e6d13c55dce8abe4fb9abbc"
+      }
+    },
+    {
+      "id": "77",
+      "sourceId": 77,
+      "kind": "effect",
+      "group": "奇幻場景與自然世界",
+      "command": "/Arctic Expedition",
+      "name": "極地探險",
+      "description": "以冰原冰山形成極地場景",
+      "direction": "以冰原冰山形成極地場景",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/77.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "57c0d72ba02f5bc49409e51dce1acfaec73c6e971f81c1b278726c5dba1b33b0"
+      }
+    },
+    {
+      "id": "78",
+      "sourceId": 78,
+      "kind": "effect",
+      "group": "奇幻場景與自然世界",
+      "command": "/Deep Cave",
+      "name": "神秘洞穴",
+      "description": "主體置於鐘乳石與地下河洞穴",
+      "direction": "主體置於鐘乳石與地下河洞穴",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/78.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "169f831e804698b99c589a9aa24670300062a67167a4cd9439eb0732ebbda190"
+      }
+    },
+    {
+      "id": "79",
+      "sourceId": 79,
+      "kind": "effect",
+      "group": "奇幻場景與自然世界",
+      "command": "/Lost Temple",
+      "name": "失落神殿",
+      "description": "以古代遺跡和石柱環繞主體",
+      "direction": "以古代遺跡和石柱環繞主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/79.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "be88e2ded231e623867711a9939c7d78c0b1bd733203f85496cfea670516b074"
+      }
+    },
+    {
+      "id": "80",
+      "sourceId": 80,
+      "kind": "effect",
+      "group": "奇幻場景與自然世界",
+      "command": "/Ancient Artifact",
+      "name": "千年神秘神器",
+      "description": "把主體概念化為古代珍貴文物",
+      "direction": "把主體概念化為古代珍貴文物",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/80.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d8703aa061993b2e300363f4817ac08fb620befa976604489e4a60fffb58a111"
+      }
+    },
+    {
+      "id": "81",
+      "sourceId": 81,
+      "kind": "effect",
+      "group": "藝術材質與創意變形",
+      "command": "/Origami Explosion",
+      "name": "折紙爆發",
+      "description": "以精密折紙構造重新演繹主體",
+      "direction": "以精密折紙構造重新演繹主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/81.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "66d96099ebe40236b1be3d8fec9bbe8defdfa6be9abae731305c12ec134223e8"
+      }
+    },
+    {
+      "id": "82",
+      "sourceId": 82,
+      "kind": "effect",
+      "group": "藝術材質與創意變形",
+      "command": "/Paper Cut World",
+      "name": "剪紙世界",
+      "description": "用多層立體剪紙呈現主體",
+      "direction": "用多層立體剪紙呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/82.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "f102bb699de4b85a6384e628504100f53cea75bc14de441a107a2a970b56d6ae"
+      }
+    },
+    {
+      "id": "83",
+      "sourceId": 83,
+      "kind": "effect",
+      "group": "藝術材質與創意變形",
+      "command": "/Glass Prison",
+      "name": "玻璃封印",
+      "description": "讓主體置於透明玻璃立方體",
+      "direction": "讓主體置於透明玻璃立方體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/83.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "1f589519c88d71fe9c21b5c2e39fd0ac1a70d653ecee4415033c852fbd947d60"
+      }
+    },
+    {
+      "id": "84",
+      "sourceId": 84,
+      "kind": "effect",
+      "group": "藝術材質與創意變形",
+      "command": "/Chrome Sculpture",
+      "name": "鏡面金屬雕塑",
+      "description": "以鏡面鉻金屬質感詮釋主體",
+      "direction": "以鏡面鉻金屬質感詮釋主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/84.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "b3d492bd29537f0cb9717dfa57ca4d0fd494be05f10a7636a9dbb2142bd6a41f"
+      }
+    },
+    {
+      "id": "85",
+      "sourceId": 85,
+      "kind": "effect",
+      "group": "藝術材質與創意變形",
+      "command": "/Fabric Sculpture",
+      "name": "布料雕塑",
+      "description": "以布料褶皺構成主體形象",
+      "direction": "以布料褶皺構成主體形象",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/85.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "62ba637b3ff2b765ad2ac13aedce050ec45cf93a1ebfc3723778b482d386b866"
+      }
+    },
+    {
+      "id": "86",
+      "sourceId": 86,
+      "kind": "effect",
+      "group": "藝術材質與創意變形",
+      "command": "/Clay Morph",
+      "name": "黏土變形",
+      "description": "以精緻黏土雕塑呈現主體",
+      "direction": "以精緻黏土雕塑呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/86.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "38729656774dfa412a0804cdeab364fc5ca59e90afe65884ba59d0319009d4d5"
+      }
+    },
+    {
+      "id": "87",
+      "sourceId": 87,
+      "kind": "effect",
+      "group": "藝術材質與創意變形",
+      "command": "/Wood Carving",
+      "name": "木雕藝術",
+      "description": "以天然木紋與精密雕刻呈現主體",
+      "direction": "以天然木紋與精密雕刻呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/87.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "90ee9b65aaaf74971bc384b8020bb2059856b72abfe420175ed52e7cb667026e"
+      }
+    },
+    {
+      "id": "88",
+      "sourceId": 88,
+      "kind": "effect",
+      "group": "藝術材質與創意變形",
+      "command": "/Marble Statue",
+      "name": "大理石雕像",
+      "description": "以白色大理石雕塑呈現主體",
+      "direction": "以白色大理石雕塑呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/88.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "39d2d559447f31bfb90a7653d4eac0c1070d02827e6c05b52b6f408da53e0906"
+      }
+    },
+    {
+      "id": "89",
+      "sourceId": 89,
+      "kind": "effect",
+      "group": "藝術材質與創意變形",
+      "command": "/Neon Sign",
+      "name": "霓虹燈藝術",
+      "description": "以大型霓虹燈裝置勾勒主體",
+      "direction": "以大型霓虹燈裝置勾勒主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/89.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "96cf8ad46fbe0d06882cccc24e16f9cc0820165b9e5f889986eac553b96f5f2c"
+      }
+    },
+    {
+      "id": "90",
+      "sourceId": 90,
+      "kind": "effect",
+      "group": "藝術材質與創意變形",
+      "command": "/Mosaic Art",
+      "name": "馬賽克藝術",
+      "description": "以磁磚和玻璃拼貼呈現主體",
+      "direction": "以磁磚和玻璃拼貼呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/90.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "aeefcb6fb2b51028d0a33a44ac55a82b5337fa9efc9e2cd09d4b5ebfe26182e9"
+      }
+    },
+    {
+      "id": "91",
+      "sourceId": 91,
+      "kind": "effect",
+      "group": "電影級創意廣告",
+      "command": "/Cinematic Ad",
+      "name": "電影級廣告",
+      "description": "以電影光影、鏡頭語言呈現廣告",
+      "direction": "以電影光影、鏡頭語言呈現廣告",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/91.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "f2a849a2127f470a1b7612dd8fe56e714bb306dcf23331e9189aecb87b78d275"
+      }
+    },
+    {
+      "id": "92",
+      "sourceId": 92,
+      "kind": "effect",
+      "group": "電影級創意廣告",
+      "command": "/Action Freeze",
+      "name": "動作瞬間定格",
+      "description": "讓動作、碎片與水滴瞬間凍結",
+      "direction": "讓動作、碎片與水滴瞬間凍結",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/92.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d471b2d4c81b25ff955aa6c15aedbf0a7f002b13cc9be2c62e3af53147706941"
+      }
+    },
+    {
+      "id": "93",
+      "sourceId": 93,
+      "kind": "effect",
+      "group": "電影級創意廣告",
+      "command": "/Product Chase",
+      "name": "產品追逐大片",
+      "description": "以城市追逐場景呈現主體",
+      "direction": "以城市追逐場景呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/93.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "75b3f3944191230f6e915d7a6047e3db99474367a42485dd13f96f6f1faae3f9"
+      }
+    },
+    {
+      "id": "94",
+      "sourceId": 94,
+      "kind": "effect",
+      "group": "電影級創意廣告",
+      "command": "/Heist Scene",
+      "name": "電影搶奪場景",
+      "description": "以保安金庫場景烘托主體",
+      "direction": "以保安金庫場景烘托主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/94.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "4414fb752d88bbbb9645e09cacce47bab954d8e5bbbf3cb7cae3c0bce43c72d0"
+      }
+    },
+    {
+      "id": "95",
+      "sourceId": 95,
+      "kind": "effect",
+      "group": "電影級創意廣告",
+      "command": "/Museum Display",
+      "name": "博物館展品",
+      "description": "將主體置於高級博物館展示櫃",
+      "direction": "將主體置於高級博物館展示櫃",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/95.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d41879c61841d2355138127132c4f2fc7fcb2101b98d0c7cf782dd27cb99b99a"
+      }
+    },
+    {
+      "id": "96",
+      "sourceId": 96,
+      "kind": "effect",
+      "group": "電影級創意廣告",
+      "command": "/Museum Heist",
+      "name": "博物館盜寶電影",
+      "description": "以盜寶電影場景呈現主體",
+      "direction": "以盜寶電影場景呈現主體",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/96.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0b9ba9bffea80902ab8d6da6dad16471714d76dc372ab5a1db957cede3538722"
+      }
+    },
+    {
+      "id": "97",
+      "sourceId": 97,
+      "kind": "effect",
+      "group": "電影級創意廣告",
+      "command": "/Red Carpet",
+      "name": "紅毯巨星",
+      "description": "以紅毯攝影燈與媒體背景營造聚焦",
+      "direction": "以紅毯攝影燈與媒體背景營造聚焦",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/97.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "54ce340d020655e7a8579669c1a02e98eb376267af52d79c8e45fa84ba76a90b"
+      }
+    },
+    {
+      "id": "98",
+      "sourceId": 98,
+      "kind": "effect",
+      "group": "電影級創意廣告",
+      "command": "/Legendary Reveal",
+      "name": "傳奇神器登場",
+      "description": "以史詩級光影呈現主體登場",
+      "direction": "以史詩級光影呈現主體登場",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/98.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "43c5a58f6e18fe1eeaee684e37e35af4c4b35dbe2fdbf5fccb30547e9191ee70"
+      }
+    },
+    {
+      "id": "99",
+      "sourceId": 99,
+      "kind": "effect",
+      "group": "電影級創意廣告",
+      "command": "/Behind The Scenes",
+      "name": "廣告幕後現場",
+      "description": "以大型攝影棚工作團隊營造場景",
+      "direction": "以大型攝影棚工作團隊營造場景",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/99.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "9d25d7faf60756b86b89374a65668cb46efe042c4946c55a312cbf39f1ba3605"
+      }
+    },
+    {
+      "id": "100",
+      "sourceId": 100,
+      "kind": "effect",
+      "group": "電影級創意廣告",
+      "command": "/Before After",
+      "name": "前後對比廣告",
+      "description": "以廣告前後視覺對照呈現創意差異",
+      "direction": "以廣告前後視覺對照呈現創意差異",
+      "checks": [],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/100.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "fa573968c4b6581bb11e80104e2afd7beb126bce987ce74c7c41df9d4e1c944f"
+      }
+    },
+    {
+      "id": "A01",
+      "sourceId": "A01",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A01",
+      "name": "社群貼文視覺",
+      "description": "以單一訊息與鮮明焦點製作社群貼文，讓縮小後的主體和標題仍容易閱讀。",
+      "direction": "先安排一個主要視覺與一個標題區，以清楚的大小對比建立閱讀順序。背景保持簡潔，搭配一至兩種品牌輔色，避免裝飾壓過主題。依指定比例保留四周安全邊界，若有行動呼籲，放在容易找到的位置。",
+      "checks": [
+        "縮小後仍能看清主要訊息",
+        "標題與行動呼籲沒有被裁切"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/A01.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 480,
+        "sha256": "04b6ff5443c2619b3b975145ae1b66956c59ebc583f960c23c0a3ed3ca799a58"
+      }
+    },
+    {
+      "id": "A02",
+      "sourceId": "A02",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A02",
+      "name": "YouTube 影片縮圖",
+      "description": "以大主體、短標題與明顯對比整理影片重點，製作適合小尺寸觀看的縮圖。",
+      "direction": "使用橫向構圖，把人物表情或核心物件放大，另一側安排使用者提供的短標題。以色彩與明暗區分主體及背景，避免擁擠的小字和過多元素。下方角落保留介面覆蓋空間，畫面內容應如實對應影片主題。",
+      "checks": [
+        "小尺寸下主體與標題清楚",
+        "縮圖內容與影片資訊一致"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/A02.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 270,
+        "sha256": "ab97d8f87467b52089ececc307ef00ce576b638248c54a3d6df6c4ee251f98f4"
+      }
+    },
+    {
+      "id": "A03",
+      "sourceId": "A03",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A03",
+      "name": "商品攝影形象",
+      "description": "以乾淨背景、立體光線和精準材質呈現商品，建立具有質感的形象視覺。",
+      "direction": "讓商品成為畫面最大焦點，依包裝或材質選擇柔光、輪廓光與自然反射。以簡潔展示台或使用情境襯托，保留商品完整輪廓及適度文案留白。依提供素材保留外形、比例和標示，不添加不存在的配件與功能。",
+      "checks": [
+        "商品外形及包裝符合素材",
+        "反光沒有遮住必要標示"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/A03.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "f188d3bd392855d913c9d83c61188ae42c85c522deb1901e828f8a38fc612a78"
+      }
+    },
+    {
+      "id": "A04",
+      "sourceId": "A04",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A04",
+      "name": "電子報與廣告橫幅",
+      "description": "用橫向視覺、清楚標題和適度留白製作橫幅，方便搭配電子報或廣告版位。",
+      "direction": "依指定橫向比例，把主視覺與文案區分開排列，避免將關鍵資訊放在邊緣。使用一致的品牌色和簡潔背景，讓主標題先被看見，再讀到補充文字。行動呼籲僅使用提供的內容，並預留裁切與後製調整空間。",
+      "checks": [
+        "橫向版位的文字留白足夠",
+        "裁切後仍保留主體與標題"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/A04.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 192,
+        "sha256": "5aa0810f0c0bffd37dcbd3653fca4d9c1fc7ac9ce50d2e65216ed1761158bdce"
+      }
+    },
+    {
+      "id": "A05",
+      "sourceId": "A05",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A05",
+      "name": "品牌角色商品化",
+      "description": "把既有品牌角色延伸為玩具或周邊概念，保留辨識特徵並呈現材質與包裝感。",
+      "direction": "以提供的角色設定為基礎，轉成一件可辨識的周邊商品概念。選用與產品相符的塑膠、布料或陶瓷質感，以柔和棚光呈現比例與表面。角色臉型、主要配色和配件維持一致，包裝僅放提供的文字及正式品牌素材。",
+      "checks": [
+        "角色特徵與原設定一致",
+        "商品與包裝比例合理"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/A05.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "05ea2818cf59896e9f940c09ef01697c46d9dc7f7fceeca8abf343196911ba3b"
+      }
+    },
+    {
+      "id": "A06",
+      "sourceId": "A06",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A06",
+      "name": "活動宣傳海報",
+      "description": "把活動主題、日期地點與報名資訊分層呈現，搭配具有吸引力的主視覺。",
+      "direction": "將活動名稱放在第一閱讀層級，主視覺居中或置於一側，日期、時間、地點分組排列。用對比色突顯重要資訊，底部保留報名方式或行動呼籲。所有時間與活動條件依提供資料呈現，未提供的欄位保留空間，不補造內容。",
+      "checks": [
+        "活動日期地點逐項核對",
+        "報名資訊與閱讀順序清楚"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/A06.webp",
+        "mimeType": "image/webp",
+        "width": 400,
+        "height": 600,
+        "sha256": "4a38416e2322e6e063c442512dc793eaef8c5d4c7208d57ba1c646e1875985e8"
+      }
+    },
+    {
+      "id": "A07",
+      "sourceId": "A07",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A07",
+      "name": "社群輪播封面",
+      "description": "用明確主題和系列識別建立輪播第一張，讓讀者理解後續內容並想繼續閱讀。",
+      "direction": "以單一提問或主標題建立封面焦點，輔以一個能說明主題的圖像。保持系列共同的色彩、邊界及頁碼位置，為後續頁面建立一致版型。只在提供張數時呈現頁次，避免把全部內文塞入封面，底部可保留閱讀提示。",
+      "checks": [
+        "封面能說明整組內容",
+        "系列色彩與識別位置一致"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/A07.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 480,
+        "sha256": "32d618f0c2b04f616d692b09a4812315fa851173dffa8908c542cd7b10a66975"
+      }
+    },
+    {
+      "id": "A08",
+      "sourceId": "A08",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A08",
+      "name": "教學資訊圖卡",
+      "description": "將已確認的知識拆成清楚區塊，透過標題、步驟和小插圖協助理解。",
+      "direction": "先依內容分出主標題及二至四個重點區塊，每區只傳達一個訊息。使用一致的圖示線條與色彩區分層級，步驟順序與條件完整保留。內容過多時提出分張安排，不用縮小字體硬塞；數字、單位與專有名詞逐項照錄。",
+      "checks": [
+        "步驟條件與原文一致",
+        "字體大小適合實際閱讀"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/A08.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "efa1642e7612678e411cf9e359b79ed8f4ffe2091b4304c7d9bf50d7ccbb0f8f"
+      }
+    },
+    {
+      "id": "A09",
+      "sourceId": "A09",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A09",
+      "name": "品牌標誌概念",
+      "description": "以品牌特質和簡潔幾何發展原創標誌方向，檢視縮小後的辨識度與輪廓。",
+      "direction": "根據提供的品牌名稱與定位設計一個原創標誌概念，使用簡潔輪廓及有限色彩。讓符號與文字有清楚比例，避免模仿既有商標或使用來源不明的識別。以乾淨平面背景展示，留意單色與小尺寸的可讀性，作為後續向量製作的草案。",
+      "checks": [
+        "符號縮小後仍可辨識",
+        "名稱拼寫與原創方向已核對"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/A09.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "cf40de285981daeabb4fe647288370dda664ed5f8dbae92fbc85e7296e22f305"
+      }
+    },
+    {
+      "id": "A10",
+      "sourceId": "A10",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A10",
+      "name": "品牌系列貼文版型",
+      "description": "建立可重複使用的社群版型，讓不同主題仍保有一致的品牌色彩與文字層級。",
+      "direction": "先製作一張系列基準版型，固定品牌識別、標題、主圖及頁尾的位置。選擇穩定的間距、色彩比例和文字層級，讓後續主題可替換內容而保留識別。主圖區需容納不同素材，未提供的文字保留空白，避免把示意文案當成正式資訊。",
+      "checks": [
+        "各區塊能替換不同內容",
+        "品牌識別與文字層級一致"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/A10.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 480,
+        "sha256": "7a6600c4179ff064f1a5e23a18a1c4b5098bd74145ed3dc2abeb8eb5b3fd4328"
+      }
+    },
+    {
+      "id": "A11",
+      "sourceId": "A11",
+      "kind": "purpose",
+      "group": "品牌與社群",
+      "command": "A11",
+      "name": "品牌策略視覺圖表",
+      "description": "將品牌定位、受眾與溝通方向轉為視覺關係圖，讓策略重點容易討論。",
+      "direction": "只根據提供的策略內容建立主題節點、分類區塊與關聯線。以主色標示核心定位，輔色區分受眾、價值與行動，保持節點大小和線條語意一致。圖像應幫助理解關係，不替資料推導未提供的成果或因果；缺漏處以待確認表示。",
+      "checks": [
+        "連線與層級符合提供的策略",
+        "沒有把推測畫成已確認事實"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/A11.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0125184b719da9e247874a9042c6789d1e3b4dc73c9e9671931689415109a1f6"
+      }
+    },
+    {
+      "id": "B01",
+      "sourceId": "B01",
+      "kind": "purpose",
+      "group": "工作應用",
+      "command": "B01",
+      "name": "商務簡報封面",
+      "description": "以大幅留白、主題視覺與清楚標題建立簡報開場，兼顧正式感與辨識度。",
+      "direction": "將簡報題目置於主要閱讀區，配合一個簡潔的主題視覺或幾何構圖。使用穩定的品牌色與柔和光感，保留足夠留白，讓講者資訊和日期位於次要層級。依指定投影比例安排安全邊界，避免細小裝飾與過度複雜背景影響遠距閱讀。",
+      "checks": [
+        "投影觀看時標題足夠清楚",
+        "日期與講者資訊沒有錯誤"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/B01.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 270,
+        "sha256": "181d3c324c924ae72ccf72bde3bbb803eef123d2e3e86ced5d00dc4197cc21a7"
+      }
+    },
+    {
+      "id": "B02",
+      "sourceId": "B02",
+      "kind": "purpose",
+      "group": "工作應用",
+      "command": "B02",
+      "name": "公司介紹圖卡",
+      "description": "將公司定位、服務與特色整合成一張清楚圖卡，適合對外介紹與提案開場。",
+      "direction": "以公司名稱和定位句作為開頭，將已提供的服務內容整理成少量等寬區塊。搭配一致的圖示、品牌配色和整齊留白，讓讀者依序理解公司做什麼、服務誰及如何聯絡。只使用確認過的經歷、數字與認證，缺少資料時不補造。",
+      "checks": [
+        "公司服務與聯絡資訊正確",
+        "資歷認證與數字都有依據"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/B02.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "570b7d1ea6c5112a58bf26e921cb78cfaf766bdaeaf31fd45a860bec927da2b6"
+      }
+    },
+    {
+      "id": "B03",
+      "sourceId": "B03",
+      "kind": "purpose",
+      "group": "工作應用",
+      "command": "B03",
+      "name": "產品與方案比較",
+      "description": "以對齊欄列呈現產品或方案差異，讓功能、條件與價格容易逐項比較。",
+      "direction": "使用相同尺度的比較欄位，把方案名稱放在欄首，功能與條件按相同順序排列。以中性色維持公平呈現，僅將使用者指定的重點適度標色。保留原有單位、限制與備註，空缺資料標為未提供，不自動選出最佳方案或虛構評分。",
+      "checks": [
+        "每個方案採用相同比較項目",
+        "價格條件與缺漏標示正確"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/B03.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "722efde32595f60297e6658658c529b181aea5d4a0a8b09039365c4bca513e97"
+      }
+    },
+    {
+      "id": "B04",
+      "sourceId": "B04",
+      "kind": "purpose",
+      "group": "工作應用",
+      "command": "B04",
+      "name": "常見問答圖卡",
+      "description": "用問題與答案成對排列的資訊卡，協助讀者快速找到重點並理解條件。",
+      "direction": "將最常被問的問題作為醒目標題，答案分成易讀的短段落或條列。用一致的問答色彩與小圖示區隔內容，保留例外條件、限制及聯絡方式。只呈現提供的問答，不自行承諾服務；若內容過長，先規劃分成多張而非擠小文字。",
+      "checks": [
+        "答案與限制條件完整保留",
+        "問題和對應答案沒有混排"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/B04.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 600,
+        "sha256": "1ebb22d2c1f64fc9357a9252c4cc83957c83ac0ed97d819869f594b664d16a56"
+      }
+    },
+    {
+      "id": "B05",
+      "sourceId": "B05",
+      "kind": "purpose",
+      "group": "工作應用",
+      "command": "B05",
+      "name": "應用程式圖示",
+      "description": "以精簡符號與清楚輪廓設計應用程式圖示，兼顧小尺寸與不同背景的辨識。",
+      "direction": "把核心功能轉成一個簡潔原創符號，使用少量色彩、明確輪廓與適度內距。構圖以中心穩定為原則，不把小字或複雜場景塞進圖示。可呈現柔和層次但避免依賴細節，檢視縮小及圓角裁切後是否仍能辨識，無須模仿既有應用程式商標。",
+      "checks": [
+        "縮小與圓角裁切後仍清楚",
+        "圖示符號對應核心功能"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/B05.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 480,
+        "sha256": "3499c4cc2e7a91bd6071d7607742cf2e3c688d77ada1a62868548478e6640fe9"
+      }
+    },
+    {
+      "id": "B06",
+      "sourceId": "B06",
+      "kind": "purpose",
+      "group": "工作應用",
+      "command": "B06",
+      "name": "操作步驟圖解",
+      "description": "以編號、箭頭與簡潔畫面說明操作順序，讓初學者能按照步驟完成任務。",
+      "direction": "根據提供的實際流程排列步驟，一格只呈現一個主要動作。編號、箭頭與標示位置維持一致，必要時放大已提供的操作畫面區域。沒有真實截圖的部分用清楚標示的示意圖，不捏造按鈕名稱或功能；保留前置條件與完成判斷。",
+      "checks": [
+        "步驟順序與實際介面一致",
+        "示意圖與真實截圖已區別"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/B06.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "b46026649a609c264f043ffcef80eedea46e2d36545921161c2dd5be52c28e6a"
+      }
+    },
+    {
+      "id": "B07",
+      "sourceId": "B07",
+      "kind": "purpose",
+      "group": "工作應用",
+      "command": "B07",
+      "name": "數據重點資訊圖",
+      "description": "以合適的圖表與摘要呈現已確認數據，保留單位、期間及來源資訊。",
+      "direction": "依資料性質選擇長條、折線或比例圖，維持正確數值比例與一致標尺。用少量重點色標示需要比較的項目，搭配簡潔標題和來源區。數字、單位、期間及樣本條件完整保留，不用裝飾性面積誇大差異，也不從數據推論未證實的原因。",
+      "checks": [
+        "圖表比例與原始數字一致",
+        "單位期間及來源標示完整"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/B07.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "6d4c299df23a4b0dad3d4987bca64eb8a18a9a576fa1d4a2bdd6bb98cdd55820"
+      }
+    },
+    {
+      "id": "B08",
+      "sourceId": "B08",
+      "kind": "purpose",
+      "group": "工作應用",
+      "command": "B08",
+      "name": "工作檢核表",
+      "description": "將工作項目與完成標記整理成清楚的檢核版面，適合列印或課堂討論。",
+      "direction": "把已提供的工作項目依流程分組，每列安排足夠大的勾選框和簡短說明。以淡底色區分區段，保留填寫空間與必要負責人欄位，避免裝飾影響使用。未完成的項目不預先打勾，條件和順序照原資料呈現，供人工核對與記錄。",
+      "checks": [
+        "所有工作項目都有列出",
+        "勾選及填寫空間足夠"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/B08.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 600,
+        "sha256": "73379304e79c7b39deb959c1adde7feffe408f5eaf5c30e2726c8a5bf778182d"
+      }
+    },
+    {
+      "id": "B09",
+      "sourceId": "B09",
+      "kind": "purpose",
+      "group": "工作應用",
+      "command": "B09",
+      "name": "文章封面圖片",
+      "description": "以一個清楚的視覺比喻表現文章主題，保留標題區並避免過度資訊化。",
+      "direction": "從文章已提供的重點選出一個主要視覺概念，使用有層次但不雜亂的背景，形成清楚焦點。主體與標題區彼此避讓，色彩和氛圍對應文章語氣。只使用確認過的事件與人物資訊，抽象概念可用中性象徵呈現，不製造看似真實的新聞現場。",
+      "checks": [
+        "封面與文章主題相符",
+        "標題區清楚且不遮擋主體"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/B09.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "778592a69dcfc97010c9318a815cb0d36d75ceda97eb839a0fbb0ef91b94ae83"
+      }
+    },
+    {
+      "id": "B10",
+      "sourceId": "B10",
+      "kind": "purpose",
+      "group": "工作應用",
+      "command": "B10",
+      "name": "語錄分享卡片",
+      "description": "以文字為主角搭配克制的視覺元素，突出已提供語錄及正確的署名。",
+      "direction": "將語錄依語意分行，使用清楚的文字層級與寬鬆留白，讓閱讀節奏自然。背景可用細緻紙感或低對比色塊，避免裝飾壓過句子。署名、來源與引號依提供內容呈現，不自動把句子歸給名人；未提供署名時省略該區。",
+      "checks": [
+        "語錄內容與署名逐字核對",
+        "分行自然且對比足夠"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/B10.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 480,
+        "sha256": "9bf85e5104fcccea7e25f37389f2b77f99fa48aa77b36b5ea9766b829951c183"
+      }
+    },
+    {
+      "id": "C01",
+      "sourceId": "C01",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C01",
+      "name": "插畫菜單",
+      "description": "以餐點小插畫搭配分類與價格欄位，讓菜單兼具親切風格與閱讀效率。",
+      "direction": "依餐點分類安排整齊欄位，每道品項配合簡潔插畫與清楚價格位置。插畫保留食物主要形狀和提供的配料，採用溫暖配色、適度留白及一致線條。價格、規格和過敏原說明僅依已提供資料，未確認內容不補寫，先確保可讀再增加裝飾。",
+      "checks": [
+        "餐點名稱價格與規格正確",
+        "插畫沒有誤加未提供的配料"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C01.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 600,
+        "sha256": "124cc701fc87f2ef7ab2bb548d16ae409dbff51e8a19ac0df015082a5dd9aa06"
+      }
+    },
+    {
+      "id": "C02",
+      "sourceId": "C02",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C02",
+      "name": "季節主題月曆",
+      "description": "將季節插畫放入月曆版面，讓日期、星期與重要安排仍保持清楚可用。",
+      "direction": "依指定年月及提供的日期表安排月曆格線，先核對星期起始與每月天數，再加入季節插畫。裝飾集中在頁首或空白處，日期格保留註記空間，色彩避免干擾閱讀。未提供的假日不自行新增；若日期無法核對，先列出需要確認的資訊。",
+      "checks": [
+        "年月星期與天數已核對",
+        "裝飾沒有占用日期註記區"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C02.webp",
+        "mimeType": "image/webp",
+        "width": 463,
+        "height": 600,
+        "sha256": "f28f9d239a6394eb8e37dee8388ec2a10eac19ec996596a73e5f10036126f3a2"
+      }
+    },
+    {
+      "id": "C03",
+      "sourceId": "C03",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C03",
+      "name": "旅遊行程視覺表",
+      "description": "以時間軸、地點小圖與路線關係整理旅程，讓每日安排容易掌握。",
+      "direction": "根據提供的日期、時間及地點製作分日行程，以一致圖示標記交通、餐食與活動。用色彩區分天數，保留移動與休息時間的位置，路線採示意而非冒充精確地圖。交通時刻、費用與營業時間只引用提供資料，未知項目清楚標為待確認。",
+      "checks": [
+        "時間與地點順序符合原行程",
+        "未知交通資訊有清楚標示"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C03.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 600,
+        "sha256": "dc30df50d1abbccfbfe44b3cf6a4623c6785b26930cfebb901d2db6007c4f63b"
+      }
+    },
+    {
+      "id": "C04",
+      "sourceId": "C04",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C04",
+      "name": "毛線城市天氣圖",
+      "description": "用毛線與針織材質重現城市天氣情境，保留可辨識地標並呈現溫暖手作感。",
+      "direction": "把指定城市的主要輪廓化為毛線編織模型，天空、雲朵與建築皆呈現纖維紋理和柔和陰影。用簡單構圖突出提供的天氣情境，資訊區保留溫度與日期位置。天氣數值只使用已確認資料，這是視覺插畫，不自行推測即時預報。",
+      "checks": [
+        "城市特徵與天氣資料相符",
+        "毛線材質在各物件間一致"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C04.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "20683308f9676d28498a18ecd1d64545d4a82027698b17b287fa8d80e296cfe3"
+      }
+    },
+    {
+      "id": "C05",
+      "sourceId": "C05",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C05",
+      "name": "手寫學習筆記",
+      "description": "以自然手寫感、重點框線與小插圖整理學習內容，呈現清楚的紙上筆記。",
+      "direction": "把提供內容拆成標題、核心概念和例子，使用規律留白與有限螢光色標記重點。文字呈自然但可讀的手寫感，搭配簡單箭頭與說明圖，不用過度潦草線條遮住資訊。保留原文條件和公式，內容不足時不自行補上未確認的知識。",
+      "checks": [
+        "概念公式與原始資料一致",
+        "手寫文字清楚且層級分明"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C05.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 600,
+        "sha256": "45c98de10ed790c5512346f4a24fe9a38795ba93c6de93b95fc9b927f9d52357"
+      }
+    },
+    {
+      "id": "C06",
+      "sourceId": "C06",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C06",
+      "name": "每日時間分配",
+      "description": "以時間軸或區塊規劃呈現一天安排，讓各項活動的先後與時長清楚可見。",
+      "direction": "按提供的時間起迄繪製每日規劃表，同長度時段採一致比例，不把示意圖當成精確排程。使用不同色系區分工作、休息與個人活動，文字保持簡潔。若總時數、重疊或空檔有矛盾，先指出並請確認，不自行改動既定安排。",
+      "checks": [
+        "時間長度與先後順序正確",
+        "重疊及空檔已檢查"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C06.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "18a685ccafc892f417d1e50ba8a030df99132c51fbc3b247ac012e2f0b32053b"
+      }
+    },
+    {
+      "id": "C07",
+      "sourceId": "C07",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C07",
+      "name": "餐點插畫",
+      "description": "以可辨識食材、誘人配色與自然擺盤呈現餐點，保有插畫的手作質感。",
+      "direction": "依提供的餐點描述或照片，保留主要食材、份量關係與餐具造型。用柔和側光、適度高光及暖色調表現新鮮感，邊緣可帶手繪筆觸，背景採簡單桌面或留白。避免為了豐富畫面添加未提供的食材、標章或營養宣稱。",
+      "checks": [
+        "食材及擺盤符合提供內容",
+        "光影能呈現食物層次"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C07.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "a868e8e3d1d399776834f9614a4eecce807cbb3299a76f85eedc1c1a349d47ba"
+      }
+    },
+    {
+      "id": "C08",
+      "sourceId": "C08",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C08",
+      "name": "照片白線描邊與註記",
+      "description": "保留照片本體，以白色輪廓線和少量手寫註記強調物件與故事重點。",
+      "direction": "保持原照片主要人物、色彩和構圖，只在指定主體周圍增加細白線描邊。用短箭頭、圈線與提供的註記補充重點，線條不要穿過臉部或重要標示。註記安排在背景空間，保留照片的真實紋理與光影，避免全面改成插畫。",
+      "checks": [
+        "照片主體沒有被重繪失真",
+        "白線及文字不遮擋重要細節"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/C08.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "556028a734c97e2513c93dd2f0db5371da2527e7a18ec93536b3fe5702b50cf4"
+      }
+    },
+    {
+      "id": "C09",
+      "sourceId": "C09",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C09",
+      "name": "每週習慣追蹤",
+      "description": "用七日欄位與習慣項目建立追蹤表，搭配簡潔圖示讓每日記錄容易持續。",
+      "direction": "將星期依指定順序排成七欄，每列對應一項提供的習慣，格子保留手動勾選空間。用少量柔和色彩和一致圖示建立清楚分類，避免裝飾過密。僅把已提供紀錄填入，其餘維持空白，不預設完成率或生成不存在的使用紀錄。",
+      "checks": [
+        "七日欄位與習慣項目完整",
+        "未提供紀錄的格子保持空白"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C09.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "ef4837940a8f4074ff760a6bb944a681f6fc98dad7c939138f5f7f0a2c0d9bfb"
+      }
+    },
+    {
+      "id": "C10",
+      "sourceId": "C10",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C10",
+      "name": "電影心得卡",
+      "description": "以片名、心得重點與氛圍插畫整理觀影筆記，保留個人觀點和清楚閱讀區。",
+      "direction": "根據提供的電影名稱與心得安排主標題、感想和關鍵字區塊。視覺採原創的情緒象徵或場景概念，避免照搬官方海報；用一致配色對應心得語氣。評分、引句與劇情只採提供內容，未寫出的結局不補上，保留個人觀點的語氣。",
+      "checks": [
+        "心得與引句沒有被改寫成事實",
+        "片名評分及劇情資訊已核對"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C10.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 480,
+        "sha256": "9959020fa9301e2b18b74537f459e174154081f74891966180e3843f56c9b5fa"
+      }
+    },
+    {
+      "id": "C11",
+      "sourceId": "C11",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C11",
+      "name": "家電保養紀錄表",
+      "description": "將家電、保養日期與待辦項目整理成實用紀錄表，方便追蹤而不替代原廠說明。",
+      "direction": "使用清楚表格列出設備名稱、保養日期、處理項目和下次提醒等已指定欄位。以簡單家電圖示協助辨識，保留足夠手寫空間與備註區。週期和操作方式只採使用者提供或原廠確認資訊，不自行新增拆修步驟，未知日期保持空白。",
+      "checks": [
+        "日期與設備名稱準確",
+        "保養週期依提供資訊填寫"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C11.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 600,
+        "sha256": "397bfadf209f6c79aaa427b159dd29fd311f6dbf642dbc6cdb89a28a987a313b"
+      }
+    },
+    {
+      "id": "C12",
+      "sourceId": "C12",
+      "kind": "purpose",
+      "group": "生活應用",
+      "command": "C12",
+      "name": "幼兒作息圖卡",
+      "description": "用溫和插畫及簡單順序呈現既定作息，讓活動內容容易理解與辨識。",
+      "direction": "把已提供的日常活動依順序排成獨立圖卡，使用圓潤輪廓、柔和色彩及清楚動作。每張只呈現一件事，時間或短文字維持固定位置，人物與生活環境保持一致。內容依照提供安排，不自行規定飲食、睡眠時數或醫療建議。",
+      "checks": [
+        "圖像動作容易理解",
+        "順序與時間符合提供安排"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/C12.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "fb5734d240a996bba1585c223fea59eb5dd7fd99b8c6cbc643c81cc6e8f51778"
+      }
+    },
+    {
+      "id": "D01",
+      "sourceId": "D01",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D01",
+      "name": "四格故事漫畫",
+      "description": "用四個明確鏡頭呈現起承轉合，維持人物造型、場景與對話的連續性。",
+      "direction": "依提供故事分成四格，先設定共同人物外觀，再安排建立情境、發展、轉折與結尾。每格聚焦一個主要動作，視線方向和道具位置保持連續；對話框留足空間，只使用提供文字。採一致線條與色彩，不額外增加角色或改變故事結果。",
+      "checks": [
+        "四格順序與情節連續",
+        "人物外觀及對話保持一致"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/D01.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "89f927194e070ffdce2f4a866568181e3eb7faf9d8b897f04c9fd8097df835e8"
+      }
+    },
+    {
+      "id": "D02",
+      "sourceId": "D02",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D02",
+      "name": "LINE 角色貼圖",
+      "description": "以鮮明表情、簡潔動作與透明背景製作角色貼圖草案，便於發展一致系列。",
+      "direction": "依角色描述或提供照片建立固定臉型、髮型、服裝及配色，先完成一張指定情緒的貼圖。動作與短句需在小尺寸仍清楚，人物四周保留邊界，背景透明且無多餘場景。後續沿用角色設定；這是視覺草案，正式上架規格需另行核對。",
+      "checks": [
+        "縮小後表情文字仍清楚",
+        "背景透明且角色沒有被裁切"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/D02.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 450,
+        "sha256": "c614929070a86a2076b3a28a76cf39ce822029cab5ddd3ba68d5158f0b41219c"
+      }
+    },
+    {
+      "id": "D03",
+      "sourceId": "D03",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D03",
+      "name": "旅行手帳插畫",
+      "description": "以手繪地標、票根與短註記組合旅程回憶，呈現有留白的手帳頁面。",
+      "direction": "依提供行程選出幾個地點與紀念物，排列成自然但有閱讀順序的手帳頁。混合淡彩插畫、簡單地圖線及紙張紋理，使用短註記連接故事。票根與日期僅呈現提供內容，缺少的細節留白；圖像是回憶插畫，不產生可誤認為真實票券的文件。",
+      "checks": [
+        "地點日期與旅程一致",
+        "圖像與文字保持閱讀留白"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/D03.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "3b8ef4d01081f072198c0befa24dd8fc1f7ecff1373cac858ab4a734cda91cb9"
+      }
+    },
+    {
+      "id": "D04",
+      "sourceId": "D04",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D04",
+      "name": "黑膠專輯封面",
+      "description": "以音樂主題、攝影或抽象視覺建立方形封面，呈現唱片包裝的收藏感。",
+      "direction": "根據提供的音樂氛圍製作方形主視覺，以一個有記憶點的構圖搭配精簡專輯與創作者名稱。可加入細緻印刷紙感或唱片套邊緣，但不要模仿既有封面。色彩、光線及排版形成統一情緒，未提供曲目、廠牌和發行資料時不補造。",
+      "checks": [
+        "封面氛圍對應音樂主題",
+        "專輯與創作者名稱正確"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/D04.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 480,
+        "sha256": "021b7cf496fe64a905e05b33d34173f286a2c4f216391d12d03240895fd4f4bc"
+      }
+    },
+    {
+      "id": "D05",
+      "sourceId": "D05",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D05",
+      "name": "漫畫作品封面",
+      "description": "以主角、故事衝突與大標題建立漫畫封面，兼顧角色辨識與視覺張力。",
+      "direction": "依提供角色及故事設定安排前中後景，讓主角成為焦點，背景暗示主要情境。採清楚線稿、統一色彩與方向性光影，標題區保留足夠空間，避免重要臉部被字覆蓋。只加入已設定人物和道具，不自行編造劇情、卷數或作者資訊。",
+      "checks": [
+        "主角與故事設定一致",
+        "標題沒有遮住角色重要特徵"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/D05.webp",
+        "mimeType": "image/webp",
+        "width": 400,
+        "height": 600,
+        "sha256": "c2c77c02886af3545eec08cbbf04a857e0e016c6277cf2f5d7fd33cfeddea754"
+      }
+    },
+    {
+      "id": "D06",
+      "sourceId": "D06",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D06",
+      "name": "奇幻小說書封",
+      "description": "以象徵物、場景尺度與氣氛光影呈現奇幻題材，保留書名及作者資訊區。",
+      "direction": "從提供故事選取一個核心象徵或關鍵場景，以遠近層次、霧氣和方向性光線建立世界感。構圖預留書名、作者與副標位置，色彩依情節氣氛選擇並維持閱讀對比。只描繪設定中已有的元素，不自行加入未提供的角色、預言或獎項資訊。",
+      "checks": [
+        "封面元素符合故事設定",
+        "書名及作者區有足夠留白"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/D06.webp",
+        "mimeType": "image/webp",
+        "width": 400,
+        "height": 600,
+        "sha256": "57f47ea0ff104653c2e9c11e5b8f16c584c2b79f82c82c29953d592fbfa8d464"
+      }
+    },
+    {
+      "id": "D07",
+      "sourceId": "D07",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D07",
+      "name": "復古生活雜誌",
+      "description": "用老式編排、溫暖紙感與生活題材形成雜誌封面概念，呈現年代氛圍。",
+      "direction": "將提供的生活主題作為封面主圖，搭配分欄標題、簡潔裝飾線與微暖紙色。用克制的褪色和印刷顆粒呈現復古感，保持文字清楚，不讓仿舊效果壓過資訊。刊名、日期和標題只用提供內容，版面採原創設計，不冒充真實刊物。",
+      "checks": [
+        "仿舊處理不影響文字辨識",
+        "刊名與標題均來自提供內容"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/D07.webp",
+        "mimeType": "image/webp",
+        "width": 400,
+        "height": 600,
+        "sha256": "5b86768d85266c4034ea368c694041d9ea1da67eb5d0566ba76c7f656af99c26"
+      }
+    },
+    {
+      "id": "D08",
+      "sourceId": "D08",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D08",
+      "name": "人物時尚雜誌",
+      "description": "以人像、造型與編輯式排版製作時尚封面，突出人物特徵與主題風格。",
+      "direction": "保留提供人物的辨識特徵，用俐落姿態、簡潔背景與柔和輪廓光建立時尚感。刊名與標題沿留白排列，避免遮住眼睛及服裝重點；配色與服裝相互呼應。採原創刊物設計，標題只使用提供內容，不宣稱人物獲得真實雜誌刊登或品牌代言。",
+      "checks": [
+        "人物特徵及服裝重點保留",
+        "封面文字沒有暗示未確認代言"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/D08.webp",
+        "mimeType": "image/webp",
+        "width": 400,
+        "height": 600,
+        "sha256": "e3bff6c5d7591dd5ea1d5c35f576346a5d927a059ff98f1774289b0ded37e079"
+      }
+    },
+    {
+      "id": "D09",
+      "sourceId": "D09",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D09",
+      "name": "寵物跳出社群框",
+      "description": "讓寵物與簡化社群框產生前後遮擋，營造跳出畫面的趣味立體錯覺。",
+      "direction": "以寵物照片保留毛色、臉型與身體特徵，讓前腳或頭部跨出一個原創社群框。用自然陰影和遮擋關係建立深度，框內背景保持簡單，避免肢體數量或姿態變形。介面只作示意，不複製真實帳號、互動數字或平台認證標章。",
+      "checks": [
+        "寵物特徵與肢體數量正確",
+        "前後遮擋及陰影方向合理"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/D09.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "c6c2df1f4a09cf88b3e49129d7ec51dd7ec8db8ddc1aea1b02fcedd31ebf4f13"
+      }
+    },
+    {
+      "id": "D10",
+      "sourceId": "D10",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D10",
+      "name": "黏土風格角色",
+      "description": "以柔軟造型、霧面材質和手作痕跡製作黏土角色，維持表情與辨識特徵。",
+      "direction": "根據角色描述或照片簡化比例，以圓潤體塊、柔和接縫與少量手工壓痕呈現黏土質地。使用霧面配色和柔光，讓表情與代表配件清楚，背景維持簡單桌面或色紙。角色需保有原設定特徵，避免變成無關的既有動畫角色或加入多餘肢體。",
+      "checks": [
+        "材質呈現柔軟霧面黏土感",
+        "角色特徵與配件一致"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/D10.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "dc042924fd4a1ed611ef2281b53e75c50e3b05b8d380460dc4e36c9ba6e0787a"
+      }
+    },
+    {
+      "id": "D11",
+      "sourceId": "D11",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D11",
+      "name": "IG 精選封面圖示",
+      "description": "以一致線條、背景與留白製作精選分類圖示，讓整排封面有清楚系列感。",
+      "direction": "依提供的精選分類設計簡潔圖示，每個圖示置於相同中心位置並保留圓形裁切空間。固定線條粗細、主色與背景色，避免細小文字及過多細節。先完成一個分類作為基準，再延伸其他圖示，確保小尺寸仍能分辨各項主題。",
+      "checks": [
+        "圓形裁切沒有切掉圖示",
+        "系列線條與色彩一致"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/D11.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 480,
+        "sha256": "b7b27613d6a9f4b75e1fbb1bc8e2e0c03656bffec0edd5856c76e4cf1f9d619c"
+      }
+    },
+    {
+      "id": "D12",
+      "sourceId": "D12",
+      "kind": "purpose",
+      "group": "創意設計",
+      "command": "D12",
+      "name": "扭蛋玩具包裝",
+      "description": "把角色或主題轉成迷你玩具與透明蛋殼展示，搭配清楚的包裝概念資訊。",
+      "direction": "以提供角色或主題設計一個迷你收藏玩具，呈現透明蛋殼、塑膠接縫和柔和展示光。角色比例統一，必要時加入小型底座，包裝卡只使用提供的名稱及說明。不要仿製既有玩具品牌標誌，也不要自行加入安全認證、適用年齡或真實販售承諾。",
+      "checks": [
+        "玩具能合理放入蛋殼",
+        "包裝文字與角色設定一致"
+      ],
+      "requiresReference": false,
+      "sample": {
+        "url": "/ai-ads/gallery/D12.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0c005c388f57af76f95bdeb4dd706bb2660c41d3920c3a340b43bb360ca1e11e"
+      }
+    },
+    {
+      "id": "E01",
+      "sourceId": "E01",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E01",
+      "name": "人物衝出手機畫面",
+      "description": "以真人跨越手機框的前後遮擋製造立體錯覺，保留人物特徵與自然姿態。",
+      "direction": "以參考人物為中心，安排身體一部分留在手機畫面內，另一部分延伸到畫面外。透視、尺寸和陰影遵循同一視角，手機邊框不穿過肢體，背景保持簡潔。只新增構圖所需的手機與場景元素，維持人物數量、臉部特徵和服裝辨識度。",
+      "checks": [
+        "跨框遮擋與透視合理",
+        "人物臉部及肢體沒有變形"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E01.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "373c1d04a364aaf6653be0a5f6c8755ecf0e246c295786254b6308140a8c5385"
+      }
+    },
+    {
+      "id": "E02",
+      "sourceId": "E02",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E02",
+      "name": "潑墨人像插畫",
+      "description": "以水墨暈染、飛濺筆觸與留白重塑人像，讓五官辨識與墨色節奏並存。",
+      "direction": "依照片保留人物姿態和主要五官，以濃淡墨色建立臉部與衣服的體積，邊緣轉成自然暈染及少量飛濺。讓筆觸沿構圖方向延伸，背景保留大面積紙白，僅用一個輔色點綴。避免墨點覆蓋眼睛及關鍵特徵，保持主體清楚。",
+      "checks": [
+        "墨色沒有遮蔽主要五官",
+        "暈染與留白有明確主次"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E02.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "e9442b64290fda7231e024115e06ffbc17bb60f5fe5e600288213c5da663b059"
+      }
+    },
+    {
+      "id": "E03",
+      "sourceId": "E03",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E03",
+      "name": "人物設定展示海報",
+      "description": "以人物主視覺與細節小圖整理造型設定，展示服裝、配件與色彩的一致性。",
+      "direction": "將參考人物全身或半身作為中心，周圍安排少量服裝、配件與配色細節圖。採乾淨背景及一致比例，所有小圖都依同一人物設定呈現，不憑空增加未提供的背面細節。文字只使用已提供名稱與註記，沒有資料的區域留白。",
+      "checks": [
+        "各細節圖屬於同一人物設定",
+        "服裝配色與配件符合照片"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E03.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "b12fa604cd99fb203534e47483fc54000ee252d34512aa271550f0c1c6e48a0d"
+      }
+    },
+    {
+      "id": "E04",
+      "sourceId": "E04",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E04",
+      "name": "穿搭提案視覺",
+      "description": "用人物與服飾單品組合展示穿搭方向，保留本人特徵並清楚區分新造型提案。",
+      "direction": "以參考人物建立穿搭展示，把指定服裝放在主要造型中，旁邊可排少量同套單品。使用中性背景、柔光與整齊留白，讓材質和色彩搭配清楚。只更換指定的衣物或配件，保留臉型及姿態，未提供的品牌標誌不加入，整體呈現造型提案。",
+      "checks": [
+        "人物特徵與比例維持一致",
+        "單品顏色與主造型相符"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E04.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "df9b5926046e2c4f4718bc1782876dc6beda8e59c40373834858df1bbdfc35f8"
+      }
+    },
+    {
+      "id": "E05",
+      "sourceId": "E05",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E05",
+      "name": "掌上寵物機像素畫",
+      "description": "將主體轉成低解析像素角色並置入掌上裝置，呈現復古電子寵物的趣味。",
+      "direction": "保留主體最具辨識度的輪廓和配色，把細節簡化為固定尺寸像素格。將角色放在原創掌上裝置的螢幕中，以有限色盤、清楚邊緣和少量介面符號呈現。裝置外殼採柔和塑膠材質，不使用既有品牌標誌，避免像素與寫實細節混雜。",
+      "checks": [
+        "像素格大小與配色一致",
+        "主體在小螢幕中仍可辨識"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E05.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "ef4c70c863028b88b6d90d63563c8f52e5441829ad7d0ec5308e6391274b69c4"
+      }
+    },
+    {
+      "id": "E06",
+      "sourceId": "E06",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E06",
+      "name": "Q 版立體小人物",
+      "description": "以較大頭身比例、圓潤體塊與柔光呈現迷你人物，同時保留原照片的辨識點。",
+      "direction": "依照片保留髮型、服裝配色與代表性配件，將人物比例轉為頭部較大、身體簡潔的立體角色。使用柔和棚光、細膩霧面材質及簡單背景，讓表情自然而清楚。手腳數量和動作合理，避免過度美化到失去原本人物特徵。",
+      "checks": [
+        "髮型服裝與配件仍可辨識",
+        "頭身比例與肢體結構一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E06.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "fb431b628c48c86c3a4eb4eb4f6e70d616aacb144338c165dee54fbcbd847f63"
+      }
+    },
+    {
+      "id": "E07",
+      "sourceId": "E07",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E07",
+      "name": "電影宣傳海報",
+      "description": "以戲劇化光影、角色層次與標題留白製作電影海報概念，表現故事氣氛。",
+      "direction": "以參考人物作主角，依提供情節安排背景與色彩，透過輪廓光及明暗層次建立戲劇感。書寫區集中在上方或下方，避免遮住人物臉部。海報採原創片名與已提供文案，不加入虛構獲獎、真實片商標誌或未經確認的演出關係。",
+      "checks": [
+        "人物與故事氣氛相符",
+        "片名文案及署名均已確認"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E07.webp",
+        "mimeType": "image/webp",
+        "width": 400,
+        "height": 600,
+        "sha256": "82e0f915ef1fdb67157a31ef6e744a13e8e81fc940ca09b5b5e6f92f736153f4"
+      }
+    },
+    {
+      "id": "E08",
+      "sourceId": "E08",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E08",
+      "name": "真人與迷你分身",
+      "description": "讓真人與同造型的小比例分身同框，利用尺度反差營造輕鬆的創意場景。",
+      "direction": "以原照片中的真人為主，新增一個同髮型、服裝與配色的迷你分身，安排在手掌、桌面或肩旁的合理位置。兩者保持一致光源、視線及接觸陰影，微型人物僅作創意化身。控制比例差異，避免再生出額外人物或重複肢體。",
+      "checks": [
+        "分身與真人造型一致",
+        "接觸陰影及尺度關係合理"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E08.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "e7d496ea0e50cd4bc5f690abf2b47c1fdb3fd46df5e4b8443dc6b8d5ac752fce"
+      }
+    },
+    {
+      "id": "E09",
+      "sourceId": "E09",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E09",
+      "name": "日式黑道電影造型",
+      "description": "以沉穩西裝、霓虹街景與電影式光影呈現虛構角色造型，保留本人辨識度。",
+      "direction": "在保留人物臉部特徵的前提下，改為整齊西裝與克制姿態，背景採雨夜街道或低調室內。使用深色調、局部霓虹反射和方向性光線建立類型片氣氛。畫面明確屬於虛構造型創作，不添加真實幫派標誌、犯罪紀錄或武器情節。",
+      "checks": [
+        "人物特徵保留且造型自然",
+        "畫面沒有暗示真實犯罪身分"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E09.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "847a6861106af2cd796f98981db145eb61a490bf906a62f3253717ef83955308"
+      }
+    },
+    {
+      "id": "E10",
+      "sourceId": "E10",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E10",
+      "name": "千禧年代四格拍貼",
+      "description": "以四格自拍、閃亮裝飾與柔和亮色重現早期拍貼感，維持人物一致性。",
+      "direction": "將參考人物整理成四格拍貼版面，各格可用小幅表情或姿態變化，但髮型、服裝和臉部特徵一致。加入粉色、淡紫及少量星光邊框，模擬柔和閃光與印相質感。只使用指定的短文字，裝飾不蓋住臉部，不改變原有同框人數。",
+      "checks": [
+        "四格人物外觀保持一致",
+        "裝飾與文字不遮住臉部"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E10.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 480,
+        "sha256": "f65ec4c3e96c5a3c0038561e839073da8adcf160e9bb0d93ce9472e1810eacad"
+      }
+    },
+    {
+      "id": "E11",
+      "sourceId": "E11",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E11",
+      "name": "蠟筆人物畫",
+      "description": "以粗細不一的蠟筆線條、紙紋與疊色描繪人物，呈現自然溫暖的手繪感。",
+      "direction": "依照片保留人物輪廓、主要表情與服裝色彩，使用有顆粒的蠟筆筆觸填色。線條可略帶不規則，但五官位置和肢體關係需清楚；陰影以疊色而非光滑漸層表現。背景簡化成少量色塊，留下紙張空隙和手工感。",
+      "checks": [
+        "蠟筆顆粒與紙紋自然",
+        "主要表情及服裝配色保留"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E11.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d616df53a0ada8697d52d44e6ec6bbc61cc866534207a0b8ce2ec480eb2961e2"
+      }
+    },
+    {
+      "id": "E12",
+      "sourceId": "E12",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E12",
+      "name": "小畫家隨手塗鴉",
+      "description": "用簡單線條、有限色塊與略帶笨拙的造型重現數位塗鴉，保留主體輪廓。",
+      "direction": "將照片主體簡化成粗細一致的自由線條與直接填色，帶有早期電腦畫圖的輕鬆感。保留可辨識的髮型、服裝和姿態，允許局部線條歪斜但不添加多餘肢體。背景用少數符號點綴，避免寫實渲染、複雜漸層或過度精緻筆刷。",
+      "checks": [
+        "簡化後主體仍能辨識",
+        "線條與色塊保持塗鴉感"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E12.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "1ef43908584294105e5f0ed1e7b259f735811d043a537f2a155b9cf286375cdb"
+      }
+    },
+    {
+      "id": "E13",
+      "sourceId": "E13",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E13",
+      "name": "人像手機桌布",
+      "description": "以直式留白、簡潔背景和柔和光影安排人像，預留手機時鐘與圖示空間。",
+      "direction": "依指定直式比例重新安排參考人像，保留臉部特徵及服裝，讓主要五官避開上方時鐘區。背景可延伸為柔和色面或低細節環境，底部預留介面空間，人物不貼近裁切邊界。使用自然光與清楚色彩，不加入未指定的文字或假手機介面。",
+      "checks": [
+        "時鐘區沒有遮住人物臉部",
+        "直式裁切保留重要肢體"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E13.webp",
+        "mimeType": "image/webp",
+        "width": 338,
+        "height": 600,
+        "sha256": "289a8f5243e18488340985c25695223bd6e731532802f6344d050e69ba57ed8c"
+      }
+    },
+    {
+      "id": "E14",
+      "sourceId": "E14",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E14",
+      "name": "風景浮雕章牌",
+      "description": "把風景輪廓轉成具有高低層次的紀念章牌，用材質與側光呈現浮雕深度。",
+      "direction": "依照片保留主要山形、建築或地標，壓縮成一塊圓形或指定外形的浮雕章牌。以不同高度區分前景與遠景，採金屬、陶瓷或指定材質，側光強調邊緣與刻紋。背景簡潔，字樣僅依提供內容，不加入假年代或官方認證標記。",
+      "checks": [
+        "地標輪廓與照片相符",
+        "浮雕層次及邊緣光影清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E14.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "efd2754e30b5735889a6005e763bb856fde1d8bd911ff2bf6f8bbe2ab1fc0d34"
+      }
+    },
+    {
+      "id": "E15",
+      "sourceId": "E15",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E15",
+      "name": "手工紙藝造型",
+      "description": "以折線、接縫與卡紙表面重構主體，呈現可以手工組裝的立體紙模型感。",
+      "direction": "保留照片主體的主要比例與顏色，將複雜曲面轉成可理解的折面及紙片。呈現卡紙厚度、折痕與適量接縫，以柔和側光建立立體感，背景採桌面或素色。紙藝結構需連貫，避免材質突然變成金屬、塑膠或過度寫實皮膚。",
+      "checks": [
+        "折面結構與主體輪廓一致",
+        "紙張材質和接縫表現統一"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E15.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "1453eb09c19b77ef88fe33290e7dc20dd62c551e71e1cd2eaf74e18cf8ae41d7"
+      }
+    },
+    {
+      "id": "E16",
+      "sourceId": "E16",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E16",
+      "name": "小行星全景效果",
+      "description": "把風景環繞成球狀小行星構圖，利用天空與地景的連續性營造奇幻全景。",
+      "direction": "以原照片的地景和地標為素材，將地面彎曲成中央球體，天空包圍外圍。保留主要建築相對位置並控制接縫，讓輪廓形成可讀的環狀景觀。光線方向與照片一致，不複製多餘地標或人物；視覺效果可誇張，但細節不應無故重複。",
+      "checks": [
+        "環狀接縫自然且沒有斷裂",
+        "主要地標沒有重複或消失"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E16.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 480,
+        "sha256": "1c7ef5f42472ba1ef373331909aaef69445510a6be318a5f053028df482210b6"
+      }
+    },
+    {
+      "id": "E17",
+      "sourceId": "E17",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E17",
+      "name": "電玩像素場景",
+      "description": "以固定像素格、有限色盤與簡化光影把照片轉成復古遊戲場景。",
+      "direction": "依照片保留主要物件與空間關係，將輪廓轉為清楚的像素階梯邊緣，以有限色盤區分前景、主體及背景。陰影使用色階而非模糊漸層，像素尺寸全圖一致。可加入遊戲場景感但不套用既有遊戲角色、介面或標誌。",
+      "checks": [
+        "像素尺寸與色階一致",
+        "場景物件位置符合照片"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E17.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "60a15af09454ecdd4a992d9a39ea1a8b01af2e3c2f667dad45f62a043fd9d5fa"
+      }
+    },
+    {
+      "id": "E18",
+      "sourceId": "E18",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E18",
+      "name": "塔羅卡牌設計",
+      "description": "以對稱邊框、象徵物與裝飾細節製作卡牌視覺，將人物或主題轉為敘事中心。",
+      "direction": "把照片主體放在直式卡牌中央，以對稱邊框及少量原創象徵物建立視覺敘事。用深藍、金色或指定色彩區分主體和裝飾，保持臉部特徵清楚。卡名與編號只用提供內容，圖案作藝術創作，不自行附加占卜結果或對個人的命運判斷。",
+      "checks": [
+        "卡牌主體與邊框層級清楚",
+        "名稱編號及象徵物符合需求"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E18.webp",
+        "mimeType": "image/webp",
+        "width": 400,
+        "height": 600,
+        "sha256": "33caaaec610d4d80b8d9e9507d3714672ced23dc04ec5a64ea1e150215a0f50f"
+      }
+    },
+    {
+      "id": "E19",
+      "sourceId": "E19",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E19",
+      "name": "賽車現場合成照",
+      "description": "將參考人物融入賽車場景，以一致透視、光線與尺度形成清楚的創意合成。",
+      "direction": "以參考人物為主體，安排在原創賽道觀賽區或維修區的合理位置，背景可有動態模糊的賽車。光線、景深、地面接觸陰影與人物照片一致，保留服裝及面貌。這是情境合成，不暗示真實出席賽事，也不加入未提供的隊伍贊助或代言標誌。",
+      "checks": [
+        "人物與賽道光線透視一致",
+        "合成內容沒有暗示真實代言"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E19.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "a45df8d389af0b41267d885ecdba7dc2e076326fbefb496cae7377757a4a060a"
+      }
+    },
+    {
+      "id": "E20",
+      "sourceId": "E20",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E20",
+      "name": "籃球賽現場合成照",
+      "description": "把人物放入球場氣氛中，透過場館燈光、觀眾層次與合理比例呈現合成場景。",
+      "direction": "將參考人物置於球場邊或觀眾席，以場館頂光、地板反射和背景景深建立一致空間。保留人物特徵及提供服裝，動作與位置符合觀看情境。場景明確作創意合成，不宣稱真實出席、球員合照或球隊合作；隊徽及比分僅在提供時使用。",
+      "checks": [
+        "場館光源與人物陰影合理",
+        "隊徽比分及出席含意已核對"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E20.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "49f3745d42bde537c42a60b920d748debd42ccd146c4ed11e44efb54ec28d32c"
+      }
+    },
+    {
+      "id": "E21",
+      "sourceId": "E21",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E21",
+      "name": "棒球賽現場合成照",
+      "description": "以球場看台、場地深度與自然光把人物融入棒球情境，呈現可信的視覺合成。",
+      "direction": "依參考人物的視角安排看台或場邊位置，使用一致日光或夜間照明，讓背景觀眾適度虛化。保留服裝、面貌和身體比例，不把人物放在不合理的場地尺度中。這是創意情境合成，不暗示真實出席或球隊代言，未提供的隊名與比分不加入。",
+      "checks": [
+        "人物尺度與球場視角一致",
+        "沒有新增未確認的球隊資訊"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E21.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0bbe788b209172753c0dc0f3678298d12cb885560a93aefdedc3a186b7e6def7"
+      }
+    },
+    {
+      "id": "E22",
+      "sourceId": "E22",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E22",
+      "name": "偶像舞台合成照",
+      "description": "以舞台燈光、煙霧與表演空間營造舞台造型照，保留人物特徵並標明創意情境。",
+      "direction": "將參考人物置於原創舞台場景，使用彩色輪廓光、柔和煙霧及有方向的聚光燈，讓人物成為焦點。保留可辨識的臉部與指定造型，背景觀眾只作模糊氣氛。呈現虛構舞台創作，不加入真實偶像合照、演出名單或未確認的合作與代言。",
+      "checks": [
+        "舞台光線與人物受光一致",
+        "情境沒有暗示真實合作關係"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E22.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "adebcafa199d08c9af9d6923e943013749c62dca554a44389eaf9d04acb761bf"
+      }
+    },
+    {
+      "id": "E23",
+      "sourceId": "E23",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E23",
+      "name": "照片中的塗鴉分身",
+      "description": "在原照片旁加入手繪小分身，利用造型呼應和簡單互動增添幽默感。",
+      "direction": "保留照片主體和背景，新增一個以粗線條與有限配色繪成的塗鴉分身。分身呼應原人物髮型、服裝及姿態，可安排在旁邊或桌面形成輕鬆互動。手繪元素與寫實照片保持可辨識差異，避免遮住臉部，不改寫原照片中的人物數量。",
+      "checks": [
+        "塗鴉分身呼應人物造型",
+        "照片本體未被不必要重繪"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E23.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "458a300ea80403a9cbe05833bafecbde051a5b7e1d829015f39926f131715410"
+      }
+    },
+    {
+      "id": "E24",
+      "sourceId": "E24",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E24",
+      "name": "優雅年長造型",
+      "description": "以自然歲月細節與沉穩造型重新詮釋人物，保持本人五官比例與尊重的表現。",
+      "direction": "在保留人物主要五官、臉型與神情的前提下，加入適度髮色變化、自然細紋和成熟服裝。使用柔和側光及簡潔背景，呈現優雅的虛構年長造型。不要誇張衰弱或改變身分特徵，也不把藝術推想描述為對真實未來外貌的準確預測。",
+      "checks": [
+        "人物辨識特徵仍然保留",
+        "歲月細節自然且不誇張"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E24.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "ac61c20f6ca0d219d2d9ab3144062bba8ba5296b3ed162e6caf29d2ec22ad8e4"
+      }
+    },
+    {
+      "id": "E25",
+      "sourceId": "E25",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E25",
+      "name": "臉部貼玻璃效果",
+      "description": "以玻璃反光、輕微壓迫和近距離視角呈現趣味人像，維持五官與材質合理。",
+      "direction": "讓參考人物靠近透明玻璃，以小幅臉頰或鼻尖接觸形成趣味表情，保留人物辨識度。玻璃呈現柔和反射及少量高光，避免多重倒影製造額外五官。背景保持簡潔，變形幅度克制，手部若入鏡需與玻璃接觸位置一致。",
+      "checks": [
+        "玻璃反射沒有形成多餘五官",
+        "表情與接觸變形自然"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E25.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "6379cefe98d3e56a1f39c1519edd30f3e27b37d15b21938e7c6b5a19df397627"
+      }
+    },
+    {
+      "id": "E26",
+      "sourceId": "E26",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E26",
+      "name": "朦朧膠片攝影",
+      "description": "以柔焦、細顆粒與低對比色彩呈現膠片氛圍，保留主體重要輪廓及神情。",
+      "direction": "沿用照片人物和構圖，加入柔和高光暈散、細緻底片顆粒及略低的整體對比。色彩可偏暖或依指定色調處理，讓背景略帶朦朧而主體仍可辨識。避免用模糊掩蓋五官或細節，不增加假的日期戳、相機品牌與不存在的拍攝資訊。",
+      "checks": [
+        "主體輪廓在柔焦下仍清楚",
+        "顆粒與高光暈散不過量"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E26.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "68004545d6db9b0f3722c237becf415c8c2adfd03873e88bca9c397e0396dc3c"
+      }
+    },
+    {
+      "id": "E27",
+      "sourceId": "E27",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E27",
+      "name": "Q 版角色跳出手機",
+      "description": "把照片人物轉為 Q 版立體角色，再以跨越手機框的動作呈現活潑的深度效果。",
+      "direction": "先保留人物髮型、服裝和配件，轉成一致頭身比例的 Q 版角色，再安排角色跨出手機畫面。以前後遮擋、接觸陰影和柔光維持空間感，手機框與角色不互相穿透。背景簡潔，不加入真實社群認證、帳號或未提供的介面文字。",
+      "checks": [
+        "Q 版角色仍有原人物特徵",
+        "跨框動作與陰影合理"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E27.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "3ffb15a5416256be7c263c6a0050b8d578f290bb0683bd0a1c37e3d2c25da922"
+      }
+    },
+    {
+      "id": "E28",
+      "sourceId": "E28",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E28",
+      "name": "生日紀念海報",
+      "description": "以人像、柔和裝飾和清楚祝福文字製作生日主視覺，保留人物及日期正確性。",
+      "direction": "將參考人物放在主要視覺區，周圍用少量氣球、彩帶或指定元素營造慶祝感。使用明亮柔光和協調色彩，保留祝福語與日期的閱讀空間。姓名、年齡與日期僅照提供內容呈現，不推算或補造；裝飾不要遮住臉部和重要服裝細節。",
+      "checks": [
+        "姓名日期與祝福文字正確",
+        "裝飾不遮住人物臉部"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E28.webp",
+        "mimeType": "image/webp",
+        "width": 450,
+        "height": 600,
+        "sha256": "b9c1c58991f78350c027f734935b30c173a4bac4419ece58eb1f230d5a908ee2"
+      }
+    },
+    {
+      "id": "E29",
+      "sourceId": "E29",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E29",
+      "name": "黑白時尚肖像",
+      "description": "以黑白明暗、俐落構圖和細緻膚理表現人像，突出神情與服裝線條。",
+      "direction": "保留人物五官、表情與姿態，將色彩轉為有層次的黑白灰。以方向性柔光強調臉部輪廓和服裝剪裁，背景簡潔，暗部保留細節而不全部壓黑。適度呈現皮膚紋理，避免過度磨皮或改變臉型，用留白建立編輯式時尚感。",
+      "checks": [
+        "黑白轉換仍保留暗部細節",
+        "臉型神情與照片一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E29.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "1157945ac83b5684e8d7c00bc5af8d63a6d8aa504650b56bed0a6742b7acd4ef"
+      }
+    },
+    {
+      "id": "E30",
+      "sourceId": "E30",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E30",
+      "name": "大地配色平面插畫",
+      "description": "以土黃、棕橙與低飽和綠等色塊簡化照片，呈現溫暖而清楚的平面構圖。",
+      "direction": "把主體與背景拆成幾個大色塊，使用大地色系與簡潔輪廓保留人物或物件辨識點。陰影以平面色塊呈現，不使用寫實反光或複雜漸層；細節保留在臉部、衣著和主要道具。背景適度留白，使畫面有手繪溫度與明確主次。",
+      "checks": [
+        "色彩維持協調的大地色系",
+        "簡化後主體特徵仍清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E30.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "9f823cec9af734b2c0735b15186a2672f00cb3d811d48cee6ceaafd36bddb627"
+      }
+    },
+    {
+      "id": "E31",
+      "sourceId": "E31",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E31",
+      "name": "童趣自由塗鴉",
+      "description": "以自由線條、跳躍色彩和簡單符號轉化照片，保留童趣但仍讓主體容易辨識。",
+      "direction": "沿用照片主要人物、物件與姿態，把細節轉成不規則線條及鮮明色塊。可加入星星、波浪或原創小符號，讓裝飾圍繞主體而不蓋住臉部。輪廓帶自然手繪感，色彩活潑但有主次，保留原照片的人數與關鍵配件。",
+      "checks": [
+        "塗鴉元素沒有遮住主體",
+        "人物數量與配件保持一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E31.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "6eccc7bc6d46eeef6aaf609c3d6cf44d95837602fbcbb97b061e457d11401468"
+      }
+    },
+    {
+      "id": "E32",
+      "sourceId": "E32",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E32",
+      "name": "粉彩蠟筆繪本",
+      "description": "以低飽和粉彩、細碎蠟筆紋理與柔和構圖重現照片，呈現溫暖的繪本畫面。",
+      "direction": "將照片情境簡化為圓潤造型和柔和色塊，以粉彩蠟筆的顆粒及疊色表現陰影。人物五官和衣著保留主要特徵，背景使用較淡色調建立前後關係。紙白適度透出，避免過度光滑或寫實反光，整體如同手工繪製的故事頁。",
+      "checks": [
+        "粉彩顏色與紙紋協調",
+        "人物和背景的層次清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E32.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "347e1aafb1cc4afb01cdf464a158b1b6bcda614c13b52ebce2c9b39a176ca2c3"
+      }
+    },
+    {
+      "id": "E33",
+      "sourceId": "E33",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E33",
+      "name": "幾何抽象圖像",
+      "description": "把照片拆解為圓形、三角形與線條關係，保留主題節奏並形成抽象視覺。",
+      "direction": "從照片提取主要輪廓、方向和色彩，把它們重組為大小有別的幾何圖形。以少量主色和穩定留白建立平衡，讓視線能辨識主體的大致位置。陰影可簡化為疊色，避免任意堆滿符號；抽象化仍需保留原圖最重要的結構關係。",
+      "checks": [
+        "幾何元素有清楚視覺主次",
+        "抽象構圖仍呼應原始結構"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E33.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "c8ebee509e32b8cedd3a551855cccd5b9af087675d97659d44d5bec5a8c006c0"
+      }
+    },
+    {
+      "id": "E34",
+      "sourceId": "E34",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E34",
+      "name": "分層紙雕插畫",
+      "description": "把人物與景物拆成卡紙層次，以厚度、切割邊緣及層間陰影形成紙雕深度。",
+      "direction": "依照片將人物、近景與遠景拆成數個紙層，保留主體髮型、衣著配色與主要姿態。呈現卡紙厚度、整齊切口和層間投影，使用柔和側光強調前後關係。配色採少量協調色，背景簡化，避免細碎紙片破壞主體輪廓。",
+      "checks": [
+        "紙層之間有合理厚度與投影",
+        "主體特徵沒有被切碎或遺失"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E34.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "1c1530894f565e0e00ffbdb207c767559d0e0354b2a1c6aad0ea42d43efc8baf"
+      }
+    },
+    {
+      "id": "E35",
+      "sourceId": "E35",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E35",
+      "name": "怪誕時裝插畫",
+      "description": "以誇張服裝輪廓、伸展線條與對比色重構造型，讓人物辨識與實驗性並存。",
+      "direction": "保留照片人物的臉部辨識點，將指定服裝誇張為雕塑感輪廓與有節奏的線條。用少量衝突色、平面陰影和編輯式留白呈現實驗時裝，背景簡潔。誇張集中在服裝與姿態語言，維持合理肢體數量，不新增真實品牌標誌或代言文字。",
+      "checks": [
+        "造型誇張集中在指定部位",
+        "人物辨識與肢體數量正確"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E35.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "66e6c90d42421db6aaa367e9e5f29c6b0e1715b53832732737d042df9a91a5e1"
+      }
+    },
+    {
+      "id": "E36",
+      "sourceId": "E36",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E36",
+      "name": "真人與塗鴉影子",
+      "description": "保留真人照片，把地面或牆上的影子轉為手繪角色，形成趣味的雙重表現。",
+      "direction": "保持參考人物和場景的寫實質感，將原本投影區轉為呼應人物姿態的塗鴉影子。手繪線條與影子輪廓有明確差異，但位置仍遵循光源方向和接觸點。使用有限配色與少量表情，避免改動真人五官或讓影子遮住主要物件。",
+      "checks": [
+        "影子方向與光源相符",
+        "真人照片與塗鴉層次清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E36.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "41af96b1c53bff514fc9898555b41566ff10eb6cb0bd3abe2f11d4eae595aced"
+      }
+    },
+    {
+      "id": "E37",
+      "sourceId": "E37",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E37",
+      "name": "復古孔版印刷",
+      "description": "以有限套色、油墨顆粒與輕微錯位呈現孔版印刷感，保留清楚圖像輪廓。",
+      "direction": "將照片簡化為二至三種油墨色，各色以網點、顆粒與半透明重疊形成層次。允許輕微套版錯位，背景保留紙張底色，主體輪廓與表情仍需可辨。避免使用連續光滑漸層，錯位幅度不應破壞必要文字、五官或商品結構。",
+      "checks": [
+        "套色顆粒與紙張質感一致",
+        "錯位效果未破壞關鍵細節"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E37.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "ab11b685df72c25fd3ded9ccb210d95d40ce1fc4ecb384863aa61fd61377ec9b"
+      }
+    },
+    {
+      "id": "E38",
+      "sourceId": "E38",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E38",
+      "name": "個人房間情境",
+      "description": "將人物融入符合描述的房間，用家具、色彩與生活物件表現個人化空間概念。",
+      "direction": "保留照片人物的外觀與姿態，依提供喜好安排一個原創房間，家具大小和視角保持一致。用窗邊柔光、協調配色及少量生活物件建立氛圍，主體與環境有自然接觸陰影。這是空間提案，不推測真實住址、私人物品或未提供的生活經歷。",
+      "checks": [
+        "人物與家具尺度合理",
+        "房間元素來自已提供偏好"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E38.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "c1c4534427bfb8034f8bd5a6f247f3e7f3032c22b512aa634d15f4ab7f41dfa5"
+      }
+    },
+    {
+      "id": "E39",
+      "sourceId": "E39",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E39",
+      "name": "蠟筆與色鉛筆混合畫",
+      "description": "以蠟筆大色塊和色鉛筆細線搭配描繪照片，呈現有層次的紙上手繪效果。",
+      "direction": "用蠟筆的粗顆粒鋪出主體及背景色面，再以色鉛筆細線補上五官、服裝邊緣和少量紋理。保留原照片構圖與辨識特徵，陰影採疊色而非寫實渲染。讓兩種媒材各有用途，紙紋適度可見，避免所有細節都被同一筆刷覆蓋。",
+      "checks": [
+        "粗色塊與細線有清楚分工",
+        "人物細節和紙紋保持自然"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E39.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "23f5ad8d5347e8babd078e4b666ff35258df07ec8722348f451eb5a7d56345fd"
+      }
+    },
+    {
+      "id": "E40",
+      "sourceId": "E40",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E40",
+      "name": "CCD 相機懷舊照",
+      "description": "用直閃、略硬陰影與細緻數位雜訊重現早期小型相機感，保留生活照片氛圍。",
+      "direction": "沿用照片人物及構圖，以近距離直閃造成較亮主體和略暗背景，加入克制的數位雜訊與些微色偏。保留真實皮膚及衣物細節，不做過度磨皮或嚴重模糊。可呈現隨手抓拍感，但不新增假的相機資訊、日期戳或不存在的人物。",
+      "checks": [
+        "直閃與背景明暗關係合理",
+        "懷舊效果未遮蔽人物細節"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E40.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "12f00d7ebee7d7a0ddeff990a4153cb83adeb585f270dbd04325be6672afda20"
+      }
+    },
+    {
+      "id": "E41",
+      "sourceId": "E41",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E41",
+      "name": "真人與動畫分身",
+      "description": "在寫實照片旁安排原創動畫分身，讓相同造型以兩種媒材形成清楚對照。",
+      "direction": "保留參考真人的臉部、衣著與姿態，另加入一個以簡潔線稿和色塊呈現的動畫分身。分身呼應主要特徵但採原創角色設計，兩者視線與位置形成自然互動。背景沿用照片，動畫人物的陰影與尺度合理，不模仿既有角色或增添未指定真人。",
+      "checks": [
+        "分身與真人的造型相互呼應",
+        "寫實與動畫邊界清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E41.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "2bbc8c474b883e8d2ec8915edf51745b9e02a905b069588c58e508a0a1343429"
+      }
+    },
+    {
+      "id": "E42",
+      "sourceId": "E42",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E42",
+      "name": "實景物件像素化",
+      "description": "只把照片指定物件轉成像素形式，保留周圍實景，突出數位與真實的材質反差。",
+      "direction": "保持原照片背景及未指定區域不變，只將選定物件轉成固定像素格和有限色盤。像素物件沿用原有輪廓、比例與接觸位置，讓光影大致呼應場景。邊界要乾淨，避免像素效果擴散到人物臉部或其他物件，未指定文字不加入。",
+      "checks": [
+        "像素化僅發生於指定物件",
+        "物件輪廓與接觸位置一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E42.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d441b4f18f92c2f9a44dd43cdb92383e1a01f06783367a1c954c76e915b31428"
+      }
+    },
+    {
+      "id": "E43",
+      "sourceId": "E43",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E43",
+      "name": "建築主題編輯海報",
+      "description": "以建築照片、留白和理性排版建立編輯式海報，凸顯線條、比例與空間節奏。",
+      "direction": "保留建築主要結構與透視，使用裁切和留白突出立面線條、窗格或幾何關係。配色從照片提取，資訊區採整齊網格與少量文字，避免過多裝飾。建築名稱、年份和地點僅用提供資料，不補造設計師、歷史或得獎紀錄。",
+      "checks": [
+        "建築透視與結構沒有扭曲",
+        "名稱年份及地點均已核對"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E43.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "42e37bace50a66b16266879188dc2bf3fd3bd2c2af392a785c12b410c9e2e790"
+      }
+    },
+    {
+      "id": "E44",
+      "sourceId": "E44",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E44",
+      "name": "搞怪潦草線畫",
+      "description": "以快速、略帶歪斜的線條重繪照片，讓表情與姿態有幽默感而不失辨識。",
+      "direction": "將主體簡化為自由連續線條，允許局部比例帶有喜劇式誇張，仍保留髮型、表情與代表配件。用極少色塊點綴，背景保持空白或簡單筆記線。避免精緻陰影和過度平滑曲線，線條雖潦草但人物數量、肢體和主要動作清楚。",
+      "checks": [
+        "幽默誇張仍保有辨識特徵",
+        "線條沒有造成額外肢體"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E44.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "4e2a1ca7ecdab92991c172db04e185ac4f2e2084332235e772e3db191d1fdcba"
+      }
+    },
+    {
+      "id": "E45",
+      "sourceId": "E45",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E45",
+      "name": "彩繪光環裝飾框",
+      "description": "在照片主體周圍加入彩繪弧線與光環，利用色彩節奏形成柔和的裝飾焦點。",
+      "direction": "保留照片人物與原本受光，在頭部或主體外圍安排手繪光環、短線及弧形裝飾。配色採與照片協調的少量亮色，線條可以略有筆觸但不覆蓋五官。裝飾集中在留白區，讓畫面仍以人物為主，避免將光環畫成會改變臉型的遮罩。",
+      "checks": [
+        "裝飾框沒有遮住主要五官",
+        "光環色彩與照片相協調"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E45.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "ad68d08e9ba50a5e8b4f0dd1502ddbfedc545cb6a6dfe165945064e8a24ee326"
+      }
+    },
+    {
+      "id": "E46",
+      "sourceId": "E46",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E46",
+      "name": "愛心輪廓髮型",
+      "description": "以指定髮型形成愛心輪廓的創意造型，保留人物臉部與自然髮絲質感。",
+      "direction": "保持照片人物的五官、表情與服裝，只把頭髮外輪廓整理為可辨識的愛心造型。髮根、髮束和左右體積需自然連接，使用柔光顯示髮絲層次。背景簡潔，不讓造型遮住眼睛或變成獨立道具，髮色依指定內容或原照片保留。",
+      "checks": [
+        "愛心輪廓與髮束自然連接",
+        "五官與原人物保持一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E46.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "1c671c58e426ede474fadd54f8c97b302974df67325dea556f56c4a7b9c0d2f7"
+      }
+    },
+    {
+      "id": "E47",
+      "sourceId": "E47",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E47",
+      "name": "不同年齡的人生肖像",
+      "description": "以一致構圖呈現不同年齡的虛構造型變化，保留人物核心特徵以便比較。",
+      "direction": "以參考人物為基準，依指定年齡階段製作並排肖像，維持相近鏡頭、光線和背景。透過自然髮色、皮膚細節與服裝調整表現變化，不過度誇張衰老。這是藝術想像，不能當作真實年齡鑑定或未來長相預測，標籤僅使用提供內容。",
+      "checks": [
+        "各階段仍呈現同一人物",
+        "光線構圖一致便於比較"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E47.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "30353c63ef62406cbd9b05629829af1029575b515498ecdaa154daf3d416454a"
+      }
+    },
+    {
+      "id": "E48",
+      "sourceId": "E48",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E48",
+      "name": "玫瑰金時尚封面",
+      "description": "以玫瑰金細節、柔和人像光與俐落文字層級打造精緻的原創時尚封面。",
+      "direction": "保留人像辨識度，搭配低彩度背景、柔和輪廓光與少量玫瑰金線條或箔面質感。讓金屬色作為點綴，避免整張過亮，標題沿人物周邊留白安排。刊名與文案均採提供文字，不仿冒真實雜誌，也不加入未確認的代言或獲獎敘述。",
+      "checks": [
+        "玫瑰金反光沒有干擾閱讀",
+        "封面文字與人物特徵正確"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E48.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0afdbce6e7b1009b0806788eb6e9f15b7744b0e9fc81ad66c711eab77d921165"
+      }
+    },
+    {
+      "id": "E49",
+      "sourceId": "E49",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E49",
+      "name": "莫蘭迪手繪人像卡",
+      "description": "以低飽和灰調、細緻線條與留白呈現人物，形成柔和而清楚的手繪介紹卡。",
+      "direction": "保留人物髮型、輪廓及主要服裝特徵，以帶灰度的柔和色彩和輕線稿重繪。背景用簡單色塊或紙張紋理，將人像放在一側，另一側預留提供的姓名或短介紹。陰影克制，避免色彩過淡而失去對比，未提供的身分資訊不補寫。",
+      "checks": [
+        "灰調色彩仍有足夠對比",
+        "人像特徵及介紹文字正確"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E49.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "513c57b7ff07b9db5d0d24ca29927f6bf1d1021d5b23e56d72f58af57cf8f815"
+      }
+    },
+    {
+      "id": "E50",
+      "sourceId": "E50",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E50",
+      "name": "清爽韓風雜誌",
+      "description": "以明亮留白、柔和色調和簡潔編輯排版呈現人物，建立清爽的雜誌視覺。",
+      "direction": "保留參考人像的自然神情與服裝，以柔和窗光、淺色背景和輕盈配色建立畫面。排版採整齊留白、精簡標題與細線分隔，避免過度磨皮或改變臉型。刊名和內文只使用提供內容，整體為原創編輯風格，不冒充現有刊物。",
+      "checks": [
+        "淺色版面文字仍清楚可讀",
+        "自然神情與臉型沒有改變"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E50.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d6840edc80437f18bd725f5ef185d7c92606e458891070c50186d5633a4d76ac"
+      }
+    },
+    {
+      "id": "E51",
+      "sourceId": "E51",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E51",
+      "name": "旅遊照片插畫海報",
+      "description": "把旅行照片轉成具有清楚地標與色彩層次的插畫海報，保留地點辨識度。",
+      "direction": "依照片保留地標輪廓、主要道路或自然景觀，以簡化線條和鮮明但協調的色塊重繪。天空與遠景較淡，近景保持細節，為地名或旅程標題預留區域。文字僅使用提供內容，不補造旅遊評價、營業資訊或歷史描述。",
+      "checks": [
+        "地標輪廓與照片一致",
+        "文字留白與前後景層次清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E51.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "c067809bd7da3522718360f73f8d3ef8ac75fe7344b9ff3ee6688996996b3e19"
+      }
+    },
+    {
+      "id": "E52",
+      "sourceId": "E52",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E52",
+      "name": "街拍搭配卡通貼紙",
+      "description": "保留街拍照片並加入少量原創卡通貼紙，讓穿搭與場景有活潑的視覺節奏。",
+      "direction": "保持街拍人物、服裝與背景的攝影質感，在空白區加入呼應姿態或場景的卡通貼紙。貼紙採一致外框、陰影和色系，大小不壓過人物，避免遮住五官與品牌細節。圖案使用原創符號，不加入未提供的帳號、評價或真實品牌合作文字。",
+      "checks": [
+        "貼紙未遮擋穿搭與人物特徵",
+        "貼紙外框及配色一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E52.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "cd31dedaccbf1a6f1065ec655d3752c0122a23f3019d2fc64f049299fa443ec7"
+      }
+    },
+    {
+      "id": "E53",
+      "sourceId": "E53",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E53",
+      "name": "蠟筆童話圖像",
+      "description": "以溫暖蠟筆筆觸和故事性環境詮釋照片，讓主體融入柔和的童話情境。",
+      "direction": "保留照片主體的姿態與辨識特徵，以蠟筆顆粒、圓潤線條及柔和色塊重新描繪。背景可依需求加入原創童話植物或簡單場景，光線溫暖，前後景層次清楚。新增元素圍繞主題，不替換主角或改成既有故事角色，未指定文字不加入。",
+      "checks": [
+        "童話元素與主體自然融合",
+        "蠟筆材質及角色特徵一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E53.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "b5c4773ce191469dfe1928dbc61c4fe3a79452192e0f9fb78b98593f96375378"
+      }
+    },
+    {
+      "id": "E54",
+      "sourceId": "E54",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E54",
+      "name": "旅行印章設計",
+      "description": "把地標與旅行記憶轉成可辨識的印章圖案，以單色線條和留白呈現手作感。",
+      "direction": "從照片擷取地標主要輪廓，簡化為粗細清楚的單色線條，放入圓形或指定形狀邊框。加入適度缺墨與紙張紋理，保留小尺寸印製所需空隙。地名、日期只使用提供內容，不仿製護照章、官方證明或具有實際通關用途的印記。",
+      "checks": [
+        "地標縮小後仍能辨識",
+        "文字及線條留有足夠空隙"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E54.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "fb27a89c04231fb929b2844979f277326d88bf9a7db696a2402d311c5c6c621a"
+      }
+    },
+    {
+      "id": "E55",
+      "sourceId": "E55",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E55",
+      "name": "留白線稿與照片拼貼",
+      "description": "讓局部照片與細線描繪共同構成畫面，透過留白呈現輕盈的混合媒材效果。",
+      "direction": "選取照片中的主體或指定區域保留攝影質感，其餘部分轉成細線輪廓並融入紙白。線稿延續原有姿態與物件位置，照片與線條的交界乾淨自然。用少量單色點綴建立焦點，避免過度補滿背景或改變人物臉部辨識特徵。",
+      "checks": [
+        "照片與線稿交界自然",
+        "留白足夠且主體仍完整"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E55.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "fe8bf67576073cf80bd820ae256795e7dbba726dd7a4810ad42e22e455020cc2"
+      }
+    },
+    {
+      "id": "E56",
+      "sourceId": "E56",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E56",
+      "name": "隨筆塗鴉照片",
+      "description": "在原照片上添加少量隨手筆記、圈線與小符號，突出拍攝情境的趣味重點。",
+      "direction": "保留照片本體，在合適留白處加入手寫感線條、箭頭和提供的短註記。筆觸採一至兩種顏色，粗細及方向保持自然，裝飾只強調指定重點。不要塗改主要五官、商品標示或重要背景資訊，讓照片仍是畫面核心而非全面重繪。",
+      "checks": [
+        "塗鴉只強調指定重點",
+        "原照片的重要資訊完整保留"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E56.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "185f4b40b0e5aaad27c89a63e399a1edc5543245dbb56d572e27215ad66ca335"
+      }
+    },
+    {
+      "id": "E57",
+      "sourceId": "E57",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E57",
+      "name": "紙張質感簡筆人像",
+      "description": "以簡潔線稿、局部淡彩與可見紙纖維描繪人物，保留表情和外觀辨識。",
+      "direction": "從照片提取臉部輪廓、髮型和服裝重點，以少量線條完成主要形體。陰影採淡彩或輕筆觸，紙張底色和纖維適度可見，背景保留寬鬆留白。五官位置依原圖維持，不用過度簡化造成錯認，避免加入照片中沒有的配件。",
+      "checks": [
+        "少量線條仍能辨識人物",
+        "紙紋沒有壓過臉部細節"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E57.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "2ee68d3bccf182dde56f038770944818a65809e475bca4e2de26fb8f33148c83"
+      }
+    },
+    {
+      "id": "E58",
+      "sourceId": "E58",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E58",
+      "name": "極簡建築圖像",
+      "description": "以精簡線條、幾何色塊與大量留白重構建築照片，突出結構比例與空間秩序。",
+      "direction": "保留建築最具辨識度的立面、屋頂和窗格關係，把複雜材質簡化為少量平面色塊。使用一致線條與克制陰影，讓垂直水平線和透視合理。背景減少干擾元素，必要文字只使用提供資訊，不增加實際不存在的樓層或結構。",
+      "checks": [
+        "建築主要比例與結構正確",
+        "線條透視及留白保持一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E58.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "75be03cfa0814169f4e3c82c6e2f9882bf37587c122cb69e0e0c6f65803821cb"
+      }
+    },
+    {
+      "id": "E59",
+      "sourceId": "E59",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E59",
+      "name": "風景御守概念",
+      "description": "把風景元素融入小型布製御守外觀，以織紋、繩結和刺繡呈現紀念物概念。",
+      "direction": "依照片擷取主要地標或自然輪廓，轉成御守布面上的簡化刺繡圖案。呈現布料織紋、縫邊和繩結，使用柔光展示小物比例與立體感。字樣只依提供內容，整體是紀念品設計概念，不仿冒特定寺社授與品或宣稱具有保證功效。",
+      "checks": [
+        "風景圖案在小尺寸仍清楚",
+        "布料縫邊與繩結結構合理"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E59.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "96959d533b353b791b488afab0c55d80eb17a9e5e9ba0c609cdd3e8b0c356608"
+      }
+    },
+    {
+      "id": "E60",
+      "sourceId": "E60",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E60",
+      "name": "彩色麥克筆畫",
+      "description": "以明快色塊、重疊筆痕和清楚輪廓重畫照片，呈現直接而有活力的手繪感。",
+      "direction": "依照片保留主體姿態、物件位置與主要配色，用寬頭麥克筆鋪色，讓交疊處形成自然深色筆痕。邊緣可有輕微不均，陰影以幾層色彩疊加，背景簡化。避免模擬螢光過曝或光滑數位漸層，保留紙上筆觸的方向與節奏。",
+      "checks": [
+        "筆痕重疊自然且方向清楚",
+        "主體輪廓與主要配色保留"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E60.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "968024aa16f0e0af38b55f4f656b898f39a9a02a231898a15c5cee0b19210f75"
+      }
+    },
+    {
+      "id": "E61",
+      "sourceId": "E61",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E61",
+      "name": "奶油質地厚塗人像",
+      "description": "以厚實柔軟的顏料堆疊與刮刀痕呈現人像，讓表面觸感與五官辨識並存。",
+      "direction": "保留人像主要臉型、髮型及姿態，用厚塗色塊塑造輪廓與衣物，表面帶柔軟奶油般的刮刀紋。光線從側面照亮顏料起伏，配色依照片調整為協調色系。五官區減少過粗筆觸，避免顏料堆疊造成多餘器官或遮住表情。",
+      "checks": [
+        "厚塗紋理具有合理起伏",
+        "五官在厚塗中仍可辨識"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E61.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "5dc95980d2e6258217fc1269a5e5da106a223051555c8ceafebdb1122b8e3b0f"
+      }
+    },
+    {
+      "id": "E62",
+      "sourceId": "E62",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E62",
+      "name": "魚眼墨鏡復古桌布",
+      "description": "以近距離廣角、墨鏡反射與復古色調製作個性桌布，保留人物辨識與視覺焦點。",
+      "direction": "以照片人物為中心，採克制的魚眼透視，讓墨鏡和臉部成為焦點，保留原有辨識特徵。加入少量膠片顆粒與復古色偏，鏡片反射對應場景而不生成多餘眼睛。直式版面預留時鐘空間，誇張集中在鏡頭效果，不扭曲肢體數量。",
+      "checks": [
+        "魚眼變形沒有破壞人物辨識",
+        "墨鏡反射與場景合理一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E62.webp",
+        "mimeType": "image/webp",
+        "width": 400,
+        "height": 600,
+        "sha256": "5d20204f97d853ff9f2d590c93687f6e39d52f3cd9e308d97f5466ab11ad68dc"
+      }
+    },
+    {
+      "id": "E63",
+      "sourceId": "E63",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E63",
+      "name": "果凍透明壓克力",
+      "description": "把主體轉為半透明彩色壓克力質感，透過折射、圓潤邊緣與陰影呈現清透感。",
+      "direction": "保留原主體的外輪廓與關鍵結構，轉為帶少量色彩的透明壓克力物件。使用圓潤邊緣、合理厚度及柔和折射，讓背景透過材質時略有變形。棚光與接觸陰影方向一致，避免把透明效果做成水滴融化或讓必要結構消失。",
+      "checks": [
+        "透明材質仍保留原本結構",
+        "折射厚度與陰影方向合理"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E63.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "a4c90422c6c7c299e6a493fa792ee7ec55a412841d4612a54f41cae8d5eed2d0"
+      }
+    },
+    {
+      "id": "E64",
+      "sourceId": "E64",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E64",
+      "name": "彩色玻璃工藝",
+      "description": "以彩色玻璃片、接縫線與透光層次重構照片，呈現工藝拼接的明亮效果。",
+      "direction": "將主體輪廓拆成大小有秩序的彩色玻璃片，以深色接縫線連接，保留主要人物或地標特徵。使用背光展現玻璃透明度和色彩投影，細節不宜切得過碎。背景簡化為幾何玻璃區塊，接縫需連貫，避免透明片突然變成不相關材質。",
+      "checks": [
+        "玻璃分片保留主要辨識特徵",
+        "接縫與透光效果一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E64.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "5102b9f3ff68509ecfc7e19636466114e2217303e183afc47f7a6f32951d96b7"
+      }
+    },
+    {
+      "id": "E65",
+      "sourceId": "E65",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E65",
+      "name": "立體膨起貼紙",
+      "description": "將主體變成柔軟鼓起的立體貼紙，利用厚度、圓角和高光呈現可觸摸的質感。",
+      "direction": "保留照片主體主要配色和輪廓，將其簡化為略微膨起的貼紙造型，邊緣圓潤且有一致厚度。以柔和高光、細緻接觸陰影與乾淨背景呈現表面彈性。重要五官和標示保持清楚，避免鼓起效果扭曲文字或把物件黏成無法辨識的形狀。",
+      "checks": [
+        "貼紙厚度與外框一致",
+        "主體細節未因膨起而變形"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E65.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "f790ebc07a7884490dfffca82587426c1a2566df3e26120324ed3237cb228841"
+      }
+    },
+    {
+      "id": "E66",
+      "sourceId": "E66",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E66",
+      "name": "局部積木化",
+      "description": "只把照片指定區域改為積木構造，透過顆粒、拼接與寫實背景形成材質對比。",
+      "direction": "維持照片未指定區域原貌，將選定物件或局部轉成原創積木組裝形式。積木顆粒大小、接合方向和物件輪廓保持一致，光影延續原場景，交界處乾淨。不要使用真實玩具品牌標誌，也不把其他人物或背景一併改造。",
+      "checks": [
+        "改造範圍符合指定區域",
+        "積木接合與物件輪廓合理"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E66.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "af7b0166440bcec5a47150bceba04eab232f32eb3adba8fc34829f8a0550a4d9"
+      }
+    },
+    {
+      "id": "E67",
+      "sourceId": "E67",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E67",
+      "name": "刺繡背景",
+      "description": "保留照片主體，將背景轉成有方向感的針線與布面，建立真實與刺繡的材質對照。",
+      "direction": "讓照片人物或商品維持攝影質感，背景改以布料底色與密度有別的刺繡線條重建。針腳方向呼應景物輪廓，線材有輕微高光和立體陰影，主體邊緣乾淨。不要讓刺繡覆蓋五官或商品標示，背景配色從原照片提取並適度簡化。",
+      "checks": [
+        "主體與刺繡背景邊界清楚",
+        "針腳方向和材質表現一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E67.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "f8cd0883a77ce9100778c889e6fef35d742555ccb939d2a859eda1c36687e85e"
+      }
+    },
+    {
+      "id": "E68",
+      "sourceId": "E68",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E68",
+      "name": "毛氈與布料拼貼",
+      "description": "以毛氈塊、不同布紋和縫線拼出照片主題，呈現柔軟而有層次的手作畫面。",
+      "direction": "將照片主要形體拆成毛氈與布片，保留人物姿態及物件數量，以縫線和疊放關係建立層次。毛氈表面有短纖維，布片呈現不同但協調的織紋，柔和側光顯示厚度。邊緣略帶手工剪裁感，避免過細碎拼片使主體失去辨識度。",
+      "checks": [
+        "毛氈布料與縫線層次清楚",
+        "拼片仍保留原主體輪廓"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E68.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "94e8e3965e6386a45fe448ace97071df1b69bec76d3c15386f5e51e2cae70942"
+      }
+    },
+    {
+      "id": "E69",
+      "sourceId": "E69",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E69",
+      "name": "蝕刻版畫拼貼",
+      "description": "把照片轉為細密刻線與紙片拼接的畫面，以黑白層次和紙張邊緣建立深度。",
+      "direction": "用疏密有別的交叉刻線表現主體明暗，輪廓保留原照片特徵，再將少量圖像分區排列成紙片拼貼。底色以米白紙感為主，可加一種輔色突出焦點。刻線不要變成雜訊，拼貼交界保留清楚邊緣，避免切斷重要五官或肢體。",
+      "checks": [
+        "刻線密度能表現清楚明暗",
+        "拼貼邊界未破壞主體結構"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E69.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "49ab3d5b15966c154763506974ceae3747e421f81469f0e2dab67727aa0a1521"
+      }
+    },
+    {
+      "id": "E70",
+      "sourceId": "E70",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E70",
+      "name": "紙質插畫貼紙",
+      "description": "將照片主體整理成帶紙張外框與手繪色塊的貼紙，呈現可剪裁的平面小物。",
+      "direction": "保留主體的輪廓、配色和代表細節，轉為線條清楚的插畫，外圍加一致寬度的紙白邊。表面呈現細緻紙紋，底部只有淡淡陰影，避免過度塑膠反光。構圖不貼邊，重要配件與文字完整留在貼紙範圍，未指定內容不新增。",
+      "checks": [
+        "紙白外框寬度均勻",
+        "主體與配件完整留在貼紙內"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E70.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "652f8a48d7aa87991fbaa8a5fc546d32cf011ace7f49750cec361b74d308e4e4"
+      }
+    },
+    {
+      "id": "E71",
+      "sourceId": "E71",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E71",
+      "name": "復古印刷版畫",
+      "description": "以刻版式線條、大面積黑白與粗糙油墨重構照片，形成有力量的復古版畫感。",
+      "direction": "保留照片主要輪廓，以粗細刻痕、塊面和有限套色表現明暗，讓主體與背景清楚分離。紙張有微暖底色和少量缺墨，邊緣可帶手工印製感。細節集中於辨識部位，避免紋理過密；所有文字若有提供，需保持清楚且不被油墨效果遮蔽。",
+      "checks": [
+        "刻痕與色塊有明確主次",
+        "印刷紋理未遮住關鍵細節"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E71.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "944a222c0f4df79d40c3dd44c687ff878bff1326afe58148b7cf2fb5ee4953ef"
+      }
+    },
+    {
+      "id": "E72",
+      "sourceId": "E72",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E72",
+      "name": "紙膠帶拼貼",
+      "description": "用半透明紙膠帶、撕邊與照片片段組合畫面，呈現輕鬆的手帳拼貼質感。",
+      "direction": "保留照片主體，將周邊或指定區域切成少量片段，以不同寬度的紙膠帶連接或裝飾。膠帶呈現半透明紙纖維與自然撕邊，配色和原照片相協調，陰影克制。避免膠帶覆蓋眼睛、必要文字或商品資訊，留白讓拼貼有清楚閱讀順序。",
+      "checks": [
+        "膠帶透明度與紙紋自然",
+        "主體的重要資訊沒有被遮擋"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E72.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "e139d581a0fd4721f179ee17e0c23880480282c035f0c55a33502c500718ae6a"
+      }
+    },
+    {
+      "id": "E73",
+      "sourceId": "E73",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E73",
+      "name": "雙色網點印刷",
+      "description": "以兩種油墨色與網點密度重構照片，利用疊色和紙白形成復古印刷層次。",
+      "direction": "選擇兩種協調或對比的油墨色，將照片明暗拆成可閱讀的色層，用網點密度表現漸層。保留主體輪廓與主要表情，重疊區呈現合理混色，紙白作為亮部。套版可略有偏移但不影響辨識，避免加入第三種明顯色彩或平滑數位陰影。",
+      "checks": [
+        "全圖維持雙色與紙白規則",
+        "網點仍能表現主體明暗"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E73.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "95d386b10bb30d6ef87da83ca9118afbff4abe38677a1c3927a381c7214b3332"
+      }
+    },
+    {
+      "id": "E74",
+      "sourceId": "E74",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E74",
+      "name": "老式旅遊宣傳畫",
+      "description": "以簡化景物、鮮明色塊與復古海報構圖呈現風景，突出地點特色與遠近層次。",
+      "direction": "依照片保留地標及景觀輪廓，用大色塊、簡潔陰影和遠近色差重繪為旅行宣傳畫。天空與地面形成清楚分區，地名區預留醒目空間，加入克制紙張顆粒。文字僅使用提供資訊，不補造交通票價、官方旅遊標章或歷史年份。",
+      "checks": [
+        "地標與風景輪廓可辨識",
+        "海報文字及旅遊資訊已核對"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E74.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d0cb16d7bdccbb880bb0710fc850b135aa692b9c5688e06b0410135810ef1aee"
+      }
+    },
+    {
+      "id": "E75",
+      "sourceId": "E75",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E75",
+      "name": "紡織材料拼貼",
+      "description": "以不同織紋、布邊和縫合方式重組照片，讓材質差異形成豐富而整齊的畫面。",
+      "direction": "將主體及背景分成較大的布片區域，選擇棉布、粗織布或指定紡織材料，以紋理方向和縫線區分。保留原照片的姿態與物件位置，配色維持協調，柔光顯示布料起伏。避免紋路太密遮住五官，布片交接需合理且有清楚層次。",
+      "checks": [
+        "各布片紋理與接縫清楚",
+        "材質變化未破壞主體辨識"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E75.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "763870592fea01335f4ca59189736db9c990bc566a47fc2d4cbc80a68926cdee"
+      }
+    },
+    {
+      "id": "E76",
+      "sourceId": "E76",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E76",
+      "name": "黑色蠟筆速寫",
+      "description": "以黑色蠟筆的粗顆粒、快速線條與紙白描繪照片，呈現直接而有力的速寫感。",
+      "direction": "保留主體姿態和輪廓，以黑色蠟筆疏密表現明暗，不使用彩色填色或光滑灰階漸層。線條可保有起落與擦痕，五官及關鍵配件用較清楚的筆觸描繪。背景適度省略，讓紙白參與構圖，避免滿版塗黑或用雜亂線條淹沒主體。",
+      "checks": [
+        "黑白密度形成清楚焦點",
+        "粗筆觸仍保留重要特徵"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E76.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "ebfef6f82332953a3ab14a8613d12dfe661626656e10b8525e43d30029d82fc5"
+      }
+    },
+    {
+      "id": "E77",
+      "sourceId": "E77",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E77",
+      "name": "城市縮尺模型",
+      "description": "將城市照片轉為桌上縮尺模型，用微型建築、道路和柔光呈現精巧的場景層次。",
+      "direction": "依照片保留主要街廓、地標與道路關係，轉為置於簡潔底座上的微縮模型。以一致比例呈現建築、樹木和車輛，使用柔和棚光、細緻陰影及適度景深。模型可以簡化細節，但不憑空增加地標或混用尺寸，底座文字只採提供內容。",
+      "checks": [
+        "建築道路與車輛比例一致",
+        "主要地標及相對位置保留"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E77.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "a38ab14f37a4378abac341085af8a3cd125fa8085de8999469101e31718bea34"
+      }
+    },
+    {
+      "id": "E78",
+      "sourceId": "E78",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E78",
+      "name": "紙面乾刷膠彩畫",
+      "description": "以不連續乾刷筆觸、霧面色層與紙張顆粒重現照片，呈現手繪的斷續質地。",
+      "direction": "保留照片主題和主要明暗關係，以膠彩色塊搭配乾刷筆觸描繪，讓紙紋在筆觸間自然透出。顏色採協調的低至中飽和色系，邊緣可有未完全覆蓋的質感。避免全部抹成模糊效果，主體辨識部位需保留清楚線條與形狀。",
+      "checks": [
+        "乾刷筆觸能看見紙張空隙",
+        "主體形狀在斷續筆觸中清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E78.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "30f81aacb7e949404101fe166295ef572506c8403a3af9a00e935b0347931860"
+      }
+    },
+    {
+      "id": "E79",
+      "sourceId": "E79",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E79",
+      "name": "綠色速寫背景",
+      "description": "保留照片主體，將背景改為綠色系線稿與輕色塊，形成清爽的攝影插畫混合感。",
+      "direction": "保持人物或商品的攝影細節，把背景景物轉成深淺綠色速寫線條與少量淡色填塗。線條延續原有空間方向，主體邊界乾淨，留白使焦點清楚。避免綠色覆蓋五官、包裝或重要標示，背景裝飾不新增未提供的地點名稱與文字。",
+      "checks": [
+        "綠色線稿只作用於背景",
+        "主體與背景交界乾淨"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E79.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "1d062483094c51059d551ac7e839f02f6e0ad1be4aff9b4d3f9aa0bb8348442d"
+      }
+    },
+    {
+      "id": "E80",
+      "sourceId": "E80",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E80",
+      "name": "八○年代人像造型",
+      "description": "以復古服裝輪廓、色彩和攝影光線呈現年代造型，保留人物本身的辨識特徵。",
+      "direction": "在保留照片人物臉型與神情的前提下，依需求調整為八○年代感的髮型或服裝輪廓。使用略暖色調、適度顆粒與棚拍光線，背景可採簡單幾何或漸層。造型屬於創意改裝，不加入假的年代照片標記、名人身分或未提供的品牌標誌。",
+      "checks": [
+        "復古造型仍保留本人特徵",
+        "色調與服裝年代感一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E80.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "61b9d0f6442afa2656cd496fc3b99c3d6794337bce69550b3314a7ccb1777815"
+      }
+    },
+    {
+      "id": "E81",
+      "sourceId": "E81",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E81",
+      "name": "膠彩風景畫",
+      "description": "以霧面色層、清楚筆觸與柔和遠近色差重繪風景，保留地景結構和自然氣氛。",
+      "direction": "依照片保留山形、建築、道路與天空的主要比例，以膠彩不透明色層分區描繪。近景筆觸較明確，遠景降低對比，使用協調色彩呈現時間與光線。紙面質感適度透出，避免過度寫實反光或任意改變地標，讓畫面有手繪的完整性。",
+      "checks": [
+        "地景比例與照片一致",
+        "遠近色差及筆觸層次清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E81.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "6aa04116ca5d45b4895ac78bdcc370903f483583d702590e29fca24ac494d6e9"
+      }
+    },
+    {
+      "id": "E82",
+      "sourceId": "E82",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E82",
+      "name": "壓克力乾刷簡畫",
+      "description": "以簡化形體、乾刷邊緣與不透明色塊詮釋照片，保留爽朗而有力量的筆觸。",
+      "direction": "把照片主體整理成少量清楚形狀，使用壓克力顏料的厚薄差異和乾刷斷痕表現表面。色塊邊緣可有不規則筆觸，陰影以大面積冷暖或深淺區別。背景簡潔，主體辨識部位保留輪廓，避免大量細描或平滑數位漸層破壞手繪感。",
+      "checks": [
+        "簡化形體仍可辨識主題",
+        "乾刷與色塊材質一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E82.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0622026832c3b357c04243333bd928980e3e35b15648d7ef14ad976a35e57a53"
+      }
+    },
+    {
+      "id": "E83",
+      "sourceId": "E83",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E83",
+      "name": "小型插畫貼紙",
+      "description": "將照片重點轉成容易辨識的小型插畫貼紙，以清楚外框和有限細節方便使用。",
+      "direction": "選取照片最有代表性的主體，簡化為輪廓明確、色彩協調的小插畫，外圍留出均勻裁切邊。細節集中於髮型、配件或物件形狀，背景保持透明或指定素色。不要把整張複雜照片硬縮成貼紙，文字僅用提供短句，並確認縮小後仍可讀。",
+      "checks": [
+        "小尺寸下主體與文字清楚",
+        "外框和裁切邊沒有缺口"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E83.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "82fa7d2fa30ed346d6e6faeaa520153302ff593a3f3a17fdd892ec1bcaea7906"
+      }
+    },
+    {
+      "id": "E84",
+      "sourceId": "E84",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E84",
+      "name": "城市地標明信片",
+      "description": "以清楚地標、風景層次與留白形成明信片視覺，適合保存旅行印象與地點特色。",
+      "direction": "依照片保留城市地標及主要環境，用插畫或指定媒材重繪，讓地標成為主要焦點。使用有層次的天空、街道與前景，四周保留明信片邊界，地名僅用提供內容。不要添加未提供的郵戳、票價或官方旅遊標誌，留出日後書寫與排版空間。",
+      "checks": [
+        "城市地標可辨識且未變形",
+        "邊界及文字留白足夠"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E84.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "58f3944cea0f759349e2c91328dba0ccfe81088b0c2ebc0a0e1f44b1cff36f62"
+      }
+    },
+    {
+      "id": "E85",
+      "sourceId": "E85",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E85",
+      "name": "人群流動中的靜止人像",
+      "description": "讓主要人物保持清晰，周圍人群呈現動態模糊，以對比突出安靜的視覺焦點。",
+      "direction": "以參考人物為靜止中心，保留清楚臉部、服裝與姿態，背景人群沿合理移動方向形成模糊軌跡。光線、鏡頭視角和地面陰影一致，模糊不應延伸到主角五官。背景只作情境表現，不加入可辨識的特定陌生人或暗示真實事件紀錄。",
+      "checks": [
+        "主角清晰而背景動感自然",
+        "動態模糊方向符合場景"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E85.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "19ba65fa9849da768257d3a120a972415c8e6c12789bf94d960ed17c8569d544"
+      }
+    },
+    {
+      "id": "E86",
+      "sourceId": "E86",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E86",
+      "name": "立體剪紙場景",
+      "description": "用豎立紙片、支撐結構與場景深度重構照片，呈現桌上劇場般的立體紙藝。",
+      "direction": "將照片人物和景物拆成可站立的剪紙片，依前中後景排在簡潔底座上。保留主體姿態與主要配色，紙片厚度、折腳及支撐方向合理，側光帶出投影。視角可微俯視展示空間，避免把人物畫成無厚度的漂浮貼圖或加入無關場景。",
+      "checks": [
+        "剪紙片與底座接合合理",
+        "前中後景與紙片厚度清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E86.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "61ff2a8ac531405ae820907bc6f29efded310bbedb83a9055b1ccb43211254e4"
+      }
+    },
+    {
+      "id": "E87",
+      "sourceId": "E87",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E87",
+      "name": "限色幾何插畫",
+      "description": "以固定少量色彩和幾何形體重畫照片，讓畫面簡潔、節奏明確且容易辨識。",
+      "direction": "從照片擷取主體輪廓與主要方向，轉成圓形、矩形和斜面等簡單形體，限定三至五種指定或協調色彩。明暗以色塊而非漸層表現，背景留白，細節只保留必要辨識點。各區域共用同一色盤，避免加入過多紋理與不必要裝飾。",
+      "checks": [
+        "全圖遵循固定色盤",
+        "幾何簡化仍保留辨識特徵"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E87.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "9e06a4054f26262a720e3d129b865ef4bb23813e9c06e370f2f3f2a6ba403fdd"
+      }
+    },
+    {
+      "id": "E88",
+      "sourceId": "E88",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E88",
+      "name": "風景紀念徽章",
+      "description": "把風景濃縮為小型徽章圖案，以邊框、金屬或琺瑯質感呈現收藏感。",
+      "direction": "選取照片最具代表性的地景輪廓，簡化放入圓形或指定外形的徽章內。以清楚邊界、有限配色與適量金屬高光表現琺瑯或壓印質感，保持小尺寸辨識度。地名與文字僅依提供內容，不加入官方徽記、認證或未提供的紀念年份。",
+      "checks": [
+        "小型徽章仍能辨識風景",
+        "金屬邊框與圖案層次清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E88.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "e9a77637ebf80dc3914716d63dd257e3bddd21795f9223b7086db783306963fb"
+      }
+    },
+    {
+      "id": "E89",
+      "sourceId": "E89",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E89",
+      "name": "糖霜餅乾浮雕",
+      "description": "把照片主體轉為餅乾上的糖霜浮雕，以厚度、擠花線條和柔和色彩呈現甜點質感。",
+      "direction": "保留主體輪廓和代表色，轉成放在餅乾表面的糖霜層與擠花細節。餅乾有自然烘焙邊緣，糖霜呈柔和霧面及適當厚度，側光顯示高低層次。圖案需符合可辨識的裝飾尺度，避免極細密文字或把人物皮膚呈現成寫實食物切面。",
+      "checks": [
+        "糖霜層次與餅乾邊緣自然",
+        "裝飾仍能辨識原主體"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E89.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "267fe772331b9f65426bfb5a1342550e2d35da23361d5f019e65e87f4a370a4b"
+      }
+    },
+    {
+      "id": "E90",
+      "sourceId": "E90",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E90",
+      "name": "早期電玩低多邊形場景",
+      "description": "用少量多邊形、簡潔貼圖與明確色塊重建照片，呈現早期立體遊戲的視覺感。",
+      "direction": "依照片保留場景主要結構及物件位置，把曲面簡化成可見多邊形，材質使用低細節貼圖和有限色彩。光影清楚但不追求寫實反射，遠景可適度簡化。所有物件維持同一模型精細度，不加入既有遊戲角色、商標或未提供的介面。",
+      "checks": [
+        "多邊形精細度全圖一致",
+        "場景結構與主體位置保留"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E90.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "54eeac2a53d01ff67fc5fe704893c558647d05893ac1aeb3f291c73f832d91d3"
+      }
+    },
+    {
+      "id": "E91",
+      "sourceId": "E91",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E91",
+      "name": "照片書籤設計",
+      "description": "以窄長構圖、照片裁切與簡單裝飾設計書籤，讓主體在有限版面內仍完整清楚。",
+      "direction": "依指定書籤比例裁切或延伸照片，把人物或主要物件放在安全區，避免臉部與重要細節被窄版切斷。上下保留孔位、流蘇或裁切所需空間，裝飾採少量線條與協調色彩。文字只使用提供內容，呈現平面設計概念，尺寸以指定資料為準。",
+      "checks": [
+        "窄版裁切保留主體重要細節",
+        "孔位與邊界留有安全空間"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E91.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "5a2980338e0043b0a6ec12e2d92eb3223dc041df704df79d197e630563bdb997"
+      }
+    },
+    {
+      "id": "E92",
+      "sourceId": "E92",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E92",
+      "name": "情侶手繪桌布",
+      "description": "將雙人照片轉為協調的手繪桌布，保留兩人的辨識特徵、姿態與相互位置。",
+      "direction": "依照片保留兩人的外貌、髮型、服裝與互動姿態，以一致線條和柔和色塊重新描繪。直式構圖預留手機時鐘與底部介面空間，背景可簡化為低對比場景。只呈現照片或需求已指定的互動，不額外添加人物、文字或未提供的關係敘述。",
+      "checks": [
+        "兩人的辨識特徵均有保留",
+        "手機介面區不遮住主要五官"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E92.webp",
+        "mimeType": "image/webp",
+        "width": 400,
+        "height": 600,
+        "sha256": "a07d1dc5abe7bb8ad2678cd2cc82fbf8df814f26ac69210acf0c7b9817fc93ba"
+      }
+    },
+    {
+      "id": "E93",
+      "sourceId": "E93",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E93",
+      "name": "剪紙色塊拼貼",
+      "description": "以不規則剪紙邊緣和大色塊重組照片，透過重疊與留白呈現俐落的手工感。",
+      "direction": "將照片主要形體轉成數塊剪紙，以不完全規則的邊緣、少量紙紋與重疊陰影形成構圖。配色控制在協調色系，主體輪廓和姿態仍可辨識，背景適度留白。避免過多細碎紙片或寫實漸層，讓每個色塊有清楚位置與功能。",
+      "checks": [
+        "色塊拼接仍保留主體輪廓",
+        "剪紙邊緣及疊放陰影一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E93.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "59bd3d911dccdaec5386244ee9b14f8906f24266db56bbf52ad59de381a90b17"
+      }
+    },
+    {
+      "id": "E94",
+      "sourceId": "E94",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E94",
+      "name": "日式動畫場景",
+      "description": "以清楚線稿、柔和背景筆觸與動畫式光影重畫照片，保留原有場景和人物特徵。",
+      "direction": "依照片保留人物數量、服裝與場景結構，使用原創動畫線條及分層色塊表現主體，背景帶柔和手繪筆觸。以一致光源和適度空氣感區分遠近，不模仿特定在世創作者的個人筆法，也不直接套用既有角色；未指定文字不加入。",
+      "checks": [
+        "人物與場景位置符合原照片",
+        "動畫線稿與背景光影一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E94.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "91b92d00745e14beb6cefab09817bb8bfda13956990204400f4e101d34516084"
+      }
+    },
+    {
+      "id": "E95",
+      "sourceId": "E95",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E95",
+      "name": "照片鑰匙圈概念",
+      "description": "把照片主體整理為透明壓克力或指定材質的鑰匙圈，展示裁切輪廓與吊掛結構。",
+      "direction": "保留照片主體辨識特徵，依輪廓裁成鑰匙圈圖案，外圍保留透明或指定材質邊界。展示合理厚度、圓孔、金屬環和接觸陰影，光線清楚但不過度反光。孔位不得穿過臉部或重要文字，產品尺寸和名稱只使用提供資料。",
+      "checks": [
+        "吊孔與金屬環結構合理",
+        "主體裁切完整且未被反光遮蔽"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E95.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "85d67a6968fbb0f066fbb48fc5e4f2083b711c41df2ebde57c43e11cf35ee75e"
+      }
+    },
+    {
+      "id": "E96",
+      "sourceId": "E96",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E96",
+      "name": "個人回憶收藏盒",
+      "description": "把照片與提供的紀念物安排在分格收藏盒內，用層次與材質呈現個人回憶概念。",
+      "direction": "依提供照片和紀念物清單設計一個開放式收藏盒，格子大小對應物件，前後疊放清楚。用木盒、紙卡或指定材質搭配柔光，照片保留人物辨識，物件尺度合理。只呈現提供的回憶內容，不推測私人經歷、票券資訊或未提供的關係與日期。",
+      "checks": [
+        "收藏物均來自提供內容",
+        "盒格尺寸與物件比例合理"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E96.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "56ef3ad1513223407e86696693d5d7c7f909e2f98fb815badc087479518b467d"
+      }
+    },
+    {
+      "id": "E97",
+      "sourceId": "E97",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E97",
+      "name": "紙感童書角色",
+      "description": "以簡化造型、柔和紙紋與親切配色把人物轉為童書角色，保留可辨識外觀。",
+      "direction": "依照片保留髮型、服裝色彩和主要姿態，將人物轉成圓潤而清楚的原創童書角色。以紙張顆粒、淡色筆觸和少量陰影表現立體感，背景簡單，表情自然。不要過度簡化五官到失去辨識，角色比例和配件需在整張畫面保持一致。",
+      "checks": [
+        "角色仍保有照片辨識特徵",
+        "紙感筆觸與配色柔和一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E97.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "c06503092e16247a37cadbad97d77632c446d647072189689e5a067d4c1187fc"
+      }
+    },
+    {
+      "id": "E98",
+      "sourceId": "E98",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E98",
+      "name": "照片毛氈化",
+      "description": "把整張照片轉為柔軟羊毛氈材質，透過短纖維、體塊和暖光保留原場景關係。",
+      "direction": "依照片重建人物與景物的主要形狀，所有表面轉成細密短纖維的毛氈質地。用柔和側光及圓潤體塊表現厚度，人物臉部和關鍵物件保持清楚輪廓，背景適度簡化。避免局部仍呈塑膠或寫實皮膚，物件數量與相對位置不變。",
+      "checks": [
+        "全圖毛氈纖維質感一致",
+        "原有物件數量與位置保留"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E98.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "3f13efa78bdee372e8d560987b74a24dc95566ccdcdd26bedfdd14f9246891ba"
+      }
+    },
+    {
+      "id": "E99",
+      "sourceId": "E99",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E99",
+      "name": "粉紅與綠色生活線畫",
+      "description": "以粉紅和綠色的有限配色描繪日常照片，用簡潔線條與留白形成輕快節奏。",
+      "direction": "將照片人物與生活物件簡化成清楚線稿，主要使用粉紅、綠色與紙白，深淺變化保持克制。以少量色塊強調焦點，背景留白，物件位置與人物姿態依原圖維持。線條輕鬆但有一致粗細，不加入過多其他色彩或複雜寫實陰影。",
+      "checks": [
+        "配色遵循粉紅綠色與紙白",
+        "生活物件和人物姿態清楚"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E99.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "626399aa2d68b9896e2da7308dc2fec1f16b722454998e70ad00b222844126fc"
+      }
+    },
+    {
+      "id": "E100",
+      "sourceId": "E100",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E100",
+      "name": "照片搭配蠟筆詮釋",
+      "description": "保留照片主要內容，再用蠟筆色塊與手繪符號補充情緒，形成媒材對話。",
+      "direction": "維持原照片主體的攝影細節，在指定背景或留白區加入蠟筆筆觸、簡單線條及呼應情境的色塊。色彩從照片提取並適度加強，讓手繪元素表現情緒而非遮擋資訊。不要把整張照片全面轉畫，關鍵五官、標示與人物數量需保持不變。",
+      "checks": [
+        "攝影與蠟筆元素各有清楚角色",
+        "新增筆觸未遮住關鍵資訊"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E100.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "0c36880d3528be272eea98824a7d64fc1dc44e5082e052d53e7a074472307e58"
+      }
+    },
+    {
+      "id": "E101",
+      "sourceId": "E101",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E101",
+      "name": "照片延伸微型手繪人物",
+      "description": "在照片留白或物件周圍加入微型手繪角色，利用尺度和互動增添故事感。",
+      "direction": "保留原照片人物與物件，在指定位置加入少量原創微型手繪人物，讓它們與桌面、物品或背景產生簡單互動。小角色使用一致線條及有限配色，尺度明顯小於真人，接觸位置合理。不要改動原照片身分特徵，也不增加未指定的真實人物。",
+      "checks": [
+        "微型人物尺度與接觸位置合理",
+        "原照片主體保持完整"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E101.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "91dfafeb666e6afdcc0e87006fa9d257c16c758f5049b12e91c7fdfd71bdf9a2"
+      }
+    },
+    {
+      "id": "E102",
+      "sourceId": "E102",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E102",
+      "name": "真人扭蛋公仔系列",
+      "description": "以同一人物為基準製作不同姿態的迷你公仔概念，維持角色外觀與系列包裝一致。",
+      "direction": "依參考人物固定臉型、髮型、服裝配色及代表配件，先做一款指定姿態的扭蛋公仔。用霧面塑膠、清楚接縫及柔光呈現模型質感，蛋殼與底座比例合理。後續款式只改指定動作或配件，不仿製既有玩具品牌，也不自動生成販售認證。",
+      "checks": [
+        "不同姿態維持同一人物設定",
+        "公仔蛋殼與底座比例一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E102.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "af391e8cfe8efe8c3b4d8f4413f4277bab93524ed1dc4f14ce47a915661594c1"
+      }
+    },
+    {
+      "id": "E103",
+      "sourceId": "E103",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E103",
+      "name": "陶片馬賽克效果",
+      "description": "以不規則陶片、釉色與填縫線重組照片，利用拼片密度保留主體輪廓。",
+      "direction": "將照片主要色區拆成大小有別的陶片，沿主體輪廓排列，五官或地標細節使用較小拼片。表面呈現柔和釉面反光與清楚填縫，背景拼片可較大以保持主次。色彩依原圖協調重組，避免碎片雜亂到無法辨識主題，整體光源保持一致。",
+      "checks": [
+        "陶片排列保留主體辨識特徵",
+        "填縫與釉面光影合理一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E103.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "08528a5199327f785a554097a3fb0dcf57dd66bbae37e5a4167490f12c14b2bb"
+      }
+    },
+    {
+      "id": "E104",
+      "sourceId": "E104",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E104",
+      "name": "模組化幾何剪紙",
+      "description": "用重複的幾何紙片模組建構照片主題，讓秩序、層次與手工材質共同形成視覺。",
+      "direction": "從照片提取輪廓與方向，選擇少量圓片、長條或三角紙片作為共同模組，透過大小和排列重建主體。每片有一致紙張厚度與微弱投影，配色有限而協調。重複規律要清楚，同時保留人物或物件的辨識點，避免模組任意漂浮。",
+      "checks": [
+        "紙片模組與重複規律一致",
+        "幾何排列仍能辨識原主體"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E104.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "22d1e56d36aea43d796126e6a56fa99bb2afbf25c110f144d8ae86dd461ed279"
+      }
+    },
+    {
+      "id": "E105",
+      "sourceId": "E105",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E105",
+      "name": "攝影與塗鴉混合",
+      "description": "讓寫實照片與明確的手繪圖層共同表現主題，以局部裝飾和材質對比建立趣味。",
+      "direction": "保留指定攝影區域的光線和細節，其他選定部分加入粗線、色塊與原創塗鴉符號。手繪圖層需呼應照片構圖，避免隨機堆滿畫面，主體臉部及必要文字保持清楚。讓兩種媒材界線可辨，未指定區域不重繪，新增文字只使用提供內容。",
+      "checks": [
+        "兩種媒材的範圍與層次清楚",
+        "主體及必要文字沒有被遮擋"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E105.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "d466f05dbf1e2f1de2beae72643431056c41553309d5413f6aea1772bbee5cc5"
+      }
+    },
+    {
+      "id": "E106",
+      "sourceId": "E106",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E106",
+      "name": "九宮格回憶插畫",
+      "description": "將提供的照片或片段整理成九格插畫，用一致色彩與版面記錄不同回憶。",
+      "direction": "依提供的九個片段或指定分配製作三乘三版面，各格保留對應人物、地點或物件。使用一致畫風、色盤、邊距及線條，讓每格都有簡潔焦點。資料不足九格時先列出待補內容，不自行虛構回憶；日期與短註記只採提供文字。",
+      "checks": [
+        "九格內容與提供片段一一對應",
+        "各格畫風邊距及色彩一致"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E106.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "163e75c64be6ed30fa6e0144b94fa6ffd6b0ed69ea0e994f40e298e14aa38308"
+      }
+    },
+    {
+      "id": "E107",
+      "sourceId": "E107",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E107",
+      "name": "真人置入手繪環境",
+      "description": "保留真人攝影外觀，把周圍空間轉為手繪場景，利用一致透視與光影自然融合。",
+      "direction": "人物臉部、服裝與姿態維持照片質感，背景依原有空間或提供情境改成手繪環境。線條透視、物件尺度與人物接觸點需一致，陰影可適度插畫化但光源方向不變。邊界乾淨，不將人物五官一併重畫，也不添加未指定的真實人物。",
+      "checks": [
+        "真人與手繪環境透視一致",
+        "人物邊界及接觸陰影自然"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E107.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "fb50b87f2d695b463d9c4da62a93a2e41600d23b6fcfcd0f7a464f21df2eaf00"
+      }
+    },
+    {
+      "id": "E108",
+      "sourceId": "E108",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E108",
+      "name": "照片刺繡拼布化",
+      "description": "以刺繡針腳、布片與縫線完整重構照片，讓人物和景物呈現細緻的手工質地。",
+      "direction": "將照片色區轉成布片，沿輪廓以刺繡針腳補出五官、服裝和景物細節。布料紋理、線材粗細與縫合方向保持一致，柔和側光呈現針線厚度。主體辨識部位需清楚，避免把細節全部化成模糊纖維，原有人物和物件數量維持不變。",
+      "checks": [
+        "刺繡線與拼布層次清楚",
+        "人物物件數量及辨識特徵保留"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E108.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "76fe90ea874d1b2556981a96111ac26a4f5b604bfb743c6b9a6f524d0a84fc59"
+      }
+    },
+    {
+      "id": "E109",
+      "sourceId": "E109",
+      "kind": "style",
+      "group": "照片風格轉換",
+      "command": "E109",
+      "name": "寫實俯拍照片",
+      "description": "以自然俯視角度、真實材質與整齊留白重新安排照片主題，突出物件關係和細節。",
+      "direction": "依參考素材重建由上往下的俯拍構圖，讓物件大小、相對位置與透視合理，人物若入鏡需保留辨識特徵。使用柔和側光、自然接觸陰影及簡潔背景，材質忠於原物。只加入提供的道具，不推測照片未顯示的標示或內部結構，留白便於後續排版。",
+      "checks": [
+        "俯拍透視與物件尺度合理",
+        "材質標示及道具符合素材"
+      ],
+      "requiresReference": true,
+      "sample": {
+        "url": "/ai-ads/gallery/E109.webp",
+        "mimeType": "image/webp",
+        "width": 480,
+        "height": 320,
+        "sha256": "ec1bd5a84478d2e7d468acd445eb4fb49d04fadd8b87d73ce51da4b391075a13"
+      }
+    }
+  ]
+}

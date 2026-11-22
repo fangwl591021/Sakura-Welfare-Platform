@@ -380,9 +380,6 @@
     .field textarea { min-height: 148px; resize: vertical; line-height: 1.55; }
     .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(6,199,85,.12); }
     .json-box { width: 100%; min-height: 190px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; line-height: 1.5; background: #fbfdff; }
-    .capture { height: 100%; overflow: auto; padding: 32px; }
-    .capture-card { max-width: 920px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
-    .capture-card h2 { margin: 0 0 10px; font-size: 26px; }
     .toast {
       display: none;
       position: fixed;
@@ -418,7 +415,7 @@
       <div class="folder-panel open" id="flexFolders">
         <button class="folder-head" id="myFolderBtn" type="button"><span>📁</span><span>我的檔案夾</span><span id="savedCount">0</span></button>
       </div>
-      <button class="nav-btn" id="navCapture" type="button"><span class="ico">🔗</span><span>網址擷取器</span><span>›</span></button>
+      <button class="nav-btn" id="navAiAds" type="button"><span class="ico">AI</span><span>AI 廣告工作室</span><span>›</span></button>
     </aside>
 
     <main class="main">
@@ -510,27 +507,6 @@
           </div>
         </div>
 
-        <div class="view" id="captureView">
-          <div class="capture">
-            <div class="capture-card">
-              <h2>網址擷取器</h2>
-              <p class="sub">將活動頁、店家頁或地圖連結整理成可分享的 Flex 標準訊息。若目標網站不允許跨站擷取，可手動補上標題、描述與圖片。</p>
-              <div class="section">
-                <h3><span class="num">1</span>來源網址</h3>
-                <div class="field"><label>URL</label><input id="captureUrl" placeholder="https://..."></div>
-                <div class="actions"><button class="btn green" id="captureToFlexBtn" type="button">轉成標準 Flex</button><button class="btn" id="captureMapBtn" type="button">轉成地圖按鈕</button></div>
-              </div>
-              <div class="section">
-                <h3><span class="num">2</span>手動整理</h3>
-                <div class="grid">
-                  <div class="field"><label>標題</label><input id="captureTitle" value="櫻花福委會推薦資訊"></div>
-                  <div class="field"><label>圖片 URL</label><input id="captureImage" value="https://www.sakura.com.tw/public/images/logo.svg"></div>
-                </div>
-                <div class="field"><label>描述</label><textarea id="captureDesc">點擊查看完整資訊。</textarea></div>
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
     </main>
   </div>
@@ -554,109 +530,109 @@
     const templates = [
       {
         id: "video",
-        label: "\u5f71\u97f3\u5c0e\u8cfc (V1)",
-        icon: "V",
+        label: "影片導購 (V1)",
+        icon: "▶",
         category: "flex_v1",
-        desc: "\u9069\u5408\u5f71\u7247\u4ecb\u7d39\u3001\u6d3b\u52d5\u5ba3\u50b3\u3001\u670d\u52d9\u9810\u7d04\u8207\u5b98\u7db2\u5c0e\u6d41\u3002",
+        desc: "沿用 GAS 影片導購概念，含影片、封面、社群與行動按鈕。",
         defaults: {
-          name: "\u5f71\u97f3 Flex \u7248\u578b",
-          keyword: "\u5f71\u97f3\u5c0e\u8cfc",
-          alt: "\u5f71\u97f3\u5c0e\u8cfc",
-          title: "\u8acb\u8f38\u5165\u59d3\u540d\u6216\u516c\u53f8\u540d\u7a31",
-          body: ["\u2728 \u4e00\u884c\u5efa\u8b7016\u500b\u5b57", "\u2728 \u53ef\u4ee5\u7c21\u4ecb\u516c\u53f8\u6216\u6d3b\u52d5\u5167\u5bb9", "\u2728 \u56db\u5230\u516d\u6392\u9ad8\u5ea6\u8f03\u70ba\u9069\u4e2d", "\u2728 \u591a\u5206\u4eab\u3001\u591a\u6536\u85cf"].join("\n"),
-          videoUrl: "https://voom-obs.line-scdn.net/hSU_5Zf7oEHs5IAN1AHYXAh4YG1QdJ0otIF8ZHRUQG0kkfzxlC18eWzwTLkIfIzsuJXUjFCw-OUouGTxsDUMjVSxPNQwzCS8tIl8zQBcpUww",
-          previewUrl: "https://voom-obs.line-scdn.net/hSU_5Zf7oEHs5IAN1AHYXAh4YG1QdJ0otIF8ZHRUQG0kkfzxlC18eWzwTLkIfIzsuJXUjFCw-OUouGTxsDUMjVSxPNQwzCS8tIl8zQBcpUww/f480x640",
+          name: "影音 Flex 版型",
+          keyword: "影音訊息",
+          alt: "影音訊息",
+          title: "請輸入姓名或公司名稱",
+          body: ["✨ 一行建議16個字", "✨ 可以簡介公司或活動內容", "✨ 四到六排高度較為適中", "✨ 多分享、多收藏"].join("\n"),
+          videoUrl: "",
+          previewUrl: "",
           aspectRatio: "1280:720",
           bgColor: "#ffffff",
-          button1: "\u9810\u7d04\u670d\u52d9",
+          button1: "預約服務",
           button1Url: "https://www.sakura.com.tw/",
-          button2: "\u5b98\u65b9\u7db2\u7ad9",
+          button2: "官方網站",
           button2Url: "https://www.sakura.com.tw/",
-          button3: "\u52a0\u5165\u597d\u53cb",
+          button3: "加入好友",
           button3Url: "https://www.sakura.com.tw/"
         },
         fields: [
-          { id: "videoUrl", label: "\u5f71\u7247\u9023\u7d50 (MP4 URL)" },
-          { id: "previewUrl", label: "\u5c01\u9762\u5716\u7247\u9023\u7d50" },
-          { id: "aspectRatio", label: "\u5f71\u7247\u986f\u793a\u6bd4\u4f8b" },
-          { id: "title", label: "\u6a19\u984c" },
-          { id: "body", label: "\u63cf\u8ff0\u6587\u5b57", type: "textarea" },
-          { id: "button1", label: "\u6309\u9215 1 \u6587\u5b57" },
-          { id: "button1Url", label: "\u6309\u9215 1 URL" },
-          { id: "button2", label: "\u6309\u9215 2 \u6587\u5b57" },
-          { id: "button2Url", label: "\u6309\u9215 2 URL" },
-          { id: "button3", label: "\u6309\u9215 3 \u6587\u5b57" },
-          { id: "button3Url", label: "\u6309\u9215 3 URL" }
+          { id: "videoUrl", label: "影片連結 (上傳後自動帶入)" },
+          { id: "previewUrl", label: "封面圖片連結 (自動擷取或上傳)" },
+          { id: "aspectRatio", label: "影片顯示比例" },
+          { id: "title", label: "主標題" },
+          { id: "body", label: "描述文字", type: "textarea" },
+          { id: "button1", label: "按鈕 1 文字" },
+          { id: "button1Url", label: "按鈕 1 URL" },
+          { id: "button2", label: "按鈕 2 文字" },
+          { id: "button2Url", label: "按鈕 2 URL" },
+          { id: "button3", label: "按鈕 3 文字" },
+          { id: "button3Url", label: "按鈕 3 URL" }
         ],
         build: buildVideoPayload
       },
       {
         id: "card",
-        label: "\u500b\u4eba\u540d\u7247 (V2)",
-        icon: "U",
+        label: "個人名片 (V2)",
+        icon: "人",
         category: "flex_v2",
-        desc: "\u9069\u5408\u4eba\u54e1\u4ecb\u7d39\u3001\u5e97\u5bb6\u7c21\u4ecb\u3001\u54c1\u724c\u8cc7\u8a0a\u8207\u806f\u7d61\u6309\u9215\u3002",
+        desc: "標準數位名片結構，含大頭貼、介紹、社群圖示與聯絡按鈕。",
         defaults: {
-          name: "\u500b\u4eba\u540d\u7247 Flex \u7248\u578b",
-          keyword: "\u500b\u4eba\u540d\u7247",
-          alt: "\u500b\u4eba\u540d\u7247",
-          title: "Tonyfang",
-          subtitle: "\u6afb\u82b1\u798f\u59d4\u6703\u7279\u7d04\u670d\u52d9",
+          name: "個人名片 Flex 版型",
+          keyword: "分享名片",
+          alt: "個人名片",
+          title: "Demo User",
+          subtitle: "櫻花福委會特約服務",
           avatar: "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png",
-          body: ["\u60a8\u597d\uff0c\u9019\u662f\u6afb\u82b1\u798f\u59d4\u6703\u5c08\u5c6c\u540d\u7247\u3002", "\u53ef\u653e\u7f6e\u5e97\u5bb6\u4ecb\u7d39\u3001\u670d\u52d9\u5167\u5bb9\u3001\u512a\u60e0\u8aaa\u660e\u8207\u806f\u7d61\u65b9\u5f0f\u3002"].join("\n"),
+          body: ["您好，這是我的數位名片。", "可放公司介紹、服務項目與聯絡方式。"].join("\n"),
           phone: "tel:0900000000",
           website: "https://www.sakura.com.tw/",
-          lineUrl: "https://line.me/R/ti/p/@020aelyz"
+          lineUrl: "https://example.com/line-demo"
         },
         fields: [
-          { id: "title", label: "\u59d3\u540d / \u516c\u53f8\u540d\u7a31" },
-          { id: "subtitle", label: "\u526f\u6a19\u984c" },
-          { id: "avatar", label: "\u982d\u50cf / Logo URL" },
-          { id: "body", label: "\u8aaa\u660e\u6587\u5b57", type: "textarea" },
-          { id: "phone", label: "\u96fb\u8a71 URL" },
-          { id: "website", label: "\u5b98\u65b9\u7db2\u7ad9 URL" },
-          { id: "lineUrl", label: "LINE \u52a0\u597d\u53cb URL" }
+          { id: "title", label: "姓名 / 公司" },
+          { id: "subtitle", label: "副標題" },
+          { id: "avatar", label: "大頭貼 / Logo URL" },
+          { id: "body", label: "說明文字", type: "textarea" },
+          { id: "phone", label: "電話連結" },
+          { id: "website", label: "網站連結" },
+          { id: "lineUrl", label: "LINE 連結" }
         ],
         build: buildCardPayload
       },
       {
         id: "product",
-        label: "\u5546\u54c1\u76ee\u9304 (V3)",
-        icon: "P",
+        label: "商品目錄 (V3)",
+        icon: "品",
         category: "flex_v3",
-        desc: "\u9069\u5408\u512a\u60e0\u5546\u54c1\u3001\u7279\u7d04\u670d\u52d9\u3001\u83dc\u55ae\u76ee\u9304\u8207 QR \u6298\u62b5\u5165\u53e3\u3002",
+        desc: "列表式商品陳列規格，支援多項購買連結與價格。",
         defaults: {
-          name: "\u5546\u54c1\u76ee\u9304 Flex \u7248\u578b",
-          keyword: "\u5546\u54c1\u76ee\u9304",
-          alt: "\u5546\u54c1\u76ee\u9304",
+          name: "商品目錄 Flex 版型",
+          keyword: "商品目錄",
+          alt: "商品目錄",
           hero: "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png",
-          title: "\u6afb\u82b1\u7279\u7d04\u512a\u60e0",
-          item1Name: "\u512a\u60e0\u5546\u54c1 A",
-          item1Price: "\u54e1\u5de5\u50f9 80 \u5143",
+          title: "櫻花特約優惠",
+          item1Name: "優惠商品 A",
+          item1Price: "員工價 80 元",
           item1Image: "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png",
-          item2Name: "\u512a\u60e0\u5546\u54c1 B",
-          item2Price: "\u54e1\u5de5\u50f9 120 \u5143",
+          item2Name: "優惠商品 B",
+          item2Price: "員工價 120 元",
           item2Image: "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_2_restaurant.png",
-          item3Name: "\u512a\u60e0\u670d\u52d9 C",
-          item3Price: "\u6191 QR Code \u4eab\u6298\u6263",
+          item3Name: "優惠服務 C",
+          item3Price: "憑 QR Code 享折扣",
           item3Image: "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_3_movie.png",
-          buttonText: "\u67e5\u770b\u512a\u60e0",
+          buttonText: "查看優惠",
           buttonUrl: "https://www.sakura.com.tw/"
         },
         fields: [
-          { id: "hero", label: "Hero \u5716\u7247 URL" },
-          { id: "title", label: "\u76ee\u9304\u6a19\u984c" },
-          { id: "item1Name", label: "\u5546\u54c1 1 \u540d\u7a31" },
-          { id: "item1Price", label: "\u5546\u54c1 1 \u50f9\u683c" },
-          { id: "item1Image", label: "\u5546\u54c1 1 \u5716\u7247" },
-          { id: "item2Name", label: "\u5546\u54c1 2 \u540d\u7a31" },
-          { id: "item2Price", label: "\u5546\u54c1 2 \u50f9\u683c" },
-          { id: "item2Image", label: "\u5546\u54c1 2 \u5716\u7247" },
-          { id: "item3Name", label: "\u5546\u54c1 3 \u540d\u7a31" },
-          { id: "item3Price", label: "\u5546\u54c1 3 \u50f9\u683c" },
-          { id: "item3Image", label: "\u5546\u54c1 3 \u5716\u7247" },
-          { id: "buttonText", label: "\u6309\u9215\u6587\u5b57" },
-          { id: "buttonUrl", label: "\u6309\u9215 URL" }
+          { id: "hero", label: "Hero 圖片 URL" },
+          { id: "title", label: "目錄標題" },
+          { id: "item1Name", label: "商品 1 名稱" },
+          { id: "item1Price", label: "商品 1 價格" },
+          { id: "item1Image", label: "商品 1 圖片" },
+          { id: "item2Name", label: "商品 2 名稱" },
+          { id: "item2Price", label: "商品 2 價格" },
+          { id: "item2Image", label: "商品 2 圖片" },
+          { id: "item3Name", label: "商品 3 名稱" },
+          { id: "item3Price", label: "商品 3 價格" },
+          { id: "item3Image", label: "商品 3 圖片" },
+          { id: "buttonText", label: "按鈕文字" },
+          { id: "buttonUrl", label: "按鈕 URL" }
         ],
         build: buildProductPayload
       }
@@ -666,7 +642,11 @@
       return { type: "uri", label: label || "開啟", uri: uri || "https://www.sakura.com.tw/" };
     }
     function buildVideoPayload(data) {
-      return {
+      const buttons = [1, 2, 3].map((number) => ({
+        label: String(data["button" + number] || "").trim(),
+        url: String(data["button" + number + "Url"] || "").trim()
+      })).filter((button) => button.label && button.url);
+      const payload = {
         type: "bubble",
         size: "mega",
         hero: {
@@ -684,18 +664,13 @@
             { type: "text", text: data.title || "標題", weight: "bold", size: "lg", wrap: true },
             { type: "text", text: data.body || "", color: "#334155", size: "sm", wrap: true, margin: "md" }
           ]
-        },
-        footer: {
-          type: "box",
-          layout: "vertical",
-          spacing: "sm",
-          contents: [
-            { type: "button", style: "primary", color: "#111111", action: uriAction(data.button1, data.button1Url) },
-            { type: "button", style: "primary", color: "#111111", action: uriAction(data.button2, data.button2Url) },
-            { type: "button", style: "primary", color: "#111111", action: uriAction(data.button3, data.button3Url) }
-          ]
         }
       };
+      if (buttons.length) payload.footer = {
+        type: "box", layout: "vertical", spacing: "sm",
+        contents: buttons.map((button) => ({ type: "button", style: "primary", color: "#111111", action: uriAction(button.label, button.url) }))
+      };
+      return payload;
     }
     function buildCardPayload(data) {
       return {
@@ -826,27 +801,27 @@
       renderFileList();
     }
     function showView(name) {
-      ["libraryView", "filesView", "editorView", "captureView"].forEach((id) => $(id).classList.toggle("active", id === name));
+      ["libraryView", "filesView", "editorView"].forEach((id) => $(id).classList.toggle("active", id === name));
       $("backBtn").style.display = name === "editorView" ? "" : "none";
       $("saveBtn").style.display = name === "editorView" ? "" : "none";
       $("shareBtn").style.display = name === "editorView" ? "" : "none";
       $("reloadBtn").style.display = "";
-      $("navFlex").classList.toggle("active", name !== "captureView");
-      $("navCapture").classList.toggle("active", name === "captureView");
+      $("navFlex").classList.add("active");
     }
     function openLibrary() {
+      if (videoUploadBusy) { alert("上傳中，請等候完成。"); return; }
       currentRecordId = "";
       currentTemplate = null;
       $("pageTitle").textContent = "Flex Message 模板";
       $("pageSub").textContent = "訊息模板 / 管理活動、店家與地圖卡片。";
       showView("libraryView");
     }
-    function openCapture() {
-      $("pageTitle").textContent = "網址擷取器";
-      $("pageSub").textContent = "將網址整理為可分享 Flex。";
-      showView("captureView");
-    }
+    let videoUploadBusy = false;
+    let videoUploadGeneration = 0;
+    let savedVideoSignature = null;
     function openTemplate(templateId, record) {
+      if (videoUploadBusy) { alert("影片上傳中，請等候完成。"); return; }
+      videoUploadGeneration++;
       const tpl = templates.find((item) => item.id === templateId) || templates[0];
       currentTemplate = tpl;
       currentRecordId = record && record.id || "";
@@ -861,6 +836,7 @@
       $("dynamicFields").innerHTML = `
         <div class="section">
           <h3><span class="num">2</span>${escapeHtml(tpl.label)} 內容欄位</h3>
+          ${tpl.id === "video" ? `<div class="field wide"><label for="videoFile">上傳影片（MP4，最大 200 MB）</label><input id="videoFile" type="file" accept="video/mp4,.mp4"><p class="sub">選擇影片後自動上傳並擷取封面，完成後請儲存版型。封面也可以另行上傳 JPG 或 PNG（最大 1 MB）。</p><label for="videoCoverFile">更換封面圖片</label><input id="videoCoverFile" type="file" accept="image/jpeg,image/png"><p id="videoUploadStatus" role="status" aria-live="polite"></p></div>` : ""}
           <div class="grid">
             ${tpl.fields.map((field) => `
               <div class="field ${field.type === "textarea" ? "wide" : ""}">
@@ -872,6 +848,10 @@
             `).join("")}
           </div>
         </div>`;
+      if (tpl.id === "video") {
+        $("videoFile").addEventListener("change", (event) => uploadVideoFile(event.target.files[0]).catch((err) => showVideoError(err)));
+        $("videoCoverFile").addEventListener("change", (event) => uploadCoverFile(event.target.files[0]).catch((err) => showVideoError(err)));
+      }
       document.querySelectorAll("[data-field]").forEach((el) => {
         el.addEventListener("input", updatePayload);
         el.addEventListener("change", updatePayload);
@@ -881,6 +861,125 @@
       });
       showView("editorView");
       updatePayload();
+      savedVideoSignature = tpl.id === "video" && currentRecordId && record && JSON.stringify(record.payload) === JSON.stringify(parsePayload())
+        ? videoSignature() : null;
+    }
+    function setVideoUploadBusy(busy) {
+      videoUploadBusy = busy;
+      document.querySelectorAll("#dynamicFields input, #dynamicFields textarea").forEach((el) => { el.disabled = busy; });
+    }
+    function showVideoError(err) {
+      const status = $("videoUploadStatus");
+      if (status) status.textContent = err && err.message || "上傳失敗，請稍後再試。";
+    }
+    function setVideoField(name, text) {
+      const input = document.querySelector('[data-field="' + name + '"]');
+      if (input) input.value = text;
+    }
+    async function videoUploadRequest(path, options = {}) {
+      const response = await fetch(apiBase + "/admin-api/flex-video-upload/" + path, options);
+      let result;
+      try { result = await response.json(); } catch (_) { throw new Error("上傳服務回應錯誤。"); }
+      if (!response.ok || !result.success) throw new Error(result.message || "上傳失敗。");
+      return result.data;
+    }
+    function videoFrame(file) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file), video = document.createElement("video");
+        let done = false;
+        const timer = setTimeout(() => finish(new Error("影片讀取逾時，請確認 MP4 可播放。")), 20000);
+        function finish(err, result) {
+          if (done) return; done = true; clearTimeout(timer); video.removeAttribute("src"); video.load(); URL.revokeObjectURL(url);
+          if (err) reject(err); else resolve(result);
+        }
+        video.preload = "auto"; video.muted = true; video.playsInline = true;
+        video.onerror = () => finish(new Error("無法讀取影片，請確認 MP4 可播放。"));
+        video.onloadeddata = () => {
+          const width = video.videoWidth, height = video.videoHeight;
+          if (!width || !height || height > width * 3) return finish(new Error("影片尺寸不符合 LINE 顯示比例，請調整影片後再試。"));
+          const divisor = (a, b) => b ? divisor(b, a % b) : a;
+          const gcd = divisor(width, height), ratio = (width / gcd) + ":" + (height / gcd);
+          const scale = Math.min(1, 1280 / Math.max(width, height));
+          const canvas = document.createElement("canvas"); canvas.width = Math.max(1, Math.round(width * scale)); canvas.height = Math.max(1, Math.round(height * scale));
+          try {
+            canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob((blob) => blob && blob.size <= 1000000 ? finish(null, { blob, ratio }) : finish(new Error("無法產生小於 1 MB 的封面。")), "image/jpeg", 0.78);
+          } catch (_) { finish(new Error("無法擷取影片封面，請確認影片可播放。")); }
+        };
+        video.src = url;
+      });
+    }
+    async function uploadVideoFile(file) {
+      if (!file) return;
+      if (videoUploadBusy) throw new Error("請等候目前上傳完成。");
+      if ((!/\.mp4$/i.test(file.name) && file.type !== "video/mp4") || file.size <= 0 || file.size > 200000000) throw new Error("請選擇不超過 200 MB 的 MP4 影片。");
+      setVideoUploadBusy(true);
+      const generation = videoUploadGeneration, status = $("videoUploadStatus");
+      let sessionId = "", completed = false;
+      try {
+        status.textContent = "正在讀取影片及擷取封面…";
+        const frame = await videoFrame(file);
+        const init = await videoUploadRequest("init", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({size:file.size}) });
+        sessionId = init.sessionId;
+        if (!sessionId || !Number.isSafeInteger(init.partSize) || init.partSize < 1) throw new Error("上傳服務回應不完整。");
+        const parts = [];
+        for (let offset = 0, part = 1; offset < file.size; offset += init.partSize, part++) {
+          status.textContent = "影片上傳中… " + Math.floor(offset / file.size * 100) + "%";
+          const result = await videoUploadRequest("part?session=" + encodeURIComponent(sessionId) + "&part=" + part, {method:"PUT", headers:{"Content-Type":"application/octet-stream"}, body:file.slice(offset, offset + init.partSize)});
+          parts.push({partNumber:result.partNumber, etag:result.etag});
+        }
+        status.textContent = "正在完成影片上傳…";
+        const result = await videoUploadRequest("complete", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({sessionId, parts})});
+        completed = true;
+        if (!result.url) throw new Error("上傳完成但未取得影片網址。");
+        if (generation !== videoUploadGeneration) return;
+        setVideoField("videoUrl", result.url); setVideoField("previewUrl", ""); setVideoField("aspectRatio", frame.ratio); updatePayload();
+        status.textContent = "正在上傳影片封面…";
+        const cover = await videoUploadRequest("cover", {method:"POST", headers:{"Content-Type":"image/jpeg"}, body:frame.blob});
+        if (!cover.url) throw new Error("封面上傳完成但未取得網址，請另行上傳封面。");
+        if (generation !== videoUploadGeneration) return;
+        setVideoField("previewUrl", cover.url); updatePayload(); status.textContent = "影片與封面已上傳，請儲存版型。";
+      } catch (err) {
+        if (sessionId && !completed) {
+          try { await videoUploadRequest("abort", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({sessionId})}); } catch (_) {}
+        }
+        throw err;
+      } finally { setVideoUploadBusy(false); const input = $("videoFile"); if (input) input.value = ""; }
+    }
+    function checkCoverRatio(file, ratio) {
+      return new Promise((resolve, reject) => {
+        const parts = String(ratio || "").split(":").map(Number);
+        if (parts.length !== 2 || !parts[0] || !parts[1]) return reject(new Error("請先上傳影片以確認封面比例。"));
+        const url = URL.createObjectURL(file), image = new Image();
+        image.onload = () => { URL.revokeObjectURL(url); const actual = image.naturalWidth / image.naturalHeight, expected = parts[0] / parts[1]; if (!actual || Math.abs(actual / expected - 1) > 0.01) reject(new Error("封面長寬比例需與影片一致。")); else resolve(); };
+        image.onerror = () => { URL.revokeObjectURL(url); reject(new Error("無法讀取封面圖片。")); }; image.src = url;
+      });
+    }
+    async function uploadCoverFile(file) {
+      if (!file) return;
+      if (videoUploadBusy) throw new Error("請等候目前上傳完成。");
+      if (!["image/jpeg", "image/png"].includes(file.type) || file.size <= 0 || file.size > 1000000) throw new Error("請選擇不超過 1 MB 的 JPG 或 PNG 封面。");
+      setVideoUploadBusy(true);
+      try {
+        await checkCoverRatio(file, collectFormData().aspectRatio);
+        $("videoUploadStatus").textContent = "封面上傳中…";
+        const result = await videoUploadRequest("cover", {method:"POST", headers:{"Content-Type":file.type}, body:file});
+        if (!result.url) throw new Error("封面上傳完成但未取得網址。");
+        setVideoField("previewUrl", result.url); updatePayload(); $("videoUploadStatus").textContent = "封面已上傳，請儲存版型。";
+      } finally { setVideoUploadBusy(false); const input = $("videoCoverFile"); if (input) input.value = ""; }
+    }
+    function ensureVideoReady() {
+      if (videoUploadBusy) { alert("影片或封面上傳中，請等候完成。"); return false; }
+      if (currentTemplate && currentTemplate.id === "video") {
+        const data = collectFormData();
+        if (!/^https:\/\//i.test(data.videoUrl || "") || !/^https:\/\//i.test(data.previewUrl || "")) { alert("請先上傳影片與封面。"); return false; }
+        for (const number of [1, 2, 3]) {
+          const label = String(data["button" + number] || "").trim();
+          const url = String(data["button" + number + "Url"] || "").trim();
+          if (Boolean(label) !== Boolean(url)) { alert("按鈕 " + number + " 的文字與網址請同時填寫，或兩者都清空。"); return false; }
+        }
+      }
+      return true;
     }
     function collectFormData() {
       const data = {};
@@ -897,16 +996,20 @@
     function parsePayload() {
       return JSON.parse($("payloadJson").value || "{}");
     }
+    function videoSignature() {
+      return JSON.stringify({ name: value("fieldName"), keyword: value("fieldKeyword"), alt: value("fieldAlt"), category: value("fieldCategory"), formData: collectFormData(), payload: parsePayload() });
+    }
     function renderPreview(payload, data) {
       if (!payload || !payload.type) {
         $("phonePreview").innerHTML = '<div class="phone-body"><div class="phone-title">無法預覽</div></div>';
         return;
       }
       if (currentTemplate.id === "video") {
+        const buttons = payload.footer && Array.isArray(payload.footer.contents) ? payload.footer.contents : [];
         $("phonePreview").innerHTML = `
           <div class="phone-video"><img src="${escapeHtml(data.previewUrl)}" alt=""><div class="play">▶</div></div>
           <div class="phone-body"><div class="phone-title">${escapeHtml(data.title)}</div><div class="phone-text">${escapeHtml(data.body)}</div></div>
-          <div class="phone-actions"><div class="phone-action">${escapeHtml(data.button1)}</div><div class="phone-action">${escapeHtml(data.button2)}</div><div class="phone-action">${escapeHtml(data.button3)}</div></div>`;
+          ${buttons.length ? `<div class="phone-actions">${buttons.map((button) => `<div class="phone-action">${escapeHtml(button.action && button.action.label)}</div>`).join("")}</div>` : ""}`;
       } else if (currentTemplate.id === "card") {
         $("phonePreview").innerHTML = `
           <div class="phone-body"><div style="display:flex;gap:14px;align-items:center;"><img src="${escapeHtml(data.avatar)}" style="width:76px;height:76px;border-radius:50%;object-fit:cover;"><div><div class="phone-title">${escapeHtml(data.title)}</div><div class="phone-text">${escapeHtml(data.subtitle)}</div></div></div><div class="phone-text" style="margin-top:18px;">${escapeHtml(data.body)}</div></div>
@@ -939,8 +1042,9 @@
       return cloudTemplates;
     }
     async function saveCurrent() {
-      if (!currentTemplate) return;
+      if (!currentTemplate || !ensureVideoReady()) return;
       updatePayload();
+      const pendingVideoSignature = currentTemplate.id === "video" ? videoSignature() : null;
       const data = {
         id: currentRecordId,
         keyword: value("fieldKeyword"),
@@ -953,6 +1057,7 @@
       };
       const result = await api("template.save", data);
       currentRecordId = result.data && result.data.id || currentRecordId;
+      if (currentTemplate.id === "video") savedVideoSignature = pendingVideoSignature;
       toast("已儲存 Flex 版型");
       await loadCloudTemplates();
       renderSavedTemplates();
@@ -1032,7 +1137,7 @@
     async function runShareTargetPicker(message, id) {
       await ensureLiffReady();
       if (!liff.isLoggedIn()) {
-        liff.login({ redirectUri: canonicalShareUrl(id) });
+        liff.login({ redirectUri: window.location.href });
         return;
       }
       try {
@@ -1052,6 +1157,7 @@
       }
     }
     async function shareCurrent() {
+      if (!ensureVideoReady()) return;
       if (!currentTemplate) return;
       updatePayload();
       const message = buildShareMessage();
@@ -1076,15 +1182,28 @@
       }
     }
     async function pushCurrent() {
+      if (!ensureVideoReady()) return;
       if (!currentTemplate) return;
       updatePayload();
-      await api("template.push", {
-        id: currentRecordId,
-        to: value("fieldPushTo"),
-        replyType: "FLEX",
-        altText: value("fieldAlt"),
-        payload: parsePayload()
-      });
+      if (currentTemplate.id === "video" && currentRecordId && videoSignature() !== savedVideoSignature) {
+        alert("影音版型有尚未儲存的變更，請先儲存版型再推播。");
+        return;
+      }
+      const payload = parsePayload();
+      try {
+        await api("template.push", {
+          id: currentRecordId,
+          to: value("fieldPushTo"),
+          replyType: "FLEX",
+          altText: value("fieldAlt"),
+          payload,
+          ...(currentTemplate.id === "video" && currentRecordId ? { expectedPayload: payload } : {})
+        });
+      } catch (err) {
+        if (currentTemplate.id !== "video") throw err;
+        alert(err && err.message || "推播失敗，請稍後再試。");
+        return;
+      }
       toast("已完成 LINE Push 推播");
     }
     function copyJson() {
@@ -1093,27 +1212,6 @@
     function formatJson() {
       $("payloadJson").value = JSON.stringify(parsePayload(), null, 2);
       renderPreview(parsePayload(), collectFormData());
-    }
-    function captureToFlex() {
-      const url = value("captureUrl") || "https://www.sakura.com.tw/";
-      openTemplate("card");
-      setValue("fieldName", "網址卡片");
-      setValue("fieldKeyword", "網址卡片");
-      setValue("fieldAlt", value("captureTitle") || "網址資訊");
-      setValue("title", value("captureTitle"));
-      setValue("subtitle", url);
-      setValue("avatar", value("captureImage"));
-      setValue("body", value("captureDesc"));
-      setValue("website", url);
-      updatePayload();
-    }
-    function captureMap() {
-      const url = value("captureUrl") || "https://maps.google.com/";
-      setValue("captureTitle", "店家地圖");
-      setValue("captureDesc", "點擊開啟地圖查看位置。");
-      captureToFlex();
-      setValue("fieldKeyword", "店家地圖");
-      updatePayload();
     }
     function toast(text) {
       $("toast").textContent = text;
@@ -1129,7 +1227,10 @@
         $("flexFolders").classList.add("open");
         openFiles();
       });
-      $("navCapture").addEventListener("click", openCapture);
+      $("navAiAds").addEventListener("click", () => {
+        if (videoUploadBusy) { alert("上傳中，請等候完成。"); return; }
+        window.open("/ai-ads-studio", "_blank", "noopener");
+      });
       $("backBtn").addEventListener("click", openLibrary);
       if ($("fileSearch")) $("fileSearch").addEventListener("input", renderFileList);
       if ($("newProjectBtn")) $("newProjectBtn").addEventListener("click", openLibrary);
@@ -1141,8 +1242,6 @@
       $("pushBtn").addEventListener("click", pushCurrent);
       $("copyBtn").addEventListener("click", copyJson);
       $("formatBtn").addEventListener("click", formatJson);
-      $("captureToFlexBtn").addEventListener("click", captureToFlex);
-      $("captureMapBtn").addEventListener("click", captureMap);
       $("payloadJson").addEventListener("input", () => {
         try { renderPreview(parsePayload(), collectFormData()); } catch (_) {}
       });

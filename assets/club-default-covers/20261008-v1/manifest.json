@@ -1,0 +1,51 @@
+{
+  "generated": "2026-10-08",
+  "generator": "built-in image_gen",
+  "description": "AI illustrative default club covers; not real event photos. JPEG web exports preserve the generated composition.",
+  "assets": [
+    {
+      "name": "badminton",
+      "file": "badminton.jpg",
+      "source": "source/badminton.png",
+      "key": "club-default-covers/20261008-v1/badminton.jpg",
+      "bytes": 88261,
+      "width": 960,
+      "height": 720,
+      "sha256": "6ee68f3c9f6d9726b40516b927a6e6aead19d876b0806b0914aaa831c49e053a",
+      "prompt": "Use case: photorealistic-natural. Asset type: landscape cover photo for a Taiwanese employee badminton club webpage. Primary request: tasteful editorial still-life of two badminton rackets and a feather shuttlecock resting beside an empty indoor badminton court, with the net and court gently out of focus. Natural soft daylight, warm welcoming atmosphere, realistic sporting equipment and surfaces, balanced full-frame composition suitable for a 4:3 crop. No people, no text, no logos, no watermark. This is an illustrative default cover, not a documented club event."
+    },
+    {
+      "name": "yoga",
+      "file": "yoga.jpg",
+      "source": "source/yoga.png",
+      "key": "club-default-covers/20261008-v1/yoga.jpg",
+      "bytes": 80783,
+      "width": 960,
+      "height": 720,
+      "sha256": "a0dfbccce89feb5cb6f723a015b070fc44e8e8b2b2c8e35f29ff541ad7e3db86",
+      "prompt": "Use case: photorealistic-natural. Asset type: landscape cover photo for a Taiwanese employee yoga club webpage. Primary request: tasteful editorial still-life of a yoga mat, yoga blocks and a neatly rolled towel in an empty bright yoga studio with soft daylight and a small amount of green foliage in the background. Calm welcoming mood, realistic materials, balanced full-frame composition suitable for a 4:3 crop. No people, no text, no logos, no watermark. This is an illustrative default cover, not a documented club event."
+    },
+    {
+      "name": "running",
+      "file": "running.jpg",
+      "source": "source/running.png",
+      "key": "club-default-covers/20261008-v1/running.jpg",
+      "bytes": 151590,
+      "width": 960,
+      "height": 720,
+      "sha256": "1356fd1675df688d227b5016f8b66576af35f41ff3f92f3aa24b39795046bb02",
+      "prompt": "Use case: photorealistic-natural. Asset type: landscape cover photo for a Taiwanese employee running club webpage. Primary request: tasteful editorial still-life of a pair of unbranded running shoes beside an empty running path in a leafy park in soft early-morning sunlight. Fresh welcoming mood, realistic fabric and path surfaces, balanced full-frame composition suitable for a 4:3 crop, vivid but natural colors. No people, no text, no logos, no watermark. This is an illustrative default cover, not a documented club event."
+    },
+    {
+      "name": "community",
+      "file": "community.jpg",
+      "source": "source/community.png",
+      "key": "club-default-covers/20261008-v1/community.jpg",
+      "bytes": 141994,
+      "width": 960,
+      "height": 720,
+      "sha256": "680ce428296683f6f0359b8ae15f0e0cfcdce04e2cc5d85a1d96855e2ea394eb",
+      "prompt": "Generic employee community meeting room, round wooden table, chairs and notebooks, daylight, no people/text/logos; illustrative default cover."
+    }
+  ]
+}

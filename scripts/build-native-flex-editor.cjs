@@ -603,13 +603,13 @@ function nativeFlexEditorTemplate() { /*
           name: "個人名片 Flex 版型",
           keyword: "分享名片",
           alt: "個人名片",
-          title: "Tonyfang",
+          title: "Demo User",
           subtitle: "櫻花福委會特約服務",
           avatar: "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png",
           body: ["您好，這是我的數位名片。", "可放公司介紹、服務項目與聯絡方式。"].join("\n"),
           phone: "tel:0900000000",
           website: "https://www.sakura.com.tw/",
-          lineUrl: "https://line.me/R/ti/p/@020aelyz"
+          lineUrl: "https://example.com/line-demo"
         },
         fields: [
           { id: "title", label: "姓名 / 公司" },

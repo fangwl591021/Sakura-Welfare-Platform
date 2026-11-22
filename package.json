@@ -1,15 +1,21 @@
 {
-  "name": "sakurakitchen-worker",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "wrangler dev -c wrangler.sakura-welfare.toml",
-    "check:welfare": "node --check src/index.js && node --check src/entry.js",
-    "predeploy:welfare": "npm run check:welfare && node scripts/predeploy-welfare-check.mjs",
-    "deploy:welfare": "npm run predeploy:welfare && wrangler deploy -c wrangler.sakura-welfare.toml"
-  },
-  "devDependencies": {
-    "wrangler": "^4.0.0"
-  }
+    "name":  "sakurakitchen-worker",
+    "version":  "1.0.0",
+    "private":  true,
+    "type":  "module",
+    "scripts":  {
+                    "dev":  "wrangler dev -c wrangler.sakura-welfare.toml",
+                    "check:welfare":  "node --check src/index.js",
+                    "test:workspace":  "node --test tests/workspace-dashboard.test.mjs",
+                    "test:welfare:smoke":  "node scripts/test-welfare-smoke.mjs",
+                    "verify:welfare":  "node scripts/verify-welfare-deployment.mjs",
+                    "predeploy:welfare":  "node scripts/predeploy-welfare-check.mjs",
+                    "deploy:welfare":  "npm run predeploy:welfare \u0026\u0026 wrangler deploy -c wrangler.sakura-welfare.toml"
+                },
+    "devDependencies":  {
+                            "esbuild":  "0.27.3",
+                            "miniflare":  "4.20260507.1",
+                            "playwright":  "1.62.1",
+                            "wrangler":  "^4.0.0"
+                        }
 }
