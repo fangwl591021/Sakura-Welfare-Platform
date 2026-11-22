@@ -17,6 +17,9 @@
     body.left-collapsed .app{grid-template-columns:76px minmax(420px,1fr) 360px}body.left-collapsed .left .brand div:not(.logo),body.left-collapsed .search,body.left-collapsed .thread>div:not(.avatar),body.left-collapsed .thread-time{display:none}body.left-collapsed .thread{grid-template-columns:48px;padding:14px;justify-content:center}
     body.right-collapsed .app{grid-template-columns:320px minmax(420px,1fr) 58px}body.right-collapsed .right-card,body.right-collapsed .right-head span{display:none}body.right-collapsed .right-head{writing-mode:vertical-rl;height:100%;align-items:center}
     @media(max-width:980px){body{overflow:auto}.app{height:auto;display:block}.left,.right,.center{min-height:0}.messages{min-height:420px}.right{border-left:0}.compose-row{grid-template-columns:1fr}.send{min-height:52px}}
+    .focus-notice{padding:10px 22px;background:#fff5d6;color:#704000;font-weight:700}
+    .msg.opinion-focus{outline:3px solid #b45309;background:#fff8e8}
+    .focus-label{display:block;margin-bottom:8px;color:#92400e;font-weight:800}
   </style>
 </head>
 <body>
@@ -37,6 +40,7 @@
         <div class="head-actions"><button class="btn" id="toggleLeft">收合左欄</button><button class="btn" data-status="open">待處理</button><button class="btn" data-status="done">處理完畢</button><button class="btn" id="refresh">同步</button><button class="btn" id="toggleRight">收合 AI</button></div>
       </header>
       <div class="guard">這裡可監看、標註與回覆；正式送出會透過 LINE Push API 寫入稽核紀錄。</div>
+      <div id="focusNotice" class="focus-notice" role="status" hidden></div>
       <section class="messages" id="messages"><div class="empty">尚未選取聊天室。</div></section>
       <section class="composer">
         <div class="suggestion" id="quickSuggestion">AI 建議會顯示在這裡</div>
@@ -59,6 +63,8 @@
     const apiBase = location.origin;
     let allThreads = [];
     let activeThread = null;
+    const requestedEventId = new URLSearchParams(location.search).get("event_id");
+    let focusedMessageId = "";
     let filter = "all";
     let threadQueryVersion = 0, threadSearchTimer = null;
     const negativeWords = ["不能用", "抱怨", "客訴", "投訴", "爛", "詐騙", "退款", "沒優惠", "態度差"];
@@ -75,9 +81,27 @@
     function filtered(){const key=$("search").value.trim().toLowerCase();return allThreads.filter(t=>{if(filter==="open"&&t.status==="done")return false;if(filter==="risk"&&t.risk!=="high")return false;if(!key)return true;return [t.name,t.userId,t.summary,...(t.tags||[])].join(" ").toLowerCase().includes(key)})}
     function renderThreads(){const rows=filtered();$("threadList").innerHTML=rows.length?rows.map(t=>`<button class="thread ${activeThread&&activeThread.id===t.id?"active":""}" data-id="${esc(t.id)}">${avatarHtml(t)}<div><div class="thread-name">${esc(t.name||"LINE 使用者")}</div><div class="thread-id">${esc(t.userId||"")}</div><div class="summary">${esc(t.summary||"")}</div><div class="badges">${(t.identityLabels||[]).map(label=>`<span class="badge">${esc(label)}</span>`).join("")}<span class="badge ${esc(t.status||"open")}">${statusLabel(t.status)}</span><span class="badge ${esc(t.risk||"low")}">${riskLabel(t.risk)}</span>${Number(t.unread||0)?`<span class="badge open">${t.unread} 則</span>`:""}</div></div><div class="thread-time">${time(t.lastMessageAt)}</div></button>`).join(""):'<div class="empty">目前沒有聊天室資料。</div>';qsa(".thread").forEach(b=>b.onclick=()=>loadThread(b.dataset.id).catch(e=>toast(e.message)))}
     function suggestion(thread){const text=(thread.messages||[]).map(m=>m.text||"").join("\\n");if(/不能用|沒優惠|折扣/.test(text))return "您好，已收到您的回饋，我們會協助確認特約廠商優惠使用狀況，並由福委會後續追蹤處理。";if(/抱怨|客訴|態度差|爛/.test(text))return "您好，感謝您告知。我們會先記錄事件內容，並請福委會委員確認廠商品質與改善方式。";if(/謝謝|很好|稱讚|推薦/.test(text))return "您好，謝謝您的肯定，我們會將回饋整理給福委會與合作廠商參考。";return "您好，感謝您來訊！請問您想了解哪個方向的福利或特約優惠？我可以再協助整理適合的資訊。"}
-    function renderActive(){const t=activeThread;if(!t){$("messages").innerHTML='<div class="empty">尚未選取聊天室。</div>';return}setAvatar($("chatAvatar"),t);$("chatName").textContent=t.name||"LINE 使用者";$("chatMeta").textContent=`共 ${(t.messages||[]).length} 則訊息 · 用戶 ID ${t.userId||""}${(t.identityLabels||[]).length?" · "+t.identityLabels.join("、"):""}`;$("messages").innerHTML=(t.messages||[]).map(m=>`<div class="msg ${m.senderRole==="user"?"user":"admin"}"><div class="sender">${esc(m.senderName||t.name||"LINE 使用者")}</div><div class="text">${esc(m.text||"")}</div><div class="time">${time(m.createdAt)}</div></div>`).join("")||'<div class="empty">此聊天室尚無訊息。</div>';const s=suggestion(t);$("quickSuggestion").textContent=s;$("aiReply").textContent=s;$("draft").value=s;$("suggestionCount").textContent="1";$("tags").innerHTML=(t.tags||[]).map(tag=>`<span class="badge">${esc(tag)}</span>`).join("")||'<span class="badge">一般訊息</span>';$("statusBadge").className="badge "+(t.status||"open");$("statusBadge").textContent=statusLabel(t.status);$("note").value=t.note||"";const hits=negativeWords.filter(w=>(t.messages||[]).some(m=>(m.text||"").includes(w)));$("riskCount").textContent=hits.length;$("riskText").textContent=hits.length?`偵測到：${hits.join("、")}`:"目前沒有高風險訊息。"}
-    async function loadThreads(){const version=++threadQueryVersion,term=$("search").value.trim(),selectedFilter=filter;const params=term?"?q="+encodeURIComponent(term)+"&filter="+encodeURIComponent(selectedFilter):"";let j;try{j=await api("/api/line-oa/threads"+params)}catch(error){if(version!==threadQueryVersion)return;throw error}if(version!==threadQueryVersion||term!==$("search").value.trim()||(term&&selectedFilter!==filter))return;allThreads=j.data||[];if(!term&&!activeThread&&allThreads[0])await loadThread(allThreads[0].id);else renderThreads()}
-    async function loadThread(id){const j=await api("/api/line-oa/thread?id="+encodeURIComponent(id));activeThread=j.data;const i=allThreads.findIndex(t=>t.id===id);if(i>=0)allThreads[i]={...allThreads[i],...j.data};renderThreads();renderActive()}
+    function renderActive(){const t=activeThread;if(!t){$("messages").innerHTML='<div class="empty">尚未選取聊天室。</div>';return}setAvatar($("chatAvatar"),t);$("chatName").textContent=t.name||"LINE 使用者";$("chatMeta").textContent=`共 ${(t.messages||[]).length} 則訊息 · 用戶 ID ${t.userId||""}${(t.identityLabels||[]).length?" · "+t.identityLabels.join("、"):""}`;$("messages").innerHTML=(t.messages||[]).map(m=>`<div class="msg ${m.senderRole==="user"?"user":"admin"}${m.id===focusedMessageId?" opinion-focus":""}">${m.id===focusedMessageId?'<span class="focus-label">待處理訊息</span>':""}<div class="sender">${esc(m.senderName||t.name||"LINE 使用者")}</div><div class="text">${esc(m.text||"")}</div><div class="time">${time(m.createdAt)}</div></div>`).join("")||'<div class="empty">此聊天室尚無訊息。</div>';const s=suggestion(t);$("quickSuggestion").textContent=s;$("aiReply").textContent=s;$("draft").value=s;$("suggestionCount").textContent="1";$("tags").innerHTML=(t.tags||[]).map(tag=>`<span class="badge">${esc(tag)}</span>`).join("")||'<span class="badge">一般訊息</span>';$("statusBadge").className="badge "+(t.status||"open");$("statusBadge").textContent=statusLabel(t.status);$("note").value=t.note||"";const hits=negativeWords.filter(w=>(t.messages||[]).some(m=>(m.text||"").includes(w)));$("riskCount").textContent=hits.length;$("riskText").textContent=hits.length?`偵測到：${hits.join("、")}`:"目前沒有高風險訊息。"}
+    async function loadThreads(){const version=++threadQueryVersion,term=$("search").value.trim(),selectedFilter=filter;const params=term?"?q="+encodeURIComponent(term)+"&filter="+encodeURIComponent(selectedFilter):"";let j;try{j=await api("/api/line-oa/threads"+params)}catch(error){if(version!==threadQueryVersion)return;throw error}if(version!==threadQueryVersion||term!==$("search").value.trim()||(term&&selectedFilter!==filter))return;allThreads=j.data||[];if(!term&&focusedMessageId&&activeThread&&!allThreads.some(t=>t.id===activeThread.id))allThreads.unshift(activeThread);if(requestedEventId===null&&!term&&!activeThread&&allThreads[0])await loadThread(allThreads[0].id);else renderThreads()}
+    async function loadFocusedThread(eventId) {
+      const {data, focus} = await api("/api/line-oa/thread?event_id="+encodeURIComponent(eventId), {cache:"no-store"});
+      const notice = $("focusNotice");
+      notice.hidden = false;
+      if (!data || !focus?.messageId) {
+        notice.textContent = "找不到這筆訊息對應的聊天室紀錄。以下是原始輿情內容。";
+        const original = document.createElement("div");
+        original.className = "msg text";
+        original.textContent = [focus?.messageText || "這筆沒有文字內容。", time(focus?.createdAt)].filter(Boolean).join(" · ");
+        $("messages").replaceChildren(original);
+        return;
+      }
+      activeThread = data;
+      focusedMessageId = focus.messageId;
+      notice.textContent = "已定位待處理訊息，以下顯示該則訊息及前後對話。";
+      renderActive();
+      $("messages").querySelector(".opinion-focus")?.scrollIntoView({block:"center"});
+    }
+    async function loadThread(id){const j=await api("/api/line-oa/thread?id="+encodeURIComponent(id));activeThread=j.data;focusedMessageId="";$("focusNotice").hidden=true;const i=allThreads.findIndex(t=>t.id===id);if(i>=0)allThreads[i]={...allThreads[i],...j.data};renderThreads();renderActive()}
     async function saveMeta(patch){if(!activeThread)return;const tags=[...(activeThread.tags||[])];const j=await api("/api/line-oa/thread",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id:activeThread.id,note:$("note").value,tags,...patch})});activeThread=j.data;toast("聊天室資料已更新");renderThreads();renderActive()}
     qsa(".chip").forEach(b=>b.onclick=()=>{filter=b.dataset.filter;qsa(".chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");if($("search").value.trim()){clearTimeout(threadSearchTimer);loadThreads().catch(e=>{allThreads=[];renderThreads();toast(e.message)})}else renderThreads()});
     qsa("[data-status]").forEach(b=>b.onclick=()=>saveMeta({status:b.dataset.status}).catch(e=>toast(e.message)));
@@ -90,7 +114,14 @@
     $("quickSuggestion").onclick=()=>{$("draft").value=$("quickSuggestion").textContent};
     $("draft").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("send").click()}});
     $("send").onclick=async()=>{if(!activeThread)return toast("請先選擇聊天室");const text=$("draft").value.trim();if(!text)return toast("請輸入回覆內容");try{await api("/admin-api/line-push",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({lineUserId:activeThread.userId,text})});toast("已送出 LINE 回覆");await loadThread(activeThread.id)}catch(e){toast(e.message)}};
-    loadThreads().catch(e=>{$("threadList").innerHTML='<div class="empty">'+esc(e.message)+"</div>"});
+    if (requestedEventId !== null) {
+      loadFocusedThread(requestedEventId).catch(error=>{
+        $("focusNotice").hidden=false;
+        $("focusNotice").textContent=error.message;
+      }).finally(()=>loadThreads().catch(error=>{
+        $("threadList").textContent=error.message;
+      }));
+    } else loadThreads().catch(e=>{$("threadList").innerHTML='<div class="empty">'+esc(e.message)+"</div>"});
   </script>
 </body>
 </html>

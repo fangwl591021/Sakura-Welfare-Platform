@@ -26,6 +26,7 @@ const suites = [
   'tests/vendor-brand-portal.test.mjs',
   'tests/vendor-brand-admin-route.test.mjs',
   'tests/vendor-dashboard-qr.test.mjs',
+  'tests/line-opinion.test.mjs',
   'tests/verify-welfare-deployment.test.mjs'
 ];
 
