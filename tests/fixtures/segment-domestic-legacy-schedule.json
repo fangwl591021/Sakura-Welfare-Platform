@@ -1,0 +1,62 @@
+{
+  "guards": [
+    "7dd0953f1098f141697bb3457f6004a67862987134221cadb7c29aed97013469",
+    "af8f782498bf8d14ab72bcd69f7021fbb71719aae66279ff27ed4e57a0e3835c",
+    "3c7ae4b2e4b1ef7f353cdf395de6b4a077cb5d369fc5775bd24a5a705455d113"
+  ],
+  "scheduledAt": 1793235900000,
+  "rows": {
+    "welfare_push_previews": [
+      {
+        "id": "52f6ad52-aa53-48b5-94dc-aba0a77a4075",
+        "actor": "synthetic-admin",
+        "request_id": "431b1a1c-e00e-4c7b-831f-bebfaa6f0655",
+        "revision": "2412be1ef448524c87c65b2dd0554eea0a41b679461ef3ad14d711b4f94fefb7",
+        "title": "合成舊排程",
+        "message_mode": "official_text",
+        "filters_json": "{\"keyword\":\"\",\"tags\":[],\"tagMode\":\"any\",\"memberType\":\"employee\",\"bindStatus\":\"\",\"factory\":\"\",\"businessUnit\":\"\",\"department\":\"\",\"maxRecipients\":200,\"selectedLineUserIds\":[\"U00000000000000000000000000000001\",\"U00000000000000000000000000000002\"]}",
+        "message_json": "[{\"type\":\"text\",\"text\":\"合成測試\"}]",
+        "recipients_json": "[{\"line_user_id\":\"U00000000000000000000000000000001\",\"display_name\":\"合成人員1\",\"guard\":\"7dd0953f1098f141697bb3457f6004a67862987134221cadb7c29aed97013469\",\"retry_key\":\"e6beea26-efa7-405a-9fbf-64eec96aa4bb\"},{\"line_user_id\":\"U00000000000000000000000000000002\",\"display_name\":\"合成人員2\",\"guard\":\"af8f782498bf8d14ab72bcd69f7021fbb71719aae66279ff27ed4e57a0e3835c\",\"retry_key\":\"0e5a7b83-fa6e-4671-8ff6-6b57ce8fcffd\"}]",
+        "created_at": 1793235600000,
+        "expires_at": 1793236200000
+      }
+    ],
+    "welfare_push_campaigns": [
+      {
+        "id": "52f6ad52-aa53-48b5-94dc-aba0a77a4075",
+        "title": "合成舊排程",
+        "message_mode": "official_text",
+        "filters_json": "{\"keyword\":\"\",\"tags\":[],\"tagMode\":\"any\",\"memberType\":\"employee\",\"bindStatus\":\"\",\"factory\":\"\",\"businessUnit\":\"\",\"department\":\"\",\"maxRecipients\":200,\"selectedLineUserIds\":[\"U00000000000000000000000000000001\",\"U00000000000000000000000000000002\"]}",
+        "message_json": "[{\"type\":\"text\",\"text\":\"合成測試\"}]",
+        "recipient_count": 2,
+        "success_count": 0,
+        "failed_count": 0,
+        "status": "scheduled",
+        "created_at": "2026-10-29T01:00:00.000Z",
+        "updated_at": "2026-10-29T01:00:00.000Z"
+      }
+    ],
+    "welfare_push_schedule_intents": [
+      {
+        "preview_id": "52f6ad52-aa53-48b5-94dc-aba0a77a4075",
+        "delivery_mode": "scheduled",
+        "scheduled_at": 1793235900000
+      }
+    ],
+    "welfare_push_schedules": [
+      {
+        "id": "52f6ad52-aa53-48b5-94dc-aba0a77a4075",
+        "preview_id": "52f6ad52-aa53-48b5-94dc-aba0a77a4075",
+        "actor": "synthetic-admin",
+        "request_id": "431b1a1c-e00e-4c7b-831f-bebfaa6f0655",
+        "preview_revision": "2412be1ef448524c87c65b2dd0554eea0a41b679461ef3ad14d711b4f94fefb7",
+        "scheduled_at": 1793235900000,
+        "status": "scheduled",
+        "created_at": 1793235600000,
+        "updated_at": 1793235600000,
+        "claimed_at": null,
+        "last_error": ""
+      }
+    ]
+  }
+}

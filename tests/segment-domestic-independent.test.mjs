@@ -134,15 +134,21 @@ test('identity drift after campaign claim is checked again before the transport'
 test('pre-change guard hashes and already-scheduled snapshots remain compatible',async()=>{
   const f=fixture();try{
     seedIdentityCases(f);
-    const base=await import('../../../push-usage-20261106/Sakura-Welfare-Platform/src/segment-audience.js');
-    const basePush=await import('../../../push-usage-20261106/Sakura-Welfare-Platform/src/segment-push.js');
-    const baseSchedule=await import('../../../push-usage-20261106/Sakura-Welfare-Platform/src/segment-push-schedule.js');
+    // Captured from the pre-change code using only this synthetic in-memory database.
+    const previous=JSON.parse(readFileSync(new URL('./fixtures/segment-domestic-legacy-schedule.json',import.meta.url),'utf8'));
     const current=await import('../src/segment-audience.js');
-    const oldRows=await base.readSegmentAudience(f.db),newRows=await current.readSegmentAudience(f.db);
-    for(const n of [1,2,3])assert.equal(oldRows.guards.get(uid(n)),newRows.guards.get(uid(n)));
-    const at=f.now+300000,body={action:'preview',title:'合成舊排程',message:{mode:'official_text',text:'合成'},filters:{memberType:'employee',selectedLineUserIds:[uid(1),uid(2)],maxRecipients:200},delivery_mode:'scheduled',scheduled_at:at};
-    const p=await basePush.handleSegmentPush(new Request('https://synthetic.invalid/admin-api/line-segment-push',{method:'POST',body:JSON.stringify(body)}),f.db,{},f.deps);
-    await baseSchedule.createSegmentSchedule(f.db,f.deps,{action:'schedule',preview_id:p.data.preview_id,preview_revision:p.data.preview_revision,request_id:p.data.request_id,confirmed:true,scheduled_at:at});
-    f.now=at;const result=await f.cron();assert.equal(result[0].status,'sent');assert.deepEqual(f.calls.map(x=>x.id).sort(),[uid(1),uid(2)]);
+    const newRows=await current.readSegmentAudience(f.db);
+    assert.deepEqual([1,2,3].map(n=>newRows.guards.get(uid(n))),previous.guards);
+    for(const table of ['welfare_push_previews','welfare_push_campaigns','welfare_push_schedule_intents','welfare_push_schedules']){
+      for(const row of previous.rows[table]){
+        const columns=Object.keys(row);
+        const placeholders=columns.map(()=>'?').join(',');
+        f.sqlite.prepare('INSERT INTO '+table+'('+columns.join(',')+') VALUES('+placeholders+')').run(...Object.values(row));
+      }
+    }
+    f.now=previous.scheduledAt;
+    const result=await f.cron();
+    assert.equal(result[0].status,'sent');
+    assert.deepEqual(f.calls.map(x=>x.id).sort(),[uid(1),uid(2)]);
   }finally{await f.close()}
 });
