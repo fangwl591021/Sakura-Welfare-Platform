@@ -17,13 +17,10 @@
     .audience-tags{min-width:96px;max-width:240px}.audience-tags summary{cursor:pointer;white-space:nowrap;color:#334a85;font-weight:750;line-height:1.4;padding:4px 6px;border-radius:6px}.audience-tags summary:hover{background:#eef2ff}.audience-tags summary:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}.audience-tags-list{padding-top:4px;display:flex;flex-wrap:wrap;gap:2px}.audience-tags-list .tag{margin:0;overflow-wrap:anywhere;white-space:normal}
     @media(max-width:1180px){.workspace{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}}@media(max-width:720px){.page{padding:12px}.top{display:block}.actions{margin-top:10px}.metrics{grid-template-columns:1fr}.row{grid-template-columns:1fr}}
 
-    .content-summary .content-log{margin-top:20px}.content-drawer{position:fixed;inset:0;margin:0 0 0 auto;padding:0;width:100vw;height:100dvh;max-width:none;max-height:none;border:0;background:#f5f7fa;overflow-y:auto;box-shadow:-12px 0 40px rgba(15,23,42,.2)}.content-drawer[open]{animation:drawer-in .2s ease-out}.content-drawer::backdrop{background:rgba(15,23,42,.38)}@keyframes drawer-in{from{transform:translateX(100%)}to{transform:translateX(0)}}.drawer-head{position:sticky;top:0;z-index:3;display:flex;justify-content:space-between;align-items:center;gap:16px;background:white;border-bottom:1px solid var(--line);padding:16px 24px}.drawer-head h2{font-size:22px;margin:0}.drawer-head p{margin:5px 0 0;color:var(--muted)}.drawer-status{margin:0;padding:10px 24px;color:#475569;min-height:20px}.drawer-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,420px);gap:24px;padding:24px;max-width:1440px;margin:auto}.drawer-editor,.drawer-preview{background:#fff;border:1px solid var(--line);border-radius:12px;padding:24px;min-width:0}.drawer-preview h3{margin:0 0 6px}.drawer-preview .hint{margin:0 0 16px}.drawer-editor textarea{min-height:180px}.drawer-editor details{margin:16px 0}.drawer-editor summary{cursor:pointer;font-weight:700;color:#40516b}.upload-zone{margin-top:16px;padding:18px;border:1px dashed #94a3b8;border-radius:10px;background:#f8fafc}.upload-zone label{font-weight:850}.upload-zone-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.dismiss-button{border:0;background:transparent;color:#475569;font-size:28px;line-height:1;min-width:44px;min-height:44px;cursor:pointer;border-radius:8px}.dismiss-button:hover{background:#eef2f7}.dismiss-button:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}.dismiss-button:disabled{opacity:.4;cursor:not-allowed}.upload-zone input[type=file]{display:block;max-width:100%;margin:12px 0}.upload-actions{display:flex;gap:8px;flex-wrap:wrap}.chat-preview{background:#dbe8f7;padding:18px;border-radius:12px;min-height:280px}.chat-preview-title{font-weight:850;margin-bottom:12px}.chat-preview .preview-box{background:transparent;border:0;border-radius:0;padding:0;white-space:normal;min-height:0}.preview-message-text{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:10px;white-space:pre-wrap;overflow-wrap:anywhere}.preview-message-image{display:block;max-width:100%;max-height:420px;object-fit:contain;border-radius:10px;background:#fff;margin-top:10px}.preview-message-separator{border:0;border-top:1px solid #e2e8f0;margin:12px 0}.preview-note{color:#64748b}.flex-card-preview{background:#fff;border-radius:10px;overflow:hidden}.flex-card-preview img{display:block;width:100%;aspect-ratio:20/13;object-fit:cover}.flex-card-copy{padding:16px;white-space:pre-wrap;overflow-wrap:anywhere}.flex-card-title{font-size:18px;font-weight:800}.flex-card-body{margin-top:8px}.flex-card-button{display:block;margin:0 16px 16px;background:#06c755;color:#fff;padding:11px;border-radius:6px;text-align:center;font-weight:700}.content-drawer .btn:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}@media(max-width:800px){.drawer-layout{grid-template-columns:1fr;padding:14px;gap:14px}.drawer-editor,.drawer-preview{padding:16px}.drawer-head{padding:14px}.drawer-head p{font-size:13px}.content-drawer{height:100dvh}}
-
-    /* The content composer follows the LINE message editor layout. */
-    .content-drawer{background:#fff}.drawer-head{padding:18px 32px;box-shadow:0 1px 0 #e5e7eb}.drawer-head h2{font-size:23px}.drawer-head .btn{white-space:nowrap}.drawer-layout{grid-template-columns:minmax(0,1fr) minmax(300px,390px);max-width:1500px;gap:32px;padding:24px 32px 48px}.drawer-editor{border:0;border-radius:0;padding:0}.drawer-preview{align-self:start;position:sticky;top:95px;padding:0;border:1px solid #cbd5e1;border-radius:6px;overflow:hidden;box-shadow:0 4px 18px #0f172a1a}.composer-intro{padding:10px 0 22px;border-bottom:1px solid #e5e7eb;margin-bottom:24px}.composer-intro h3{font-size:19px;margin:0 0 6px}.composer-intro p{margin:0;color:#64748b;line-height:1.6}.composer-heading{margin:24px 0 8px;font-size:17px}.mode-toolbar{display:flex;align-items:stretch;gap:4px;flex-wrap:wrap;padding:8px;border:1px solid #d5dbe3;border-bottom:0;border-radius:6px 6px 0 0;background:#f6f7f9}.mode-tool{min-height:46px;display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid transparent;border-radius:5px;background:transparent;color:#334155;font-size:14px;font-weight:650}.mode-tool:hover{background:#e7edf0}.mode-tool[aria-pressed=true]{background:#e3f8ec;border-color:#99e7ba;color:#007d38}.mode-tool:focus-visible{outline:3px solid #60a5fa;outline-offset:1px}.mode-tool:disabled{opacity:.45;cursor:not-allowed}.mode-tool svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}.composer-body{border:1px solid #d5dbe3;border-radius:0 0 6px 6px;padding:20px;min-height:180px}.composer-body .field label{font-size:14px;font-weight:650;color:#374151}.composer-body textarea{min-height:190px}.source-details{margin:14px 0 0!important;padding:0}.source-details summary{font-size:13px;color:#64748b!important;font-weight:500!important}.source-details .field{margin:12px 0 0}.drawer-preview h3{margin:0;padding:13px 16px;background:#3f4143;color:#fff;font-size:16px}.preview-caption{padding:12px 16px 8px;background:#fff}.drawer-preview .preview-caption .hint{margin:0;font-size:13px}.preview-tab{display:inline-block;margin:8px 0 0;color:#257c50;font-weight:700;border-bottom:2px solid #06c755;padding:0 3px 6px}.chat-preview{border-radius:0;background:#8eadd5;min-height:400px;padding:20px}.chat-preview-title{color:#28384e;font-size:13px}.chat-preview .preview-message-text{max-width:90%}.drawer-editor .field input:focus,.drawer-editor .field textarea:focus,.drawer-editor .field select:focus{outline:2px solid #60a5fa;outline-offset:1px}
-    @media(max-width:800px){.drawer-layout{grid-template-columns:1fr;gap:24px;padding:18px 16px 32px}.drawer-head{padding:14px 16px}.drawer-editor{padding:0;border:0}.drawer-preview{position:static;padding:0}.mode-toolbar{gap:2px}.mode-tool{font-size:13px;padding:8px}.composer-body{padding:16px}.chat-preview{min-height:260px}}
-    .push-header-panels{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;margin-bottom:12px;align-items:stretch}@media(max-width:800px){.push-header-panels{grid-template-columns:1fr}}
-    .tutorial-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.tutorial-actions .btn{color:#165e93}.tutorial-dialog{width:min(960px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:0;border:1px solid #cfd8e6;border-radius:10px;overflow:auto;color:var(--ink)}.tutorial-dialog::backdrop{background:#0009}.tutorial-bar{display:flex;align-items:center;gap:12px;padding:12px 16px}.tutorial-bar h2{font-size:18px;margin:0;flex:1}.tutorial-bar button{min-width:44px;min-height:44px;font-size:24px}.tutorial-video{display:block;width:100%;max-height:65dvh;aspect-ratio:16/9;background:#111}.tutorial-footer{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 16px}.tutorial-footer p{flex:1 1 250px;margin:0}.tutorial-footer a{color:#165e93}.tutorial-actions button:focus-visible,.tutorial-dialog button:focus-visible{outline:3px solid #2877c9;outline-offset:2px}
+    .upload-zone{margin-top:16px;padding:18px;border:1px dashed #94a3b8;border-radius:10px;background:#f8fafc}.upload-zone label{font-weight:850}.upload-zone-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.dismiss-button{border:0;background:transparent;color:#475569;font-size:28px;line-height:1;min-width:44px;min-height:44px;cursor:pointer;border-radius:8px}.dismiss-button:hover{background:#eef2f7}.dismiss-button:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}.dismiss-button:disabled{opacity:.4;cursor:not-allowed}.upload-zone input[type=file]{display:block;max-width:100%;margin:12px 0}.upload-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .chat-preview{background:#dbe8f7;padding:18px;border-radius:12px;min-height:280px}.chat-preview-title{font-weight:850;margin-bottom:12px}.chat-preview .preview-box{background:transparent;border:0;border-radius:0;padding:0;white-space:normal;min-height:0}.preview-message-text{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:10px;white-space:pre-wrap;overflow-wrap:anywhere}.preview-message-image{display:block;max-width:100%;max-height:420px;object-fit:contain;border-radius:10px;background:#fff;margin-top:10px}.preview-message-separator{border:0;border-top:1px solid #e2e8f0;margin:12px 0}.preview-note{color:#64748b}.flex-card-preview{background:#fff;border-radius:10px;overflow:hidden}.flex-card-preview img{display:block;width:100%;aspect-ratio:20/13;object-fit:cover}.flex-card-copy{padding:16px;white-space:pre-wrap;overflow-wrap:anywhere}.flex-card-title{font-size:18px;font-weight:800}.flex-card-body{margin-top:8px}.flex-card-button{display:block;margin:0 16px 16px;background:#06c755;color:#fff;padding:11px;border-radius:6px;text-align:center;font-weight:700}
+    .mode-toolbar{display:flex;align-items:stretch;gap:4px;flex-wrap:wrap;padding:8px;border:1px solid #d5dbe3;border-bottom:0;border-radius:6px 6px 0 0;background:#f6f7f9}.mode-tool{min-height:46px;display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid transparent;border-radius:5px;background:transparent;color:#334155;font-size:14px;font-weight:650}.mode-tool:hover{background:#e7edf0}.mode-tool[aria-pressed=true]{background:#e3f8ec;border-color:#99e7ba;color:#007d38}.mode-tool:focus-visible{outline:3px solid #60a5fa;outline-offset:1px}.mode-tool:disabled{opacity:.45;cursor:not-allowed}.mode-tool svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}.composer-body{border:1px solid #d5dbe3;border-radius:0 0 6px 6px;padding:20px;min-height:180px}.composer-body .field label{font-size:14px;font-weight:650;color:#374151}.composer-body textarea{min-height:190px}.source-details{margin:14px 0 0!important;padding:0}.source-details summary{font-size:13px;color:#64748b!important;font-weight:500!important}.source-details .field{margin:12px 0 0}
+    .tutorial-dialog{width:min(960px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:0;border:1px solid #cfd8e6;border-radius:10px;overflow:auto;color:var(--ink)}.tutorial-dialog::backdrop{background:#0009}.tutorial-bar{display:flex;align-items:center;gap:12px;padding:12px 16px}.tutorial-bar h2{font-size:18px;margin:0;flex:1}.tutorial-bar button{min-width:44px;min-height:44px;font-size:24px}.tutorial-video{display:block;width:100%;max-height:65dvh;aspect-ratio:16/9;background:#111}.tutorial-footer{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 16px}.tutorial-footer p{flex:1 1 250px;margin:0}.tutorial-footer a{color:#165e93}.tutorial-actions button:focus-visible,.tutorial-dialog button:focus-visible{outline:3px solid #2877c9;outline-offset:2px}
     .schedule-panel{margin:0;background:#fff;border:1px solid var(--line);border-radius:8px;padding:15px 16px}.schedule-panel h2{font-size:16px;margin:0 0 10px}.schedule-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.schedule-controls label{display:inline-flex;align-items:center;gap:6px}.schedule-controls input[type="datetime-local"]{border:1px solid #cfd8e6;border-radius:7px;padding:8px;min-height:38px}.schedule-panel p{margin:8px 0;color:#52627a;line-height:1.6}.schedule-list{margin-top:12px}.schedule-list table{min-width:600px}.schedule-list-wrap{overflow-x:auto}.schedule-list button{min-height:32px}.schedule-warning{color:#9a3412!important}
     .draft-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:#fff;border-bottom:1px solid var(--line)}.draft-tools select{min-width:190px;max-width:min(380px,100%);flex:1}.draft-tools .hint{flex-basis:100%}@media(max-width:700px){.draft-tools{padding:12px 14px}.draft-tools select{flex-basis:100%}}
     .flex-preview-carousel{display:flex;gap:10px;overflow-x:auto;align-items:flex-start;padding-bottom:6px}.flex-preview-bubble{background:#fff;border-radius:12px;overflow:hidden;color:#222;min-width:0;max-width:100%;width:100%;line-height:1.45}.flex-preview-carousel>.flex-preview-bubble{flex:0 0 90%}.flex-preview-section{padding:14px}.flex-preview-hero{padding:0}.flex-preview-box{display:flex;min-width:0;gap:8px}.flex-preview-box.vertical{flex-direction:column}.flex-preview-box.horizontal,.flex-preview-box.baseline{flex-direction:row}.flex-preview-box.horizontal>*{min-width:0;flex:1 1 0}.flex-preview-text{white-space:pre-wrap;overflow-wrap:anywhere}.flex-preview-image{display:block;max-width:100%;width:100%;object-fit:contain}.flex-preview-video{position:relative;background:#e2e8f0;overflow:hidden}.flex-preview-video .flex-preview-image{width:100%;height:auto}.flex-preview-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#0009;color:white;font-size:20px}.flex-preview-button{padding:10px;border-radius:6px;color:#fff;background:#06c755;text-align:center;font-weight:700;overflow-wrap:anywhere}.flex-preview-separator{border:0;border-top:1px solid #e5e7eb;width:100%;margin:6px 0}.flex-preview-unsupported{font-size:12px;color:#64748b;padding:5px;overflow-wrap:anywhere}.flex-preview-warning{font-size:12px;color:#475569;margin:8px 0;line-height:1.5}
@@ -32,66 +29,98 @@
     #audienceReviewRows{margin:0 0 12px;padding-left:22px;max-height:330px;overflow:auto}
     #audienceReviewRows li{padding:6px 0;border-bottom:1px solid var(--line)}
     #audienceReviewRows a{display:inline-block;color:#1d4ed8;font-weight:700;margin-inline:4px}
+    .push-page{--brand:#972747;--brand-soft:#f9edf1;max-width:1510px;margin:auto}
+    .push-page .top{align-items:center;padding:13px 0 15px;border-bottom:1px solid var(--line)}
+    .push-page .top h1{font-size:26px;margin:0}
+    .section-path{margin:0 0 4px;color:var(--brand);font-size:13px;font-weight:750}
+    .push-page .btn.primary{background:var(--brand);border-color:var(--brand)}
+    .push-page :where(button,a,summary,input,select,textarea):focus-visible{outline:2px solid #2266ab;outline-offset:2px}
+    .push-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(265px,33%);gap:16px;align-items:start}
+    .push-column{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+    .push-workspace .panel{padding:16px}
+    .push-workspace h2{font-size:17px;margin:0 0 10px;letter-spacing:-.02em}
+    .preview-column{position:sticky;top:12px}
+    .push-workspace .panel-body{padding:0}
+    .push-workspace .field label{font-size:13px}
+    .push-page summary{color:#76324b;font-weight:750;cursor:pointer}
+    .audience-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0 8px}
+    .audience-toolbar .selection-actions{margin-left:auto}
+    .audience-panel .audience-scroll{max-height:245px;border:1px solid var(--line);border-radius:8px}
+    .audience-panel .audience-scroll thead th{position:sticky;top:0;z-index:1}
+    .advanced-filters,.draft-manager,.schedule-help,.support-tools{margin:10px 0}
+    .filter-fields{margin:10px 0}
+    .schedule-panel{min-width:0}
+    .schedule-controls{gap:8px 12px}
+    .schedule-controls label{min-height:38px}
+    #scheduledTimeField{margin:8px 0 0;max-width:320px}
+    #scheduleStatus:empty{display:none}
+    .composer .draft-tools{padding:9px 0;border-bottom:0}
+    .composer .draft-tools select{min-width:0}
+    .composer .mode-toolbar{margin-top:6px}
+    .composer .mode-tool[aria-pressed=true],.preview-switch button[aria-pressed=true]{color:var(--brand);border-color:#dcaebe;background:var(--brand-soft)}
+    .composer .composer-body{padding:12px;min-height:0}
+    .composer .composer-body textarea{min-height:110px}
+    .audience-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 10px}
+    .audience-counts>div+div{border-left:1px solid var(--line);padding-left:8px}
+    .audience-counts dt{color:#40516b;font-size:12px;font-weight:700}
+    .audience-counts dd{margin:2px 0 0;font-size:23px;line-height:1.2;font-weight:800;font-variant-numeric:tabular-nums}
+    .delivery-note,#previewMessageHint{font-size:13px;margin:8px 0}
+    .recipient-summary .review-box{border:0;border-radius:8px;padding:10px;margin:8px 0}
+    .recipient-summary #audienceReview{background:#fff5e9}
+    .recipient-summary #audienceReviewRows{padding-left:18px}
+    .final-actions .btn{width:100%}
+    .preview-switch{display:flex;gap:6px;flex-wrap:wrap}
+    .phone-preview .chat-preview,.chat-list-preview{margin-top:8px;border-radius:9px;background:#f0e9eb;min-height:118px;padding:12px}
+    .phone-preview .chat-preview-title{color:#674454}
+    .phone-preview .preview-message-text{max-width:100%}
+    .chat-list-preview{min-height:70px}
+    .chat-list-preview p{margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .push-results .btn{margin-top:8px}
+    .support-tools{margin-top:14px}
+    .support-tools .actions{margin-top:8px}
+    @media(max-width:735px){.push-workspace{grid-template-columns:minmax(0,1fr)}.preview-column{position:static}.push-workspace .panel{padding:12px}.push-page .top .actions{margin-top:8px}}
+    @media(max-width:400px){.audience-toolbar .selection-actions{margin-left:0}}
+    @media(pointer:coarse){.push-page .btn{min-height:44px}}
   </style>
 </head>
 <body>
-  <div class="page">
+  <div class="page push-page">
     <header class="top">
       <div>
+        <p class="section-path">櫻花福委會 ／ 貼文與推播</p>
         <h1>LINE 分眾推播</h1>
-        <div class="hint">依廠別、處別、部門、標籤與身分篩選；選取受眾並完成伺服器預覽後，才可確認送出。</div>
-        <div class="tutorial-actions" aria-label="推播操作教學">
-          <button class="btn" type="button" data-push-tutorial="admin" aria-haspopup="dialog" aria-controls="pushTutorialDialog">▶ 後台推播教學</button>
-          <button class="btn" type="button" data-push-tutorial="chat" aria-haspopup="dialog" aria-controls="pushTutorialDialog">▶ 聊天室推播教學</button>
-        </div>
       </div>
       <div class="actions">
-        <button class="btn" type="button" id="usageOpen" aria-controls="usageDrawer" aria-expanded="false">訊息用量／明細</button>
         <button class="btn" type="button" onclick="window.top.location.href='/sakura-admin'">返回後台</button>
-        <button class="btn" type="button" id="reloadBtn">重新整理</button>
-        <button class="btn dark" type="button" id="previewBtn" disabled>預覽受眾與內容</button>
-        <button class="btn primary" type="button" id="sendBtn" disabled>確認送出推播</button>
-        <button class="btn" type="button" id="statusBtn" disabled>查詢送出結果</button>
+        <button class="btn" type="button" id="draftSaveBtn">儲存草稿</button>
+        <button class="btn" type="button" id="testPreviewBtn">測試預覽</button>
+        <button class="btn primary" type="button" id="previewBtn" disabled>預覽並確認</button>
       </div>
     </header>
 
-    <p class="workflow-status">LINE 好友／封鎖狀態尚未確認；LINE 接受推播請求不代表訊息已實際送達。</p>
-    <section class="metrics">
-      <div class="metric"><span>CRM 候選名單</span><b id="totalUsers">0</b></div>
-      <div class="metric"><span>目前已選受眾</span><b id="selectedUsers">0</b></div>
-      <div class="metric"><span>可用標籤</span><b id="tagCount">0</b></div>
-      <div class="metric"><span>Flex 版型</span><b id="templateCount">0</b></div>
-    </section>
-
     <div id="workflowStatus" class="workflow-status" role="status" aria-live="polite">讀取推播資料中；目前未選取受眾。</div>
     <div id="lineAuthActions" class="workflow-status" hidden><button id="lineAuthRefresh" class="btn" type="button">更新 LINE 登入</button><span id="lineAuthHint" class="hint"> 更新登入會重新開啟頁面，尚未儲存的內容不會保留。</span></div>
-    <div class="push-header-panels">
-    <section class="schedule-panel" aria-label="傳送時間及預約管理">
-      <h2>傳送時間</h2>
-      <div class="schedule-controls">
-        <label><input type="radio" name="deliveryMode" id="deliveryImmediate" value="immediate" checked>立即傳送</label>
-        <label><input type="radio" name="deliveryMode" id="deliveryScheduled" value="scheduled">預約傳送</label>
-        <label for="scheduledAt">台北時間</label><input id="scheduledAt" type="datetime-local" step="60" disabled>
-        <button class="btn primary" type="button" id="scheduleBtn" disabled>確認預約</button>
-        <button class="btn" type="button" id="scheduleListBtn">查詢預約</button>
-      </div>
-      <p>選擇時間、受眾及內容後，按「預覽並準備預約」核對資料，再確認預約。系統以分鐘為單位，不會提早發送；每分鐘最多處理 3 筆，其他預約與雲端執行時間都可能造成延遲。超過預定時間 15 分鐘仍未處理會列為待確認，不會自動補發。</p>
-      <p class="schedule-warning" id="scheduleStatus" role="status" aria-live="polite"></p>
-      <div class="schedule-list" id="scheduleList" hidden><div class="schedule-list-wrap"><table><thead><tr><th>預約時間（台北）</th><th>推播名稱</th><th>受眾</th><th>狀態</th><th>操作</th></tr></thead><tbody id="scheduleRows"></tbody></table></div></div>
-    </section>
-      <aside class="panel content-summary">
-        <div class="panel-head"><b>推播內容</b><span class="hint">文字、圖片與 Flex</span></div>
+    <main class="push-workspace">
+      <div class="push-column">
+        <section class="panel audience-panel" aria-labelledby="audienceTitle">
+          <h2 id="audienceTitle">傳送對象</h2>
+          <div class="field">
+            <label>身份別</label>
+            <div class="chips" id="memberTypeChips">
+              <button class="chip active" type="button" data-value="">全部</button>
+              <button class="chip" type="button" data-value="employee">員工（含外籍／幹部）</button>
+              <button class="chip" type="button" data-value="employee_domestic" title="依員工名冊身份類別為台灣或台灣-產學生篩選；未知及其他類別不納入">全體員工、幹部（不含外籍員工）</button>
+              <button class="chip" type="button" data-value="employee_language_id">印尼文員工</button>
+              <button class="chip" type="button" data-value="employee_language_th">泰文員工</button>
+              <button class="chip" type="button" data-value="visitor">用戶</button>
+              <button class="chip" type="button" data-value="vendor">廠商</button>
+              <button class="chip" type="button" data-value="unknown">未分類</button>
+            </div>
+            <div class="hint">「不含外籍員工」依員工名冊身份類別為「台灣」或「台灣-產學生」篩選；未知及其他類別不納入。印尼文與泰文依會員目前語言設定區分，並非國籍。</div>
+          </div>
         <div class="panel-body">
-          <p id="contentSummary" class="hint">編輯推播內容並查看預覽。</p>
-          <button class="btn dark" type="button" id="contentDrawerOpen">編輯推播內容</button>
-          <div class="field content-log"><label>送出紀錄</label><div class="log" id="logBox"><div class="hint">尚未送出。</div></div></div>
-        </div>
-      </aside>
-    </div>
-    <main class="workspace">
-      <aside class="panel">
-        <div class="panel-head"><b>受眾篩選</b><span class="hint">名冊 / 標籤 / 身分</span></div>
-        <div class="panel-body">
+          <details class="advanced-filters" id="audienceFilters"><summary>進階篩選與安全上限 <span id="filterSummary"></span></summary>
+          <div class="filter-fields">
           <div class="field">
             <label for="keyword">搜尋</label>
             <input id="keyword" placeholder="姓名、LINE ID、電話、Email、標籤">
@@ -110,20 +139,6 @@
             </div>
           </div>
           <div class="field">
-            <label>身份別</label>
-            <div class="chips" id="memberTypeChips">
-              <button class="chip active" type="button" data-value="">全部</button>
-              <button class="chip" type="button" data-value="employee">員工（含外籍／幹部）</button>
-              <button class="chip" type="button" data-value="employee_domestic" title="依員工名冊身份類別為台灣或台灣-產學生篩選；未知及其他類別不納入">全體員工、幹部（不含外籍員工）</button>
-              <button class="chip" type="button" data-value="employee_language_id">印尼文員工</button>
-              <button class="chip" type="button" data-value="employee_language_th">泰文員工</button>
-              <button class="chip" type="button" data-value="visitor">用戶</button>
-              <button class="chip" type="button" data-value="vendor">廠商</button>
-              <button class="chip" type="button" data-value="unknown">未分類</button>
-            </div>
-            <div class="hint">「不含外籍員工」依員工名冊身份類別為「台灣」或「台灣-產學生」篩選；未知及其他類別不納入。印尼文與泰文依會員目前語言設定區分，並非國籍。</div>
-          </div>
-          <div class="field">
             <label>標籤</label>
             <span class="tag-group-title" id="factoryTagsLabel">廠別（名冊）</span><div class="hint">與上方廠別同步；須同時符合其他標籤條件。</div><div class="factory-tag-list" id="factoryTagChoices" role="group" aria-labelledby="factoryTagsLabel"></div>
             <span class="tag-group-title">其他標籤</span>
@@ -133,27 +148,110 @@
             <label for="maxRecipients">單次安全上限</label>
             <input id="maxRecipients" type="number" min="1" max="500" value="200">
           </div>
-          <button class="btn dark" type="button" id="filterBtn" style="width:100%">套用篩選</button>
+          </div>
+          </details>
+          <button class="btn" type="button" id="filterBtn">套用篩選</button>
         </div>
-      </aside>
-
-      <section class="panel">
-        <div class="panel-head"><b>受眾名單</b><span class="hint" id="audienceHint">目前未選取受眾</span><div class="selection-actions"><button class="btn" type="button" id="selectAllBtn" disabled>全選目前顯示者</button><button class="btn" type="button" id="clearSelectionBtn" disabled>清除選取</button></div></div>
+        <div class="audience-toolbar"><b>受眾名單</b><span class="hint" id="audienceHint">目前未選取受眾</span><div class="selection-actions"><button class="btn" type="button" id="selectAllBtn" disabled>全選目前顯示者</button><button class="btn" type="button" id="clearSelectionBtn" disabled>清除選取</button></div></div>
         <div class="audience-scroll">
           <table>
             <thead><tr><th style="width:44px">選</th><th>用戶</th><th>廠別／處別／部門</th><th>身分／綁定</th><th>標籤</th><th>最後互動</th></tr></thead>
             <tbody id="audienceBody"><tr><td colspan="6"><div class="empty">讀取中...</div></td></tr></tbody>
           </table>
         </div>
-        <div id="reviewBox" class="review-box">尚未完成受眾與內容預覽。</div>
+        </section>
+    <section class="schedule-panel" aria-label="傳送時間及預約管理">
+      <h2>傳送時間</h2>
+      <div class="schedule-controls">
+        <label><input type="radio" name="deliveryMode" id="deliveryImmediate" value="immediate" checked>立即傳送</label>
+        <label><input type="radio" name="deliveryMode" id="deliveryScheduled" value="scheduled">預約傳送</label>
+        <button class="btn" type="button" id="scheduleListBtn">查詢預約</button>
+      </div>
+      <div id="scheduledTimeField" class="field" hidden><label for="scheduledAt">預約時間（台北）</label><input id="scheduledAt" type="datetime-local" step="60" disabled></div>
+      <details class="schedule-help"><summary>預約處理規則</summary><p>選擇時間、受眾及內容後，按「預覽並確認」核對資料，再確認預約。系統以分鐘為單位，不會提早發送；每分鐘最多處理 3 筆，其他預約與雲端執行時間都可能造成延遲。超過預定時間 15 分鐘仍未處理會列為待確認，不會自動補發。</p></details>
+      <p class="schedule-warning" id="scheduleStatus" role="status" aria-live="polite"></p>
+      <div class="schedule-list" id="scheduleList" hidden><div class="schedule-list-wrap"><table><thead><tr><th>預約時間（台北）</th><th>推播名稱</th><th>受眾</th><th>狀態</th><th>操作</th></tr></thead><tbody id="scheduleRows"></tbody></table></div></div>
+    </section>
+      <section class="panel composer" aria-labelledby="composerTitle">
+        <h2 id="composerTitle">訊息內容</h2>
+    <details class="draft-manager"><summary>管理草稿</summary><div class="draft-tools" aria-label="推播草稿管理">
+      <button class="btn" type="button" id="draftSaveNewBtn">另存新草稿</button>
+      <label for="draftSelect">我的草稿</label><select id="draftSelect"><option value="">請先更新草稿清單</option></select>
+      <button class="btn" type="button" id="draftListBtn">更新清單</button><button class="btn" type="button" id="draftLoadBtn">載入</button><button class="btn" type="button" id="draftDeleteBtn">刪除</button>
+      <span class="hint">草稿保留內容、選取紀錄與傳送時間設定；不會建立預約。載入後仍須確認受眾並重新預覽。</span>
+    </div></details>
+
+        <div class="field"><label for="campaignTitle">推播名稱 / 付費內容標題</label><input id="campaignTitle" value="員工專屬優惠推播"></div>
+        <div class="mode-toolbar" role="group" aria-label="選擇訊息內容類型">
+          <button type="button" class="mode-tool" data-message-mode="official_text" aria-pressed="true" title="文字"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M12 5v14M8 19h8"/></svg><span>文字</span></button>
+          <button type="button" class="mode-tool" data-message-mode="official_image" aria-pressed="false" title="圖片"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="8" cy="9" r="1.5"/><path d="m4 18 5-5 3 3 3-4 5 6"/></svg><span>圖片</span></button>
+          <button type="button" class="mode-tool" data-message-mode="official_composite" aria-pressed="false" title="文字與圖片"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M6 8h7M6 11h7M6 14h5m3 3 3-4 3 4"/></svg><span>文字＋圖片</span></button>
+          <button type="button" class="mode-tool" data-message-mode="system_card" aria-pressed="false" title="客製 Flex 卡片"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 10h16M8 14h8M8 17h5"/></svg><span>Flex 卡片</span></button>
+          <button type="button" class="mode-tool" data-message-mode="system_template" aria-pressed="false" title="Flex 版型庫"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 10h16M10 10v9"/></svg><span>Flex 版型</span></button>
+          <button type="button" class="mode-tool" data-message-mode="system_json" aria-pressed="false" title="匯入 Flex JSON"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4c-2 0-2 2-2 4s-.7 4-3 4c2.3 0 3 2 3 4s0 4 2 4m6-16c2 0 2 2 2 4s.7 4 3 4c-2.3 0-3 2-3 4s0 4-2 4"/></svg><span>匯入 Flex</span></button>
+        </div>
+        <div class="composer-body">
+        <details class="source-details"><summary>內容來源</summary><div class="field"><label for="messageMode">內容來源</label><select id="messageMode"><option value="official_text">官方格式：文字</option><option value="official_composite">官方格式：文字與圖片</option><option value="official_image">官方格式：圖片</option><option value="system_card">客製 Flex 卡片</option><option value="system_template">系統客製：Flex 版型庫</option><option value="system_json">系統客製：貼上 Flex JSON</option></select></div></details>
+        <div id="messageOrderField" class="field" style="display:none"><label for="messageOrder">訊息順序</label><select id="messageOrder"><option value="text_first">文字在前，圖片在後</option><option value="image_first">圖片在前，文字在後</option></select></div>
+        <div id="officialTextFields"><div class="field"><label for="messageText">文字內容</label><textarea id="messageText">您好，福委會有新的員工專屬優惠內容，請點開 LINE 官方帳號查看。</textarea></div><button class="btn" type="button" id="addImageMode">＋ 加入圖片</button></div>
+        <div id="flexCardFields" style="display:none"><div class="field"><label for="flexCardTitle">卡片標題（必填）</label><input id="flexCardTitle" maxlength="100" placeholder="輸入標題"></div><div class="field"><label for="flexCardBody">卡片內文（最多 1000 字）</label><textarea id="flexCardBody" maxlength="1000" placeholder="輸入內文"></textarea></div><div class="field"><label for="flexCardButton">按鈕文字（選填，最多 20 字）</label><input id="flexCardButton" maxlength="20" placeholder="例如：查看詳情"></div><div class="field"><label for="flexCardUrl">按鈕連結（填寫按鈕文字時必填 HTTPS 網址）</label><input id="flexCardUrl" maxlength="1000" placeholder="https://..."></div><button class="btn" type="button" id="flexCardImageOpen">＋ 設定卡片圖片</button></div>
+        <div id="officialImageFields" style="display:none">
+          <div class="upload-zone"><div class="upload-zone-head"><label for="pushImageFile">選擇圖片</label><button class="dismiss-button" type="button" id="dismissImageChoice" aria-label="關閉圖片選擇，保留已上傳圖片">×</button></div><p class="hint">從電腦或手機選擇 JPG、PNG、WebP 或 HEIC 圖片（HEIC 依裝置支援），上傳後可與文字一起推播。圖片網址供 LINE 讀取，取得網址的人也可以查看圖片。</p><input id="pushImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"><div class="upload-actions"><button class="btn" type="button" id="uploadImageBtn">上傳圖片</button><button class="btn" type="button" id="cancelImageBtn">取消待上傳</button><button class="btn" type="button" id="removeImageBtn">移除圖片</button></div><p id="uploadStatus" class="hint" role="status" aria-live="polite">尚未上傳圖片。</p></div>
+          <div class="field"><button class="btn" id="aiWorksOpen" type="button">選擇我的 AI 作品</button><div id="aiWorksPanel" hidden><p class="hint">只顯示您已完成的作品。選用時會建立 LINE 可讀取的圖片副本；取得該網址的人也能查看。選用不會發送訊息。</p><div id="aiWorksList" aria-live="polite"></div><button class="btn" id="aiWorksNext" type="button" hidden>載入更多作品</button><button class="btn" id="aiWorksClose" type="button">關閉作品清單</button></div></div>
+          <details><summary>進階：使用圖片網址</summary><p class="hint">外部網址內容可能變動，建議直接上傳圖片。</p><div class="field"><label for="imageOriginalUrl">原圖 URL</label><input id="imageOriginalUrl" placeholder="https://..."></div><div class="field"><label for="imagePreviewUrl">預覽圖 URL</label><input id="imagePreviewUrl" placeholder="https://..."></div></details>
+        </div>
+        <div id="templateFields" style="display:none"><div class="field"><label for="templateSelect">選擇 Flex 版型</label><select id="templateSelect"><option value="">讀取中...</option></select></div><div class="field"><label for="altText">替代文字 altText</label><input id="altText" value="櫻花福委會福利訊息"></div></div>
+        <div id="jsonFields" style="display:none"><div class="field"><label for="customJson">Flex contents JSON</label><textarea id="customJson" placeholder='{"type":"bubble",...}'></textarea></div><div class="field"><label for="jsonAltText">替代文字 altText</label><input id="jsonAltText" value="櫻花福委會福利訊息"></div></div>
+        </div>
+      </section>
+      </div>
+      <aside class="push-column preview-column" aria-label="受眾核對與手機預覽">
+        <section class="panel recipient-summary" aria-labelledby="reviewTitle" id="reviewPanel">
+          <h2 id="reviewTitle" tabindex="-1">受眾與送出確認</h2>
+          <dl class="audience-counts">
+            <div><dt>CRM 候選名單</dt><dd id="totalUsers">0</dd></div>
+            <div><dt>本次已選</dt><dd id="selectedUsers">0</dd></div>
+            <div><dt>預覽通過</dt><dd id="reviewedUsers">—</dd></div>
+          </dl>
+          <p class="hint delivery-note">LINE 好友／封鎖狀態尚未確認；LINE 接受推播請求不代表訊息已實際送達。</p>
+          <p id="reviewBox" class="review-box">尚未完成受眾與內容預覽。</p>
+          <div class="actions final-actions">
+            <button class="btn primary" type="button" id="sendBtn" disabled>確認送出推播</button>
+            <button class="btn primary" type="button" id="scheduleBtn" disabled hidden>確認預約</button>
+          </div>
         <section id="audienceReview" class="review-box" hidden aria-labelledby="audienceReviewTitle">
           <h3 id="audienceReviewTitle" tabindex="-1">需核對的受眾</h3>
           <ul id="audienceReviewRows"></ul>
           <button type="button" class="btn" id="audienceReviewRetry">重新核對名單</button>
         </section>
-      </section>
-
+        </section>
+        <section class="panel phone-preview" aria-labelledby="phonePreviewTitle">
+          <h2 id="phonePreviewTitle" tabindex="-1">手機預覽</h2>
+          <p class="hint" id="previewTestNote" hidden>此處僅預覽，未傳送 LINE 訊息。</p>
+          <div class="preview-switch" role="group" aria-label="預覽位置">
+            <button type="button" class="btn" id="chatPreviewBtn" aria-pressed="true" aria-controls="previewChat">聊天室</button>
+            <button type="button" class="btn" id="listPreviewBtn" aria-pressed="false" aria-controls="previewList">聊天列表</button>
+          </div>
+          <p class="hint" id="previewMessageHint">實際訊息以預覽確認內容為準。</p>
+          <div class="chat-preview" id="previewChat"><div class="chat-preview-title">櫻花福委會</div><div class="preview-box" id="messagePreview"></div></div>
+          <div class="chat-list-preview" id="previewList" hidden><b>櫻花福委會</b><p id="notificationPreview"></p></div>
+        </section>
+        <section class="panel push-results">
+          <h2>送出結果</h2>
+          <div class="log" id="logBox"><div class="hint">尚未送出。</div></div>
+          <button class="btn" type="button" id="statusBtn" disabled>查詢送出結果</button>
+        </section>
+      </aside>
     </main>
+    <details class="support-tools">
+      <summary>用量、重新整理與操作教學</summary>
+      <div class="actions">
+        <button class="btn" type="button" id="usageOpen" aria-controls="usageDrawer" aria-expanded="false">訊息用量／明細</button>
+        <button class="btn" type="button" id="reloadBtn">重新整理</button>
+        <button class="btn" type="button" data-push-tutorial="admin" aria-haspopup="dialog" aria-controls="pushTutorialDialog">後台推播教學</button>
+        <button class="btn" type="button" data-push-tutorial="chat" aria-haspopup="dialog" aria-controls="pushTutorialDialog">聊天室推播教學</button>
+      </div>
+    </details>
   </div>
   <aside id="usageDrawer" class="usage-drawer" aria-labelledby="usageTitle" hidden>
     <header class="usage-head"><h2 id="usageTitle">LINE 訊息用量／明細</h2><button class="btn" type="button" id="usageClose">關閉</button></header>
@@ -167,46 +265,6 @@
     <div class="usage-table"><table><thead><tr><th>日期</th><th>狀態</th><th>OA 群發</th><th>OA 分眾</th><th>漸進式</th><th>API Push</th><th>API Multicast</th><th>API Broadcast</th><th>API Narrowcast</th></tr></thead><tbody id="usageRows"><tr><td colspan="9">尚未讀取用量。</td></tr></tbody></table></div>
     <p class="usage-foot">LINE API 不提供實際帳單金額；請至 LINE 官方帳務查看。查詢用量不會發送訊息。</p>
   </aside>
-  <dialog id="contentDrawer" class="content-drawer" aria-labelledby="contentDrawerTitle">
-    <header class="drawer-head"><div><h2 id="contentDrawerTitle">編輯推播內容</h2><p>編輯內容後，請確認受眾並重新預覽。</p></div><div style="display:flex;align-items:center;gap:8px"><button class="btn" type="button" id="contentDrawerClose" aria-label="完成推播內容編輯">完成編輯</button><button class="dismiss-button" type="button" id="contentDrawerDismiss" aria-label="關閉推播內容編輯">×</button></div></header>
-    <div class="draft-tools" aria-label="推播草稿管理">
-      <button class="btn" type="button" id="draftSaveBtn">儲存草稿</button>
-      <button class="btn" type="button" id="draftSaveNewBtn">另存新草稿</button>
-      <label for="draftSelect">我的草稿</label><select id="draftSelect"><option value="">請先更新草稿清單</option></select>
-      <button class="btn" type="button" id="draftListBtn">更新清單</button><button class="btn" type="button" id="draftLoadBtn">載入</button><button class="btn" type="button" id="draftDeleteBtn">刪除</button>
-      <span class="hint">草稿保留內容、選取紀錄與傳送時間設定；不會建立預約。載入後仍須確認受眾並重新預覽。</span>
-    </div>
-    <p id="drawerStatus" class="drawer-status" role="status" aria-live="polite"></p>
-    <div class="drawer-layout">
-      <section class="drawer-editor" aria-label="推播內容設定">
-        <div class="composer-intro"><h3>編輯訊息</h3><p>選擇訊息類型並編輯內容，可在預覽區查看。完成後請返回確認受眾。</p></div>
-        <div class="field"><label for="campaignTitle">推播名稱 / 付費內容標題</label><input id="campaignTitle" value="員工專屬優惠推播"></div>
-        <h3 class="composer-heading">訊息內容</h3>
-        <div class="mode-toolbar" role="group" aria-label="選擇訊息內容類型">
-          <button type="button" class="mode-tool" data-message-mode="official_text" aria-pressed="true" title="文字"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M12 5v14M8 19h8"/></svg><span>文字</span></button>
-          <button type="button" class="mode-tool" data-message-mode="official_image" aria-pressed="false" title="圖片"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="8" cy="9" r="1.5"/><path d="m4 18 5-5 3 3 3-4 5 6"/></svg><span>圖片</span></button>
-          <button type="button" class="mode-tool" data-message-mode="official_composite" aria-pressed="false" title="文字與圖片"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M6 8h7M6 11h7M6 14h5m3 3 3-4 3 4"/></svg><span>文字＋圖片</span></button>
-          <button type="button" class="mode-tool" data-message-mode="system_card" aria-pressed="false" title="客製 Flex 卡片"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 10h16M8 14h8M8 17h5"/></svg><span>Flex 卡片</span></button>
-          <button type="button" class="mode-tool" data-message-mode="system_template" aria-pressed="false" title="Flex 版型庫"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 10h16M10 10v9"/></svg><span>Flex 版型</span></button>
-          <button type="button" class="mode-tool" data-message-mode="system_json" aria-pressed="false" title="匯入 Flex JSON"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4c-2 0-2 2-2 4s-.7 4-3 4c2.3 0 3 2 3 4s0 4 2 4m6-16c2 0 2 2 2 4s.7 4 3 4c-2.3 0-3 2-3 4s0 4-2 4"/></svg><span>匯入 Flex</span></button>
-        </div>
-        <div class="composer-body">
-        <details class="source-details" open><summary>其他方式：選擇內容來源</summary><div class="field"><label for="messageMode">內容來源</label><select id="messageMode"><option value="official_text">官方格式：文字</option><option value="official_composite">官方格式：文字與圖片</option><option value="official_image">官方格式：圖片</option><option value="system_card">客製 Flex 卡片</option><option value="system_template">系統客製：Flex 版型庫</option><option value="system_json">系統客製：貼上 Flex JSON</option></select></div></details>
-        <div id="messageOrderField" class="field" style="display:none"><label for="messageOrder">訊息順序</label><select id="messageOrder"><option value="text_first">文字在前，圖片在後</option><option value="image_first">圖片在前，文字在後</option></select></div>
-        <div id="officialTextFields"><div class="field"><label for="messageText">文字內容</label><textarea id="messageText">您好，福委會有新的員工專屬優惠內容，請點開 LINE 官方帳號查看。</textarea></div><button class="btn" type="button" id="addImageMode">＋ 加入圖片</button></div>
-        <div id="flexCardFields" style="display:none"><div class="field"><label for="flexCardTitle">卡片標題（必填）</label><input id="flexCardTitle" maxlength="100" placeholder="輸入標題"></div><div class="field"><label for="flexCardBody">卡片內文（最多 1000 字）</label><textarea id="flexCardBody" maxlength="1000" placeholder="輸入內文"></textarea></div><div class="field"><label for="flexCardButton">按鈕文字（選填，最多 20 字）</label><input id="flexCardButton" maxlength="20" placeholder="例如：查看詳情"></div><div class="field"><label for="flexCardUrl">按鈕連結（填寫按鈕文字時必填 HTTPS 網址）</label><input id="flexCardUrl" maxlength="1000" placeholder="https://..."></div><button class="btn" type="button" id="flexCardImageOpen">＋ 設定卡片圖片</button></div>
-        <div id="officialImageFields" style="display:none">
-          <div class="upload-zone"><div class="upload-zone-head"><label for="pushImageFile">選擇圖片</label><button class="dismiss-button" type="button" id="dismissImageChoice" aria-label="關閉圖片選擇，保留已上傳圖片">×</button></div><p class="hint">從電腦或手機選擇 JPG、PNG、WebP 或 HEIC 圖片（HEIC 依裝置支援），上傳後可與文字一起推播。圖片網址供 LINE 讀取，取得網址的人也可以查看圖片。</p><input id="pushImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"><div class="upload-actions"><button class="btn" type="button" id="uploadImageBtn">上傳圖片</button><button class="btn" type="button" id="cancelImageBtn">取消待上傳</button><button class="btn" type="button" id="removeImageBtn">移除圖片</button></div><p id="uploadStatus" class="hint" role="status" aria-live="polite">尚未上傳圖片。</p></div>
-          <div class="field"><button class="btn" id="aiWorksOpen" type="button">選擇我的 AI 作品</button><div id="aiWorksPanel" hidden><p class="hint">只顯示您已完成的作品。選用時會建立 LINE 可讀取的圖片副本；取得該網址的人也能查看。選用不會發送訊息。</p><div id="aiWorksList" aria-live="polite"></div><button class="btn" id="aiWorksNext" type="button" hidden>載入更多作品</button><button class="btn" id="aiWorksClose" type="button">關閉作品清單</button></div></div>
-          <details><summary>進階：使用圖片網址</summary><p class="hint">外部網址內容可能變動，建議直接上傳圖片。</p><div class="field"><label for="imageOriginalUrl">原圖 URL</label><input id="imageOriginalUrl" placeholder="https://..."></div><div class="field"><label for="imagePreviewUrl">預覽圖 URL</label><input id="imagePreviewUrl" placeholder="https://..."></div></details>
-        </div>
-        <div id="templateFields" style="display:none"><div class="field"><label for="templateSelect">選擇 Flex 版型</label><select id="templateSelect"><option value="">讀取中...</option></select></div><div class="field"><label for="altText">替代文字 altText</label><input id="altText" value="櫻花福委會福利訊息"></div></div>
-        <div id="jsonFields" style="display:none"><div class="field"><label for="customJson">Flex contents JSON</label><textarea id="customJson" placeholder='{"type":"bubble",...}'></textarea></div><div class="field"><label for="jsonAltText">替代文字 altText</label><input id="jsonAltText" value="櫻花福委會福利訊息"></div></div>
-        </div>
-      </section>
-      <section class="drawer-preview" aria-label="內容預覽"><h3>預覽</h3><div class="preview-caption"><p class="hint" id="previewMessageHint">實際訊息以預覽確認內容為準。</p><span class="preview-tab">聊天室</span></div><div class="chat-preview"><div class="chat-preview-title">櫻花福委會</div><div class="preview-box" id="messagePreview"></div></div></section>
-    </div>
-  </dialog>
   <div class="toast" id="toast"></div>
   <dialog id="pushTutorialDialog" class="tutorial-dialog" aria-labelledby="pushTutorialTitle">
     <div class="tutorial-bar"><h2 id="pushTutorialTitle">推播操作教學</h2><button type="button" class="btn" id="pushTutorialClose" aria-label="關閉操作教學">×</button></div>
@@ -249,8 +307,8 @@
     let imagePending=false,imageUploading=false,flexImageOpen=false,draftBusy=false,scheduleBusy=false,scheduleUncertain=null,currentDraft=null,draftRevisions=new Map(),pendingSessionReload=false;
     const filterIds = ["keyword","tagMode","bindStatus","businessUnit","department","maxRecipients"];
     const contentIds = ["campaignTitle","messageMode","messageText","messageOrder","imageOriginalUrl","imagePreviewUrl","templateSelect","altText","customJson","jsonAltText","flexCardTitle","flexCardBody","flexCardButton","flexCardUrl"];
-    function toast(text) { $("toast").textContent=text;$("toast").classList.add("show");if($("contentDrawer").open)$("drawerStatus").textContent=text;setTimeout(()=>$("toast").classList.remove("show"),3000); }
-    function status(text) { $("workflowStatus").textContent=text;if($("contentDrawer").open)$("drawerStatus").textContent=text; }
+    function toast(text) { $("toast").textContent=text;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3000); }
+    function status(text) { $("workflowStatus").textContent=text; }
     // Chat cards open this same-origin page without carrying an admin session.
     // Only the verified LINE token is sent; the server rechecks every permission.
     const pushLiffId="__SAKURA_LIFF_ID__";
@@ -348,10 +406,14 @@
       $("selectAllBtn").disabled=locked || !state.audienceReady || !state.rows.length;
       $("clearSelectionBtn").disabled=locked || !state.selected.size;
       $("previewBtn").disabled=locked || !!scheduleUncertain || imageUploading || imagePending || state.phase==="previewing" || !state.audienceReady || !state.selected.size;
-      $("sendBtn").disabled=locked || !!scheduleUncertain || $("deliveryScheduled").checked || imageUploading || imagePending || state.phase!=="reviewed" || !state.review || state.review.expires_at<=Date.now();
-      const validScheduleReview=state.phase==="reviewed" && state.review && state.review.expires_at>Date.now();
-      $("scheduleBtn").disabled=locked || !!scheduleUncertain || !$('deliveryScheduled').checked || imageUploading || imagePending || state.phase==="previewing" || !state.audienceReady || !state.selected.size;
-      $("scheduleBtn").textContent=validScheduleReview?"確認預約":"預覽並準備預約";
+      const scheduled=$("deliveryScheduled").checked;
+      const review=state.phase==="reviewed" && state.review?.expires_at>Date.now()?state.review:null;
+      const canConfirm=!locked && !scheduleUncertain && !imageUploading && !imagePending && Boolean(review);
+      $("previewBtn").textContent=scheduled?"預覽並確認預約":"預覽並確認推播";
+      $("reviewedUsers").textContent=review?review.recipientCount:"—";
+      $("sendBtn").hidden=scheduled;$("sendBtn").disabled=!canConfirm || scheduled;
+      $("scheduleBtn").hidden=!scheduled;$("scheduleBtn").disabled=!canConfirm || !scheduled;
+      $("scheduledTimeField").hidden=!scheduled;
       const scheduleLocked=locked || state.phase==="previewing";
       $("deliveryImmediate").disabled=scheduleLocked;$("deliveryScheduled").disabled=scheduleLocked;$("scheduledAt").disabled=scheduleLocked || !$('deliveryScheduled').checked;$("scheduleListBtn").disabled=scheduleLocked;document.querySelectorAll(".schedule-cancel-btn").forEach(button=>button.disabled=scheduleLocked);
       $("sendBtn").textContent=state.phase==="sending"?"送出處理中…":"確認送出推播";
@@ -436,6 +498,16 @@
     }
     function renderAudience() {
       const expanded=new Set(Array.from(document.querySelectorAll("#audienceBody details[data-tag-user][open]"),item=>item.dataset.tagUser));
+      const activeFilters=[];
+      if(state.selectedFactories.length)activeFilters.push(state.selectedFactories.join("、"));
+      for(const id of ["businessUnit","department","bindStatus"]){
+        const field=$(id);
+        if(field.value)activeFilters.push(field.selectedOptions[0].textContent);
+      }
+      const tagCount=document.querySelectorAll("#tagList input:checked").length;
+      if(tagCount)activeFilters.push(tagCount+" 個標籤");
+      if($("keyword").value.trim())activeFilters.push("有關鍵字");
+      $("filterSummary").textContent=activeFilters.length?"｜"+activeFilters.join("、"):"";
       $("audienceBody").setAttribute("data-ready",String(state.audienceReady));
       $("selectedUsers").textContent=state.selected.size;
       $("audienceHint").textContent=state.audienceReady?`符合 ${state.matchedCount} 位；顯示 ${state.rows.length} 位；已選 ${state.selected.size} 位${state.matchedCount>state.rows.length?`。尚有 ${state.matchedCount-state.rows.length} 位未顯示，全選僅選顯示名單；請以廠別、處別或部門分批，避免各批條件重複。`:""}`:state.audienceError?"受眾尚未確認，無法送出。":"正在依目前條件確認受眾…";
@@ -574,8 +646,13 @@
         $("previewMessageHint").textContent='此為圖文模擬預覽；實際推播內容仍須以受眾與內容預覽確認。';
       }
       if(mode==='system_json')textNode($("customJson").value?'將以貼上的 Flex JSON 推播。':'尚未貼上 Flex JSON。');
-      const labels={official_text:'文字',official_composite:'文字與圖片',official_image:'圖片',system_card:'客製 Flex 卡片',system_template:'Flex 版型',system_json:'Flex JSON'};
-      $("contentSummary").textContent=($("campaignTitle").value.trim()||'尚未命名')+'｜'+(labels[mode]||'推播內容');
+      const previewText=preview.querySelector(".preview-message-text")?.textContent;
+      let notification=previewText || '［Flex 訊息］';
+      if(mode==='official_image'||(mode==='official_composite'&&imageUrl&&(imageFirst||!message)))notification=imageUrl?'［圖片］':'尚未加入圖片。';
+      if(mode==='system_card')notification=$("flexCardTitle").value.trim()||'［Flex 訊息］';
+      if(mode==='system_json')notification=$("jsonAltText").value.trim()||'［Flex 訊息］';
+      if(mode==='system_template')notification=$("altText").value.trim()||notification;
+      $("notificationPreview").textContent=notification;
     }
     function collectMessage() {
       const mode=$("messageMode").value;
@@ -621,7 +698,7 @@
         if(new Set(ids).size!==ids.length || ids.some(id=>!state.selected.has(id)))throw new Error("預覽受眾與已選名單不一致，請重新套用篩選。");
         state.selected=new Set(ids);state.review=data;state.phase="reviewed";showAudienceIssues();renderAudience();
         const timeDescription=$("deliveryScheduled").checked?`預約時間（台北）：${formatTaipeiSchedule(parseTaipeiSchedule($("scheduledAt").value))}\n`:"立即傳送\n";
-        $("reviewBox").textContent=`已選取 ${data.recipientCount} 位候選受眾\n${data.title||"LINE 分眾推播"}\n${typeof data.messageSummary==="string"?data.messageSummary:JSON.stringify(data.messageSummary||{})}\n${timeDescription}有效至 ${new Date(data.expires_at).toLocaleString("zh-TW")}`;
+        $("reviewBox").textContent=`已核對 ${data.recipientCount} 位候選受眾\n${data.title||"LINE 分眾推播"}\n${typeof data.messageSummary==="string"?data.messageSummary:JSON.stringify(data.messageSummary||{})}\n${timeDescription}有效至 ${new Date(data.expires_at).toLocaleString("zh-TW",{timeZone:"Asia/Taipei"})}（台北）`;
         status(`伺服器預覽完成：${data.recipientCount} 位。請核對名單與內容後${scheduled?'確認預約':'確認送出'}。`);
         state.expiryTimer=setTimeout(()=>invalidateReview("預覽已過期，請重新預覽後再送出。"),Math.max(0,data.expires_at-Date.now()));
       } catch(error) {if(generation===state.generation){state.phase="draft";state.review=null;if(!showAudienceConflict(error)){status(error.message);toast(error.message);}}}
@@ -644,7 +721,7 @@
     async function sendPush() {
       const review=state.review;
       if(state.phase!=="reviewed" || !review || review.expires_at<=Date.now())return invalidateReview("請先完成有效的伺服器預覽。");
-      if(!confirm(`確定要依已確認的預覽，推播給 ${review.recipientCount} 位受眾？`))return;
+      if(!confirm(`確定要依已確認的預覽，立即推播給 ${review.recipientCount} 位受眾？\n名稱：${review.title||"LINE 分眾推播"}`))return;
       clearTimeout(state.expiryTimer);state.review=null;state.phase="sending";setPending({request_id:review.request_id,status:"sending"});updateButtons();
       status(`正在處理已確認的 ${review.recipientCount} 位受眾。請勿重複操作。`);
       try {renderResult(await post({action:"send",preview_id:review.preview_id,preview_revision:review.preview_revision,request_id:review.request_id,confirmed:true}),review.request_id);state.phase="result";}
@@ -664,7 +741,6 @@
       try {
         const data=await api();state.templates=data.templates||[];state.tags=data.tags||[];prepareTagNames(state.tags);state.options=data.options||{};
         $("totalUsers").textContent=data.summary?.pushableUsers??data.users?.length??0;
-        $("tagCount").textContent=state.tags.length;$("templateCount").textContent=state.templates.length;
         state.savedTags=state.savedTags.filter(tag=>state.tags.includes(tag));
         $("tagList").innerHTML=state.tags.length?state.tags.map(tag=>`<label class="check-row"><input type="checkbox" value="${esc(tag)}" ${state.savedTags.includes(tag)?"checked":""}><span>${esc(displayTag(tag))}</span></label>`).join(""):'<div class="empty">尚無標籤。</div>';
         document.querySelectorAll("#tagList input").forEach(input=>input.addEventListener("change",()=>filtersChanged("tags")));
@@ -837,12 +913,7 @@
     $("deliveryImmediate").addEventListener("change",()=>invalidateReview("傳送方式已變更，請重新預覽。"));
     $("deliveryScheduled").addEventListener("change",()=>invalidateReview("傳送方式已變更，請重新預覽。"));
     $("scheduledAt").addEventListener("input",()=>invalidateReview("預約時間已變更，請重新預覽。"));
-    $("scheduleBtn").addEventListener("click",async()=>{
-      if(busy()||scheduleUncertain||!$("deliveryScheduled").checked||state.phase==="previewing")return;
-      if(state.phase==="reviewed"&&state.review&&state.review.expires_at>Date.now()){await submitSchedule();return;}
-      await previewRemote();
-      if(state.phase==="reviewed"&&state.review){scheduleStatus("預覽已完成，請核對受眾、內容與時間後再確認預約。");$("reviewBox").scrollIntoView({behavior:"smooth",block:"center"});}
-    });
+    $("scheduleBtn").addEventListener("click",submitSchedule);
     $("scheduleListBtn").addEventListener("click",async()=>{if(busy()||state.phase==="previewing")return;scheduleBusy=true;updateButtons();try{await refreshSchedules();}catch(error){scheduleStatus((error.message||"無法讀取預約")+"；請稍後查詢。");}finally{scheduleBusy=false;updateButtons();}});
     try{const previous=JSON.parse(sessionStorage.getItem(schedulePendingKey)||"null");if(previous&&typeof previous.request_id==="string"&&Number.isSafeInteger(previous.scheduled_at)){scheduleUncertain=previous;scheduleStatus("上次預約結果尚未確認；請查詢預約，勿重複預約或傳送。");}}catch{/* No pending record. */}
     $("draftSaveBtn").addEventListener("click",()=>withDraftLock(()=>saveDraft(false)));
@@ -899,9 +970,17 @@
     $('usageClose').addEventListener('click',()=>{$('usageDrawer').hidden=true;$('usageOpen').setAttribute('aria-expanded','false');$('usageOpen').focus();});
     $('usageRefresh').addEventListener('click',readUsage);
     window.addEventListener('storage',event=>{if(event.key===usageCooldownKey)updateUsageCooldown()});
-    $("contentDrawerOpen").addEventListener('click',()=>{if(!$("contentDrawer").open){$("drawerStatus").textContent='';$("contentDrawer").showModal();}});
-    $("contentDrawerClose").addEventListener('click',()=>$("contentDrawer").close());
-    $("contentDrawerDismiss").addEventListener('click',()=>$("contentDrawer").close());
+    function showPhonePreview(list) {
+      $("previewChat").hidden=list;$("previewList").hidden=!list;
+      $("chatPreviewBtn").setAttribute("aria-pressed",String(!list));
+      $("listPreviewBtn").setAttribute("aria-pressed",String(list));
+    }
+    $("chatPreviewBtn").addEventListener("click",()=>showPhonePreview(false));
+    $("listPreviewBtn").addEventListener("click",()=>showPhonePreview(true));
+    $("testPreviewBtn").addEventListener("click",()=>{
+      $("previewTestNote").hidden=false;
+      $("phonePreviewTitle").focus();
+    });
     $("dismissImageChoice").addEventListener('click',()=>{if(imageUploading||busy())return;$("pushImageFile").value='';imagePending=false;if($("messageMode").value==='system_card')flexImageOpen=false;else $("messageMode").value='official_text';$("uploadStatus").textContent=$("imageOriginalUrl").value?'已關閉圖片選擇，保留原圖片。':'已關閉圖片選擇。';invalidateReview();renderMessagePreview();});
     $("flexCardImageOpen").addEventListener('click',()=>{if(imageUploading||busy())return;flexImageOpen=true;renderMessagePreview();});
     $("addImageMode").addEventListener('click',()=>{$("messageMode").value='official_composite';invalidateReview();renderMessagePreview();});
@@ -914,7 +993,10 @@
     $("selectAllBtn").addEventListener("click",()=>{if(!state.audienceReady)return;state.selected=new Set(state.rows.map(user=>user.line_user_id));invalidateReview();renderAudience();});
     $("clearSelectionBtn").addEventListener("click",()=>{state.selected.clear();invalidateReview();renderAudience();});
     $("filterBtn").addEventListener("click",refreshAudience);
-    $("previewBtn").addEventListener("click",previewRemote);
+    $("previewBtn").addEventListener("click",async()=>{
+      await previewRemote();
+      if(state.phase==="reviewed" && state.review)$("reviewTitle").focus();
+    });
     $("audienceReviewRetry").addEventListener("click",()=>{if(!busy()&&state.phase!=="previewing")void previewRemote();});
     $("sendBtn").addEventListener("click",sendPush);
     $("statusBtn").addEventListener("click",checkStatus);

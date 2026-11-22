@@ -21,7 +21,7 @@ test('typing in push message preserves focus, selection and composition across c
       const h=await setup(browser,{width});
       try{
         await h.selectAll();
-        await h.openEditor();
+
         if(order!=='text_only'){
           await h.page.locator('#addImageMode').click();
           await h.page.locator('#messageOrder').selectOption(order);
@@ -31,7 +31,7 @@ test('typing in push message preserves focus, selection and composition across c
           assert.equal(textPrecedesImage,order==='text_first','editor order follows the selected message order');
         }
         await h.preview();
-        await h.openEditor();
+
         assert.equal(await h.page.locator('#sendBtn').isDisabled(),false);
         const input=h.page.locator('#messageText');
         await input.fill('');
@@ -130,8 +130,14 @@ async function setup(browser,config={}){
       if(config.previewGate)await config.previewGate.promise;
       const ids=new Set(body.filters.selectedLineUserIds),rows=audience(body.filters).filter(user=>ids.has(user.line_user_id));
       const number=++previewNumber;lastRequest='00000000-0000-4000-8000-'+String(number).padStart(12,'0');
-      return route.fulfill({json:{success:true,data:{preview_id:'preview-'+number,preview_revision:'revision-'+number,request_id:lastRequest,expires_at:Date.now()+(config.expiryMs||60000),recipientCount:rows.length,recipients:rows,title:body.title,messageSummary:'合成內容預覽'}}});
+      return route.fulfill({json:{success:true,data:{preview_id:'preview-'+number,preview_revision:'revision-'+number,request_id:lastRequest,expires_at:Date.now()+(config.expiryMs||60000),recipientCount:rows.length,recipients:rows,title:body.title,messageSummary:'合成內容預覽',delivery_mode:body.delivery_mode,scheduled_at:body.scheduled_at}}});
     }
+    if(body.action==='schedule'){
+      assert.equal(body.confirmed,true);
+      assert.equal(body.request_id,lastRequest);
+      return route.fulfill({json:{success:true,data:{request_id:lastRequest,scheduled_at:body.scheduled_at}}});
+    }
+    if(body.action==='schedule.list')return route.fulfill({json:{success:true,data:[]}});
     if(body.action==='send'){
       assert.deepEqual(Object.keys(body).sort(),['action','confirmed','preview_id','preview_revision','request_id']);
       assert.equal(body.request_id,lastRequest);assert.equal(body.confirmed,true);
@@ -148,7 +154,7 @@ async function setup(browser,config={}){
   page.on('dialog',async dialog=>{dialogs.push(dialog.message());if(config.cancelConfirm || config.dialogDecision?.(dialog.message())===false)await dialog.dismiss();else await dialog.accept();});
   await page.goto(origin+'/line-segment-push');
   if(!config.denied)await page.locator('#audienceBody[data-ready="true"]').waitFor();
-  return {page,context,calls,uploads,editorContextCalls,errors,external,dialogs,audience,async selectAll(){await page.locator('#selectAllBtn').click();},async openEditor(){if(!await page.locator('#contentDrawer').evaluate(el=>el.open))await page.locator('#contentDrawerOpen').click();},async preview(){if(await page.locator('#contentDrawer').evaluate(el=>el.open))await page.locator('#contentDrawerClose').click();await page.locator('#previewBtn').click();await page.waitForFunction(()=>!document.getElementById('sendBtn').disabled);},async waitRows(ids){await page.waitForFunction(expected=>{const body=document.getElementById('audienceBody');return body.dataset.ready==='true'&&JSON.stringify([...body.querySelectorAll('input')].map(input=>input.dataset.id))===JSON.stringify(expected);},ids);},async clean(){assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.ok(editorContextCalls.every(call=>call.path==='/admin-api/editor-context'&&call.method==='GET'));if(worker)assert.ok(editorContextCalls.length>=1,'Built HTML must execute its existing administrative context bridge');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));},async close(){await context.close();}};
+  return {page,context,calls,uploads,editorContextCalls,errors,external,dialogs,audience,async selectAll(){await page.locator('#selectAllBtn').click();},async preview(){await page.locator('#previewBtn').click();await page.waitForFunction(()=>!document.getElementById('sendBtn').disabled);},async waitRows(ids){await page.waitForFunction(expected=>{const body=document.getElementById('audienceBody');return body.dataset.ready==='true'&&JSON.stringify([...body.querySelectorAll('input')].map(input=>input.dataset.id))===JSON.stringify(expected);},ids);},async clean(){assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.ok(editorContextCalls.every(call=>call.path==='/admin-api/editor-context'&&call.method==='GET'));if(worker)assert.ok(editorContextCalls.length>=1,'Built HTML must execute its existing administrative context bridge');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));},async close(){await context.close();}};
 }
 
 test('paid push UI uses authoritative audience snapshots and never retries delivery automatically',{timeout:150000},async t=>{
@@ -175,7 +181,7 @@ test('paid push UI uses authoritative audience snapshots and never retries deliv
     for(const width of [390,1366])await t.test(width+' initial empty selection and organization filters',async()=>{
       const h=await setup(browser,{width});try{
         assert.equal(await h.page.locator('#selectedUsers').innerText(),'0');assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
-        await h.page.locator('#factorySummary').click();await h.page.locator('#factoryChoices input[value="烏日二廠"]').check();await h.waitRows(['synthetic-A','synthetic-C']);
+        await h.page.locator('#audienceFilters > summary').click();await h.page.locator('#factorySummary').click();await h.page.locator('#factoryChoices input[value="烏日二廠"]').check();await h.waitRows(['synthetic-A','synthetic-C']);
         assert.equal(await h.page.locator('#department option[value="department-B"]').count(),0);
         await h.page.locator('#businessUnit').selectOption('製造處');await h.page.locator('#department').selectOption('department-A');await h.waitRows(['synthetic-A']);await h.selectAll();await h.preview();
         const payload=h.calls.findLast(call=>call.action==='preview');assert.deepEqual(payload.filters.factories,['烏日二廠']);assert.equal(payload.filters.businessUnit,'製造處');assert.equal(payload.filters.department,'department-A');assert.deepEqual(payload.filters.selectedLineUserIds,['synthetic-A']);
@@ -184,7 +190,7 @@ test('paid push UI uses authoritative audience snapshots and never retries deliv
     });
     for(const width of [390,1366])await t.test(width+' factory multi-select is synchronized with roster tags and invalidates preview',async()=>{
       const h=await setup(browser,{width});try{
-        await h.page.locator('#factorySummary').click();await h.page.locator('#factoryChoices input[value="烏日二廠"]').check();await h.waitRows(['synthetic-A','synthetic-C']);
+        await h.page.locator('#audienceFilters > summary').click();await h.page.locator('#factorySummary').click();await h.page.locator('#factoryChoices input[value="烏日二廠"]').check();await h.waitRows(['synthetic-A','synthetic-C']);
         const size=await h.page.locator('#factoryChoices input[value="烏日二廠"]').boundingBox();assert.ok(size.width<=20&&size.height<=20);assert.equal(await h.page.locator('#factoryChoices label').first().evaluate(el=>getComputedStyle(el).display),'flex');
         assert.equal(await h.page.locator('#factoryTagChoices input[value="烏日二廠"]').isChecked(),true);
         const tagSize=await h.page.locator('#factoryTagChoices input[value="烏日二廠"]').boundingBox();assert.ok(tagSize.width<=20&&tagSize.height<=20);
@@ -198,7 +204,7 @@ test('paid push UI uses authoritative audience snapshots and never retries deliv
     });
     await t.test('factory changes retain only valid unit and department and do not add recipients',async()=>{
       const h=await setup(browser);try{
-        await h.page.locator('#factorySummary').click();await h.page.locator('#factoryChoices input[value="烏日二廠"]').check();await h.waitRows(['synthetic-A','synthetic-C']);
+        await h.page.locator('#audienceFilters > summary').click();await h.page.locator('#factorySummary').click();await h.page.locator('#factoryChoices input[value="烏日二廠"]').check();await h.waitRows(['synthetic-A','synthetic-C']);
         await h.page.locator('#businessUnit').selectOption('管理處');await h.page.locator('#department').selectOption('department-C');await h.waitRows(['synthetic-C']);await h.selectAll();
         await h.page.locator('#factoryTagChoices input[value="大雅廠"]').check();await h.waitRows(['synthetic-C']);assert.equal(await h.page.locator('#businessUnit').inputValue(),'管理處');assert.equal(await h.page.locator('#department').inputValue(),'department-C');
         await h.page.locator('#factoryTagChoices input[value="烏日二廠"]').uncheck();await h.waitRows(['synthetic-B']);assert.equal(await h.page.locator('#businessUnit').inputValue(),'');assert.equal(await h.page.locator('#department').inputValue(),'');assert.equal(await h.page.locator('#selectedUsers').innerText(),'0');await h.clean();
@@ -206,7 +212,7 @@ test('paid push UI uses authoritative audience snapshots and never retries deliv
     });
     await t.test('language/name keyword response displays and confirms the same two recipients',async()=>{
       const h=await setup(browser);try{
-        await h.page.locator('#keyword').fill('id');await h.waitRows(['synthetic-A','synthetic-B']);assert.equal(await h.page.locator('#selectedUsers').innerText(),'0');await h.selectAll();await h.preview();assert.match(await h.page.locator('#reviewBox').innerText(),/已選取 2 位候選受眾/);await h.page.locator('#sendBtn').click();await h.page.locator('#logBox').filter({hasText:'LINE 已接受'}).waitFor();assert.match(await h.page.locator('#logBox').innerText(),/LINE 已接受 2/);
+        await h.page.locator('#audienceFilters > summary').click();await h.page.locator('#keyword').fill('id');await h.waitRows(['synthetic-A','synthetic-B']);assert.equal(await h.page.locator('#selectedUsers').innerText(),'0');await h.selectAll();await h.preview();assert.match(await h.page.locator('#reviewBox').innerText(),/已核對 2 位候選受眾/);await h.page.locator('#sendBtn').click();await h.page.locator('#logBox').filter({hasText:'LINE 已接受'}).waitFor();assert.match(await h.page.locator('#logBox').innerText(),/LINE 已接受 2/);
         assert.match(h.dialogs[0],/2 位受眾/);assert.equal(h.calls.filter(call=>call.action==='send').length,1);assert.equal(h.calls.find(call=>call.action==='send').preview_id,'preview-1');await h.clean();
       }finally{await h.close();}
     });
@@ -220,33 +226,33 @@ test('paid push UI uses authoritative audience snapshots and never retries deliv
     await t.test('employee category includes external employees and managers, and filter changes prune hidden selections',async()=>{
       const h=await setup(browser);try{
         await h.selectAll();await h.page.locator('#memberTypeChips button[data-value="employee"]').click();await h.waitRows(['synthetic-A','synthetic-B','synthetic-C']);assert.equal(await h.page.locator('#selectedUsers').innerText(),'3');
-        await h.page.locator('#factorySummary').click();await h.page.locator('#factoryChoices input[value="大雅廠"]').check();await h.waitRows(['synthetic-B']);assert.equal(await h.page.locator('#selectedUsers').innerText(),'1');await h.page.locator('#factoryClear').click();await h.waitRows(['synthetic-A','synthetic-B','synthetic-C']);assert.equal(await h.page.locator('#selectedUsers').innerText(),'1');await h.clean();
+        await h.page.locator('#audienceFilters > summary').click();await h.page.locator('#factorySummary').click();await h.page.locator('#factoryChoices input[value="大雅廠"]').check();await h.waitRows(['synthetic-B']);assert.equal(await h.page.locator('#selectedUsers').innerText(),'1');await h.page.locator('#factoryClear').click();await h.waitRows(['synthetic-A','synthetic-B','synthetic-C']);assert.equal(await h.page.locator('#selectedUsers').innerText(),'1');await h.clean();
       }finally{await h.close();}
     });
     await t.test('title, content, selection and filter changes invalidate a reviewed snapshot',async()=>{
       const h=await setup(browser);try{
-        await h.selectAll();await h.preview();await h.openEditor();await h.page.locator('#campaignTitle').fill('合成新標題');assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
-        await h.preview();await h.openEditor();await h.page.locator('#messageText').fill('合成新文字');assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
+        await h.selectAll();await h.preview();await h.page.locator('#campaignTitle').fill('合成新標題');assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
+        await h.preview();await h.page.locator('#messageText').fill('合成新文字');assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
         await h.preview();await h.page.locator('#audienceBody input[data-id="synthetic-D"]').uncheck();assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
-        await h.preview();await h.page.locator('#bindStatus').selectOption('bound');await h.waitRows(['synthetic-A','synthetic-B','synthetic-C']);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(h.calls.some(call=>call.action==='send'),false);await h.clean();
+        await h.preview();await h.page.locator('#audienceFilters > summary').click();await h.page.locator('#bindStatus').selectOption('bound');await h.waitRows(['synthetic-A','synthetic-B','synthetic-C']);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(h.calls.some(call=>call.action==='send'),false);await h.clean();
       }finally{await h.close();}
     });
     await t.test('all four original message modes are frozen through preview',async()=>{
       const h=await setup(browser);try{
         await h.selectAll();await h.preview();assert.equal(h.calls.findLast(call=>call.action==='preview').message.mode,'official_text');
-        await h.openEditor();await h.page.locator('#messageMode').selectOption('official_image');await h.page.locator('#officialImageFields summary').click();await h.page.locator('#imageOriginalUrl').fill('https://synthetic.invalid/original.jpg');await h.page.locator('#imagePreviewUrl').fill('https://synthetic.invalid/preview.jpg');await h.preview();assert.equal(h.calls.findLast(call=>call.action==='preview').message.originalContentUrl,'https://synthetic.invalid/original.jpg');
-        await h.openEditor();await h.page.locator('#messageMode').selectOption('system_template');await h.preview();assert.equal(h.calls.findLast(call=>call.action==='preview').message.templateId,'template-1');
-        await h.openEditor();await h.page.locator('#messageMode').selectOption('system_json');await h.page.locator('#customJson').fill('{"type":"bubble","body":{"type":"box","layout":"vertical","contents":[]}}');await h.preview();assert.equal(h.calls.findLast(call=>call.action==='preview').message.contents.type,'bubble');await h.clean();
+        await h.page.locator('[data-message-mode="official_image"]').click();await h.page.locator('#officialImageFields summary').click();await h.page.locator('#imageOriginalUrl').fill('https://synthetic.invalid/original.jpg');await h.page.locator('#imagePreviewUrl').fill('https://synthetic.invalid/preview.jpg');await h.preview();assert.equal(h.calls.findLast(call=>call.action==='preview').message.originalContentUrl,'https://synthetic.invalid/original.jpg');
+        await h.page.locator('[data-message-mode="system_template"]').click();await h.preview();assert.equal(h.calls.findLast(call=>call.action==='preview').message.templateId,'template-1');
+        await h.page.locator('[data-message-mode="system_json"]').click();await h.page.locator('#customJson').fill('{"type":"bubble","body":{"type":"box","layout":"vertical","contents":[]}}');await h.preview();assert.equal(h.calls.findLast(call=>call.action==='preview').message.contents.type,'bubble');await h.clean();
       }finally{await h.close();}
     });
     await t.test('late preview response cannot restore send after the message changes',async()=>{
       const gate=defer(),h=await setup(browser,{previewGate:gate});try{
-        await h.selectAll();const response=h.page.waitForResponse(response=>response.url()===origin+'/admin-api/line-segment-push'&&response.request().method()==='POST'&&response.request().postDataJSON().action==='preview');await h.page.locator('#previewBtn').click();await h.openEditor();await h.page.locator('#messageText').fill('changed while preview pending');gate.resolve();await (await response).finished();await h.page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));await h.page.locator('#workflowStatus').filter({hasText:'重新預覽'}).waitFor();assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(h.calls.some(call=>call.action==='send'),false);await h.clean();
+        await h.selectAll();const response=h.page.waitForResponse(response=>response.url()===origin+'/admin-api/line-segment-push'&&response.request().method()==='POST'&&response.request().postDataJSON().action==='preview');await h.page.locator('#previewBtn').click();await h.page.locator('#messageText').fill('changed while preview pending');gate.resolve();await (await response).finished();await h.page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));await h.page.locator('#workflowStatus').filter({hasText:'重新預覽'}).waitFor();assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(h.calls.some(call=>call.action==='send'),false);await h.clean();
       }finally{gate.resolve();await h.close();}
     });
     await t.test('late audience response cannot replace a newer factory selection',async()=>{
       const gate=defer(),h=await setup(browser,{audienceGate:body=>body.filters.factories?.length===1&&body.filters.factories[0]==='烏日二廠'?gate:null});try{
-        const response=h.page.waitForResponse(response=>response.url()===origin+'/admin-api/line-segment-push'&&response.request().method()==='POST'&&response.request().postDataJSON().action==='audience'&&response.request().postDataJSON().filters.factories?.[0]==='烏日二廠');await h.page.locator('#factorySummary').click();await h.page.locator('#factoryChoices input[value="烏日二廠"]').check();await h.page.waitForFunction(()=>document.getElementById('audienceBody').dataset.ready==='false');await h.page.locator('#factoryChoices input[value="烏日二廠"]').uncheck();await h.page.locator('#factoryChoices input[value="大雅廠"]').check();await h.waitRows(['synthetic-B']);gate.resolve();await (await response).finished();await h.page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));await h.page.locator('#audienceBody input[data-id="synthetic-B"]').waitFor();assert.equal(await h.page.locator('#audienceBody input[data-id="synthetic-A"]').count(),0);assert.equal(await h.page.locator('#selectedUsers').innerText(),'0');await h.clean();
+        const response=h.page.waitForResponse(response=>response.url()===origin+'/admin-api/line-segment-push'&&response.request().method()==='POST'&&response.request().postDataJSON().action==='audience'&&response.request().postDataJSON().filters.factories?.[0]==='烏日二廠');await h.page.locator('#audienceFilters > summary').click();await h.page.locator('#factorySummary').click();await h.page.locator('#factoryChoices input[value="烏日二廠"]').check();await h.page.waitForFunction(()=>document.getElementById('audienceBody').dataset.ready==='false');await h.page.locator('#factoryChoices input[value="烏日二廠"]').uncheck();await h.page.locator('#factoryChoices input[value="大雅廠"]').check();await h.waitRows(['synthetic-B']);gate.resolve();await (await response).finished();await h.page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));await h.page.locator('#audienceBody input[data-id="synthetic-B"]').waitFor();assert.equal(await h.page.locator('#audienceBody input[data-id="synthetic-A"]').count(),0);assert.equal(await h.page.locator('#selectedUsers').innerText(),'0');await h.clean();
       }finally{gate.resolve();await h.close();}
     });
     await t.test('expired preview disables send without producing a delivery call',async()=>{
@@ -262,7 +268,7 @@ test('paid push UI uses authoritative audience snapshots and never retries deliv
       const h=await setup(browser,{staleSend:true,status:{status:'needs_review'}});try{await h.selectAll();await h.preview();await h.page.locator('#sendBtn').click();await h.page.locator('#logBox').filter({hasText:'需人工確認'}).waitFor();assert.equal(h.calls.filter(call=>call.action==='send').length,1);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);await h.clean();}finally{await h.close();}
     });
     await t.test('empty or invalid maximum never falls back to a broad audience',async()=>{
-      const h=await setup(browser);try{await h.selectAll();await h.preview();const count=h.calls.filter(call=>call.action==='audience').length;await h.page.locator('#maxRecipients').fill('');await h.page.locator('#workflowStatus').filter({hasText:'安全上限'}).waitFor();assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);assert.equal(h.calls.filter(call=>call.action==='audience').length,count);await h.page.locator('#maxRecipients').fill('500');await h.waitRows(users.map(user=>user.line_user_id));assert.equal(await h.page.locator('#selectedUsers').innerText(),'0');await h.clean();}finally{await h.close();}
+      const h=await setup(browser);try{await h.selectAll();await h.preview();const count=h.calls.filter(call=>call.action==='audience').length;await h.page.locator('#audienceFilters > summary').click();await h.page.locator('#maxRecipients').fill('');await h.page.locator('#workflowStatus').filter({hasText:'安全上限'}).waitFor();assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);assert.equal(h.calls.filter(call=>call.action==='audience').length,count);await h.page.locator('#maxRecipients').fill('500');await h.waitRows(users.map(user=>user.line_user_id));assert.equal(await h.page.locator('#selectedUsers').innerText(),'0');await h.clean();}finally{await h.close();}
     });
     await t.test('starting a fresh preview after uncertainty requires an explicit duplicate warning',async()=>{
       const h=await setup(browser,{sendAbort:true,status:{status:'needs_review'},dialogDecision:message=>!message.includes('上一筆推播')});try{await h.selectAll();await h.preview();await h.page.locator('#sendBtn').click();await h.page.locator('#logBox').filter({hasText:'需人工確認'}).waitFor();await h.page.locator('#previewBtn').click();assert.ok(h.dialogs.some(message=>message.includes('可能重複推播')));assert.equal(h.calls.filter(call=>call.action==='preview').length,1);assert.equal(h.calls.filter(call=>call.action==='send').length,1);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);await h.clean();}finally{await h.close();}
@@ -295,6 +301,47 @@ test('candidate notice makes LINE friendship and delivery uncertainty explicit',
   }finally{await browser.close();}
 });
 
+test('workspace previews the phone locally and requires an explicit scheduled confirmation', {timeout:60000}, async () => {
+  const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL});
+  const h=await setup(browser,{width:390});
+  try {
+    const {page,calls}=h;
+    const beforePhonePreview=calls.length;
+    await page.locator('#messageText').fill('隔離測試通知');
+    await page.locator('#testPreviewBtn').click();
+    await page.locator('#listPreviewBtn').click();
+    assert.equal(await page.locator('#notificationPreview').innerText(),'隔離測試通知');
+    assert.equal(await page.locator('#previewTestNote').isVisible(),true);
+    assert.equal(calls.length,beforePhonePreview);
+    await page.locator('#chatPreviewBtn').click();
+    assert.match(await page.locator('#messagePreview').innerText(),/隔離測試通知/);
+    assert.equal(await page.locator('#scheduledAt').isVisible(),false);
+    await h.selectAll();
+    await page.locator('#deliveryScheduled').check();
+    assert.equal(await page.locator('#scheduledAt').isVisible(),true);
+    const future=new Date(Date.now()+48*60*60*1000).toISOString().slice(0,16);
+    await page.locator('#scheduledAt').fill(future);
+    await page.locator('#previewBtn').click();
+    await page.locator('#reviewBox').filter({hasText:'預約時間（台北）'}).waitFor();
+    assert.equal(await page.locator('#reviewedUsers').innerText(),'4');
+    assert.equal(calls.some(call=>call.action==='schedule'||call.action==='send'),false);
+    await page.locator('#campaignTitle').fill('更新後的隔離草稿');
+    assert.equal(await page.locator('#scheduleBtn').isDisabled(),true);
+    await page.locator('#previewBtn').click();
+    await page.locator('#scheduleBtn').click();
+    await page.locator('#scheduleList').waitFor();
+    const request=calls.find(call=>call.action==='schedule');
+    assert.equal(request.preview_id,'preview-2');
+    assert.equal(request.scheduled_at,calls.findLast(call=>call.action==='preview').scheduled_at);
+    assert.equal(calls.filter(call=>call.action==='schedule').length,1);
+    assert.equal(calls.some(call=>call.action==='send'),false);
+    await h.clean();
+  } finally {
+    await h.close();
+    await browser.close();
+  }
+});
+
 
 function jpegSizeFromMultipart(payload){
   const start=payload.indexOf(Buffer.from([0xff,0xd8])),end=payload.lastIndexOf(Buffer.from([0xff,0xd9]));assert.ok(start>=0&&end>start,'multipart contains JPEG');const b=payload.subarray(start,end+2);let i=2;
@@ -303,14 +350,20 @@ function jpegSizeFromMultipart(payload){
 }
 async function syntheticPng(page){const data=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=1200;c.height=900;const ctx=c.getContext('2d');ctx.fillStyle='#12b455';ctx.fillRect(0,0,c.width,c.height);return c.toDataURL('image/png').split(',')[1];});return Buffer.from(data,'base64');}
 
-test('full-screen content drawer supports text plus uploaded image safely',{timeout:90000},async t=>{
+test('inline composer supports text plus uploaded image safely',{timeout:90000},async t=>{
  const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
  try{for(const width of [390,1366])await t.test(String(width),async()=>{
   const gate=defer(),h=await setup(browser,{width,uploadGate:gate});try{
    await h.selectAll();await h.preview();assert.equal(await h.page.locator('#sendBtn').isDisabled(),false);
-   await h.openEditor();assert.equal(await h.page.locator('#contentDrawer').evaluate(el=>el.open),true);
-   const drawer=await h.page.locator('#contentDrawer').boundingBox();assert.ok(drawer.width>=width-2&&drawer.height>=898,'drawer occupies viewport');
-   await h.page.locator('#messageText').fill('合成文字');await h.page.locator('#addImageMode').click();assert.equal(await h.page.locator('#messageMode').inputValue(),'official_composite');await h.page.keyboard.press('Escape');assert.equal(await h.page.locator('#contentDrawer').evaluate(el=>el.open),false);await h.openEditor();assert.equal(await h.page.locator('#messageText').inputValue(),'合成文字');assert.equal(await h.page.locator('#messageMode').inputValue(),'official_composite');
+   assert.equal(await h.page.locator('.composer').isVisible(),true);
+   const editor=await h.page.locator('.composer').boundingBox(), preview=await h.page.locator('.phone-preview').boundingBox();
+   if(width>735)assert.ok(preview.x>=editor.x+editor.width);else assert.ok(preview.y>=editor.y+editor.height);
+   if(process.env.PUSH_WORKSPACE_SCREENSHOTS){
+    await mkdir(process.env.PUSH_WORKSPACE_SCREENSHOTS,{recursive:true});
+    await h.page.evaluate(()=>window.scrollTo(0,0));
+    await h.page.screenshot({path:process.env.PUSH_WORKSPACE_SCREENSHOTS+'/push-workspace-'+width+'.png',fullPage:true});
+   }
+   await h.page.locator('#messageText').fill('合成文字');await h.page.locator('#addImageMode').click();assert.equal(await h.page.locator('#messageMode').inputValue(),'official_composite');assert.equal(await h.page.locator('#messageText').inputValue(),'合成文字');assert.equal(await h.page.locator('#messageMode').inputValue(),'official_composite');
    await h.page.locator('#pushImageFile').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});
    assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
    await h.page.locator('#uploadImageBtn').click();await h.page.locator('#uploadStatus').filter({hasText:'正在壓縮並上傳'}).waitFor();assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(await h.page.locator('#messageMode').isDisabled(),true);assert.equal(await h.page.locator('#imageOriginalUrl').isDisabled(),true);assert.equal(await h.page.locator('#imagePreviewUrl').isDisabled(),true);
@@ -318,7 +371,7 @@ test('full-screen content drawer supports text plus uploaded image safely',{time
    assert.match(h.uploads[0].contentType,/multipart\/form-data/);const dims=jpegSizeFromMultipart(h.uploads[0].body);assert.equal(dims.width,1024);assert.equal(dims.height,768);assert.ok(dims.bytes<1000000);
    assert.equal(await h.page.locator('#messagePreview img').count(),1);assert.match(await h.page.locator('#messagePreview').innerText(),/合成文字/);assert.equal(await h.page.locator('#previewMessageHint').innerText(),'文字與圖片會依序作為兩則訊息。');assert.deepEqual(await h.page.locator('#messagePreview').evaluate(el=>[...el.children].map(x=>x.tagName)),['DIV','IMG']);const gap=await h.page.locator('#messagePreview').evaluate(el=>el.children[1].getBoundingClientRect().top-el.children[0].getBoundingClientRect().bottom);assert.ok(gap>0,'text and image render in separate bubbles');if(process.env.DRAWER_SCREENSHOTS){await mkdir(process.env.DRAWER_SCREENSHOTS,{recursive:true});await h.page.screenshot({path:process.env.DRAWER_SCREENSHOTS+'/drawer-'+width+'.png'});}
    await h.preview();const snapshot=h.calls.findLast(call=>call.action==='preview');assert.deepEqual(snapshot.message,{mode:'official_composite',text:'合成文字',originalContentUrl:origin+'/mock-push-image.jpg',previewImageUrl:origin+'/mock-push-image.jpg'});
-   await h.openEditor();await h.page.locator('#pushImageFile').setInputFiles({name:'replacement.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);
+   await h.page.locator('#pushImageFile').setInputFiles({name:'replacement.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);
    await h.page.locator('#removeImageBtn').click();assert.equal(await h.page.locator('#messagePreview img').count(),0);assert.match(await h.page.locator('#messagePreview').innerText(),/合成文字/);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
    await h.preview();const withoutImage=h.calls.findLast(call=>call.action==='preview');assert.deepEqual(withoutImage.message,{mode:'official_composite',text:'合成文字',originalContentUrl:'',previewImageUrl:''});
    assert.equal(h.calls.filter(call=>call.action==='send').length,0);await h.clean();
@@ -328,17 +381,17 @@ test('full-screen content drawer supports text plus uploaded image safely',{time
 
 test('failed image upload cannot retain a valid preview or silently send stale content',{timeout:60000},async()=>{
  const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'}),h=await setup(browser,{uploadFail:true});
- try{await h.selectAll();await h.preview();await h.openEditor();await h.page.locator('#addImageMode').click();await h.page.locator('#messageText').fill('保留的文字');await h.page.locator('#officialImageFields summary').click();await h.page.locator('#imageOriginalUrl').fill('https://synthetic.invalid/original.jpg');await h.page.locator('#imagePreviewUrl').fill('https://synthetic.invalid/preview.jpg');await h.page.locator('#pushImageFile').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});await h.page.locator('#uploadImageBtn').click();await h.page.locator('#uploadStatus').filter({hasText:'模擬圖片上傳失敗'}).waitFor();assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(await h.page.locator('#messageText').inputValue(),'保留的文字');assert.equal(await h.page.locator('#imageOriginalUrl').inputValue(),'https://synthetic.invalid/original.jpg');assert.equal(await h.page.locator('#imagePreviewUrl').inputValue(),'https://synthetic.invalid/preview.jpg');await h.page.locator('#cancelImageBtn').click();assert.equal(await h.page.locator('#imageOriginalUrl').inputValue(),'https://synthetic.invalid/original.jpg');assert.equal(await h.page.locator('#imagePreviewUrl').inputValue(),'https://synthetic.invalid/preview.jpg');assert.equal(await h.page.locator('#previewBtn').isDisabled(),false);await h.page.locator('#pushImageFile').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);await h.page.locator('#removeImageBtn').click();assert.equal(await h.page.locator('#previewBtn').isDisabled(),false);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(h.calls.filter(call=>call.action==='send').length,0);await h.clean();}finally{await h.close();await browser.close();}
+ try{await h.selectAll();await h.preview();await h.page.locator('#addImageMode').click();await h.page.locator('#messageText').fill('保留的文字');await h.page.locator('#officialImageFields summary').click();await h.page.locator('#imageOriginalUrl').fill('https://synthetic.invalid/original.jpg');await h.page.locator('#imagePreviewUrl').fill('https://synthetic.invalid/preview.jpg');await h.page.locator('#pushImageFile').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});await h.page.locator('#uploadImageBtn').click();await h.page.locator('#uploadStatus').filter({hasText:'模擬圖片上傳失敗'}).waitFor();assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(await h.page.locator('#messageText').inputValue(),'保留的文字');assert.equal(await h.page.locator('#imageOriginalUrl').inputValue(),'https://synthetic.invalid/original.jpg');assert.equal(await h.page.locator('#imagePreviewUrl').inputValue(),'https://synthetic.invalid/preview.jpg');await h.page.locator('#cancelImageBtn').click();assert.equal(await h.page.locator('#imageOriginalUrl').inputValue(),'https://synthetic.invalid/original.jpg');assert.equal(await h.page.locator('#imagePreviewUrl').inputValue(),'https://synthetic.invalid/preview.jpg');assert.equal(await h.page.locator('#previewBtn').isDisabled(),false);await h.page.locator('#pushImageFile').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);await h.page.locator('#removeImageBtn').click();assert.equal(await h.page.locator('#previewBtn').isDisabled(),false);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(h.calls.filter(call=>call.action==='send').length,0);await h.clean();}finally{await h.close();await browser.close();}
 });
 
 
 test('composite preview allows original image as preview and rejects incomplete or empty content',{timeout:60000},async()=>{
  const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'}),h=await setup(browser);
  try{
-  await h.selectAll();await h.openEditor();await h.page.locator('#addImageMode').click();await h.page.locator('#messageText').fill('');await h.page.locator('#officialImageFields summary').click();await h.page.locator('#imageOriginalUrl').fill('https://synthetic.invalid/original.jpg');await h.preview();
+  await h.selectAll();await h.page.locator('#addImageMode').click();await h.page.locator('#messageText').fill('');await h.page.locator('#officialImageFields summary').click();await h.page.locator('#imageOriginalUrl').fill('https://synthetic.invalid/original.jpg');await h.preview();
   assert.deepEqual(h.calls.findLast(x=>x.action==='preview').message,{mode:'official_composite',text:'',originalContentUrl:'https://synthetic.invalid/original.jpg',previewImageUrl:'https://synthetic.invalid/original.jpg'});
-  await h.openEditor();await h.page.locator('#imageOriginalUrl').fill('');await h.page.locator('#imagePreviewUrl').fill('https://synthetic.invalid/preview.jpg');const count=h.calls.filter(x=>x.action==='preview').length;await h.page.locator('#contentDrawerClose').click();await h.page.locator('#previewBtn').click();await h.page.locator('#workflowStatus').filter({hasText:'請提供有效的 HTTPS'}).waitFor();assert.equal(h.calls.filter(x=>x.action==='preview').length,count);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
-  await h.openEditor();await h.page.locator('#removeImageBtn').click();await h.page.locator('#contentDrawerClose').click();await h.page.locator('#previewBtn').click();await h.page.locator('#workflowStatus').filter({hasText:'請輸入文字或加入圖片'}).waitFor();assert.equal(h.calls.filter(x=>x.action==='preview').length,count);assert.equal(h.calls.filter(x=>x.action==='send').length,0);await h.clean();
+  await h.page.locator('#imageOriginalUrl').fill('');await h.page.locator('#imagePreviewUrl').fill('https://synthetic.invalid/preview.jpg');const count=h.calls.filter(x=>x.action==='preview').length;await h.page.locator('#previewBtn').click();await h.page.locator('#workflowStatus').filter({hasText:'請提供有效的 HTTPS'}).waitFor();assert.equal(h.calls.filter(x=>x.action==='preview').length,count);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
+  await h.page.locator('#removeImageBtn').click();await h.page.locator('#previewBtn').click();await h.page.locator('#workflowStatus').filter({hasText:'請輸入文字或加入圖片'}).waitFor();assert.equal(h.calls.filter(x=>x.action==='preview').length,count);assert.equal(h.calls.filter(x=>x.action==='send').length,0);await h.clean();
  }finally{await h.close();await browser.close();}
 });
 
@@ -346,7 +399,7 @@ test('composite preview allows original image as preview and rejects incomplete 
 test('HEIC with empty MIME is decoded by device or fails without losing content',{timeout:60000},async()=>{
  const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'}),h=await setup(browser);
  try{
-  await h.openEditor();await h.page.locator('#messageText').fill('手機測試文字');await h.page.locator('#addImageMode').click();
+  await h.page.locator('#messageText').fill('手機測試文字');await h.page.locator('#addImageMode').click();
   await h.page.locator('#pushImageFile').setInputFiles({name:'photo.heic',mimeType:'',buffer:Buffer.from('not an image')});await h.page.locator('#uploadImageBtn').click();await h.page.locator('#uploadStatus').filter({hasText:'此裝置無法讀取圖片，請改用 JPG 或 PNG'}).waitFor();assert.equal(await h.page.locator('#messageText').inputValue(),'手機測試文字');assert.equal(h.uploads.length,0);await h.page.locator('#cancelImageBtn').click();
   await h.page.locator('#pushImageFile').setInputFiles({name:'photo.heic',mimeType:'',buffer:await syntheticPng(h.page)});await h.page.locator('#uploadImageBtn').click();await h.page.locator('#uploadStatus').filter({hasText:'圖片已上傳'}).waitFor();assert.equal(h.uploads.length,1);const dims=jpegSizeFromMultipart(h.uploads[0].body);assert.equal(dims.width,1024);assert.equal(dims.height,768);assert.equal(await h.page.locator('#messageText').inputValue(),'手機測試文字');assert.equal(h.calls.filter(x=>x.action==='send').length,0);await h.clean();
  }finally{await h.close();await browser.close();}
@@ -356,23 +409,23 @@ test('HEIC with empty MIME is decoded by device or fails without losing content'
 test('custom Flex card builds a bounded bubble and preserves review safeguards',{timeout:60000},async()=>{
  const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'}),h=await setup(browser,{width:390});
  try{
-  await h.selectAll();await h.openEditor();await h.page.locator('#messageMode').selectOption('system_card');
+  await h.selectAll();await h.page.locator('[data-message-mode="system_card"]').click();
   await h.page.locator('#flexCardTitle').fill('年度活動');await h.page.locator('#flexCardBody').fill('歡迎參加\n請準時入場');await h.page.locator('#flexCardButton').fill('查看詳情');await h.page.locator('#flexCardUrl').fill('https://example.com/event');
   await h.page.locator('#flexCardImageOpen').click();await h.page.locator('#pushImageFile').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});
   assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);await h.page.locator('#uploadImageBtn').click();await h.page.locator('#uploadStatus').filter({hasText:'圖片已上傳'}).waitFor();
   assert.equal(await h.page.locator('.flex-card-preview img').count(),1);assert.match(await h.page.locator('.flex-card-preview').innerText(),/年度活動/);
   await h.page.locator('#dismissImageChoice').click();assert.equal(await h.page.locator('#messageMode').inputValue(),'system_card');assert.equal(await h.page.locator('#flexCardTitle').inputValue(),'年度活動');assert.equal(await h.page.locator('#officialImageFields').isVisible(),false);
   await h.preview();const message=h.calls.findLast(x=>x.action==='preview').message;assert.equal(message.mode,'system_json');assert.equal(message.altText,'年度活動');assert.equal(message.contents.type,'bubble');assert.equal(message.contents.hero.url,origin+'/mock-push-image.jpg');assert.equal(message.contents.body.contents[1].text,'歡迎參加\n請準時入場');assert.deepEqual(message.contents.footer.contents[0].action,{type:'uri',label:'查看詳情',uri:'https://example.com/event'});
-  await h.openEditor();await h.page.locator('#flexCardBody').fill('修改後內容');assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
-  await h.page.locator('#flexCardUrl').fill('http://example.com');await h.page.locator('#contentDrawerClose').click();const count=h.calls.filter(x=>x.action==='preview').length;await h.page.locator('#previewBtn').click();await h.page.locator('#workflowStatus').filter({hasText:'HTTPS'}).waitFor();assert.equal(h.calls.filter(x=>x.action==='preview').length,count);
-  await h.openEditor();await h.page.locator('#flexCardUrl').fill('');await h.page.locator('#flexCardButton').fill('');await h.page.locator('#flexCardTitle').fill('');await h.page.locator('#contentDrawerClose').click();await h.page.locator('#previewBtn').click();await h.page.locator('#workflowStatus').filter({hasText:'卡片標題'}).waitFor();assert.equal(h.calls.filter(x=>x.action==='send').length,0);await h.clean();
+  await h.page.locator('#flexCardBody').fill('修改後內容');assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
+  await h.page.locator('#flexCardUrl').fill('http://example.com');const count=h.calls.filter(x=>x.action==='preview').length;await h.page.locator('#previewBtn').click();await h.page.locator('#workflowStatus').filter({hasText:'HTTPS'}).waitFor();assert.equal(h.calls.filter(x=>x.action==='preview').length,count);
+  await h.page.locator('#flexCardUrl').fill('');await h.page.locator('#flexCardButton').fill('');await h.page.locator('#flexCardTitle').fill('');await h.page.locator('#previewBtn').click();await h.page.locator('#workflowStatus').filter({hasText:'卡片標題'}).waitFor();assert.equal(h.calls.filter(x=>x.action==='send').length,0);await h.clean();
  }finally{await h.close();await browser.close();}
 });
 
 test('desktop Flex review is invalidated by each content edit and X cancels image selection',{timeout:90000},async()=>{
  const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'}),h=await setup(browser,{width:1366});
  try{
-  await h.selectAll();await h.openEditor();await h.page.locator('#messageMode').selectOption('system_card');
+  await h.selectAll();await h.page.locator('[data-message-mode="system_card"]').click();
   await h.page.locator('#flexCardTitle').fill('活動資訊');await h.page.locator('#flexCardBody').fill('內文');
   await h.page.locator('#flexCardButton').fill('查看');await h.page.locator('#flexCardUrl').fill('https://example.com/first');
   await h.page.locator('#flexCardImageOpen').click();await h.page.locator('#pushImageFile').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});
@@ -380,16 +433,16 @@ test('desktop Flex review is invalidated by each content edit and X cancels imag
   await h.page.locator('#dismissImageChoice').click();assert.equal(await h.page.locator('#officialImageFields').isVisible(),false);
   assert.equal(await h.page.locator('#pushImageFile').evaluate(el=>el.files.length),0);assert.equal(h.uploads.length,0);
   assert.equal(await h.page.locator('#previewBtn').isDisabled(),false);assert.equal(await h.page.locator('#messageMode').inputValue(),'system_card');
-  await h.page.locator('#contentDrawerDismiss').click();assert.equal(await h.page.locator('#contentDrawer').evaluate(el=>el.open),false);
-  await h.openEditor();assert.equal(await h.page.locator('#flexCardTitle').inputValue(),'活動資訊');
+
+  assert.equal(await h.page.locator('#flexCardTitle').inputValue(),'活動資訊');
   for(const [field,value] of [['flexCardTitle','更新標題'],['flexCardBody','更新內文'],['flexCardButton','了解更多'],['flexCardUrl','https://example.com/updated']]){
-   await h.preview();await h.openEditor();await h.page.locator('#'+field).fill(value);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true,field+' invalidates preview');
+   await h.preview();await h.page.locator('#'+field).fill(value);assert.equal(await h.page.locator('#sendBtn').isDisabled(),true,field+' invalidates preview');
   }
   await h.page.locator('#flexCardImageOpen').click();await h.page.locator('#officialImageFields summary').click();
   await h.page.locator('#imageOriginalUrl').fill('https://synthetic.invalid/original.jpg');await h.preview();
   assert.equal(h.calls.findLast(x=>x.action==='preview').message.contents.hero.url,'https://synthetic.invalid/original.jpg');
-  await h.openEditor();await h.page.locator('#imageOriginalUrl').fill('https://synthetic.invalid/preview.jpg');assert.equal(await h.page.locator('#sendBtn').isDisabled(),true,'image URL invalidates preview');
-  await h.preview();await h.openEditor();await h.page.locator('#pushImageFile').setInputFiles({name:'replacement.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});
+  await h.page.locator('#imageOriginalUrl').fill('https://synthetic.invalid/preview.jpg');assert.equal(await h.page.locator('#sendBtn').isDisabled(),true,'image URL invalidates preview');
+  await h.preview();await h.page.locator('#pushImageFile').setInputFiles({name:'replacement.png',mimeType:'image/png',buffer:await syntheticPng(h.page)});
   assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);assert.equal(await h.page.locator('#previewBtn').isDisabled(),true);
   await h.page.locator('#dismissImageChoice').click();assert.equal(await h.page.locator('#pushImageFile').evaluate(el=>el.files.length),0);
   assert.equal(await h.page.locator('#imageOriginalUrl').inputValue(),'https://synthetic.invalid/preview.jpg');assert.equal(await h.page.locator('#sendBtn').isDisabled(),true);
