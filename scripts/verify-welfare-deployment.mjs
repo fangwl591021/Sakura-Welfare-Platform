@@ -10,7 +10,7 @@ const uuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 const pages = [
   ['/welfare-shop','福利品商城','送出購買申請'],
   ['/welfare-shop-admin','福利品商城管理','編輯商品'],
-  ['/line-segment-push','LINE 分眾推播','預覽受眾與內容'],
+  ['/line-segment-push','LINE 分眾推播','受眾與送出確認','id="previewChat"','id="previewList"'],
   ['/line-push-history','推播紀錄與成效','查看明細'],
   ['/vendor-management','多品牌 LINE 管理','確認綁定並授權管理']
 ];
