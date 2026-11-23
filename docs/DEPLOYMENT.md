@@ -19,7 +19,7 @@ Config: wrangler.sakura-welfare.toml
 
 福利品專區設定需要 `0053_welfare_shop_contact_phone.sql` 和 `0054_welfare_shop_venues.sql`。寄信需設定 `WELFARE_SHOP_EMAIL_FROM` 為已驗證的 Resend 寄件地址，並提供 `RESEND_API_KEY` 或既有的 `EMAIL_API_KEY`。啟用後，新預訂依商品的出貨館別寄給指定館長。後台購買申請會顯示寄送結果。
 
-管理員在官方帳號一對一聊天室輸入「儀表板」，即可從 Flex 卡片開啟「福利品專區設定」。設定頁使用 LINE 驗證，每次讀寫都核對管理員權限。
+管理員在官方帳號一對一聊天室輸入「儀表板」或「儀錶板」，即可從 Flex 卡片開啟「福利品專區設定」。設定頁使用 LINE 驗證，每次讀寫都核對管理員權限。
 
 ## 禁止使用
 

@@ -99,7 +99,7 @@ test('actual admin/editor dashboards preserve original cards and only add switch
 test('welfare shop settings is an LIFF button for verified private admin dashboard requests', async t => {
   const db = setup(t, 1);
   const admin = dispatcher(db, 'admin');
-  for(const keyword of ['儀表板','仪表板']){
+  for(const keyword of ['儀表板','儀錶板','仪表板']){
     await admin.run(entry(keyword));
     const buttons=admin.replies.at(-1).messages[0].contents.footer.contents;
     assert.deepEqual(buttons.find(item=>item.action?.label==='福利品專區設定')?.action,{

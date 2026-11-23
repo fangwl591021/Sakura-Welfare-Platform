@@ -28,6 +28,7 @@ const summary = {
 
 test("exact traditional dashboard keyword is recognized", () => {
   assert.equal(resolveWorkspaceIntent("儀表板"), WORKSPACE_INTENTS.DASHBOARD_SUMMARY);
+  assert.equal(resolveWorkspaceIntent("儀錶板"), WORKSPACE_INTENTS.DASHBOARD_SUMMARY);
 });
 
 test("exact simplified dashboard keyword is recognized", () => {
@@ -57,7 +58,7 @@ test("non-admin is rejected before dashboard statistics are queried", async () =
   assert.equal(result.message, undefined);
 });
 
-for (const keyword of ["儀表板", "仪表板"]) {
+for (const keyword of ["儀表板", "儀錶板", "仪表板"]) {
   test(`admin keyword ${keyword} returns a Flex Message`, async () => {
     assert.equal(resolveWorkspaceIntent(keyword), WORKSPACE_INTENTS.DASHBOARD_SUMMARY);
     const result = await handleDashboardSummaryIntent({

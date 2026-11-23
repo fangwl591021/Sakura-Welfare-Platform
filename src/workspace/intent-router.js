@@ -36,7 +36,7 @@ const WORKSPACE_ACTION_INTENTS = new Map([
 
 export function resolveWorkspaceIntent(input) {
   const normalized = String(input || "").trim();
-  if (normalized === "儀表板" || normalized === "仪表板") {
+  if (["儀表板", "儀錶板", "仪表板"].includes(normalized)) {
     return WORKSPACE_INTENTS.DASHBOARD_SUMMARY;
   }
   if (normalized === "廠商專區" || normalized === "厂商专区") {
