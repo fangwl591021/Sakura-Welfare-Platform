@@ -66,7 +66,7 @@ test('welfare shop protects employee media and reserves stock through the real W
   t.after(()=>mf.dispose());
   const db=await mf.getD1Database('DB');
   await db.prepare('CREATE TABLE welfare_members(line_user_id TEXT PRIMARY KEY,member_type TEXT,status TEXT,bind_status TEXT,display_name TEXT)').run();
-  for(const file of ['0049_employee_welfare_shop.sql','0050_welfare_shop_telegram.sql','0053_welfare_shop_contact_phone.sql','0054_welfare_shop_venues.sql']){
+  for(const file of ['0049_employee_welfare_shop.sql','0050_welfare_shop_telegram.sql','0053_welfare_shop_contact_phone.sql','0054_welfare_shop_venues.sql','0055_welfare_shop_batches.sql']){
     for(const sql of readFileSync(new URL('../migrations/'+file,import.meta.url),'utf8').split(';').filter(s=>s.trim()))await db.prepare(sql).run();
   }
   for(const [uid,type] of [[first,'employee'],[second,'employee'],[visitor,'visitor']]){
@@ -90,7 +90,17 @@ test('welfare shop protects employee media and reserves stock through the real W
   assert.equal((await call(settings,{token:'line-editor'})).status,403);
   assert.equal((await call(settings,{headers:{'X-Line-Access-Token':'access-admin','Sec-Fetch-Site':'cross-site'}})).status,403);
   assert.equal((await call(settings,{headers:{'X-Line-Access-Token':'access-admin'}})).status,200);
-  assert.equal((await call(admin,{headers:{'X-Line-Access-Token':'access-admin'}})).status,403);
+  assert.equal((await call(admin,{headers:{'X-Line-Access-Token':'access-admin'}})).status,200);
+  assert.equal((await call(admin,{headers:{'X-Line-Access-Token':'access-admin',Origin:'https://foreign.test'}})).status,403);
+  const batchRequest={action:'batch.save',name:'第一次福利品',ends_at:'2099-12-31T18:00'};
+  assert.equal((await call(settings,{token:'line-editor',body:batchRequest})).status,403);
+  for(const invalid of ['2099-02-30T18:00','2099-12-31T24:00','2000-01-01T18:00','2099-12-31T18:00Z']){
+    assert.equal((await call(settings,{token:'line-admin',body:{...batchRequest,ends_at:invalid}})).status,400);
+  }
+  const savedBatch=await call(settings,{token:'line-admin',body:batchRequest});
+  assert.equal(savedBatch.status,200,await savedBatch.clone().text());
+  const {id:batchId}=await savedBatch.json();
+  assert.equal((await db.prepare('SELECT ends_at FROM welfare_shop_batches WHERE id=?').bind(batchId).first()).ends_at,'2099-12-31T10:00:00.000Z');
   const item={source_key:'fixture:2',category:'廚電',series:'測試',name:'展示品',condition_note:'現品',price_cents:12345,photo:'/9j/2Q=='};
   const importBody={action:'import',products:[item]};
   assert.deepEqual(await (await call(admin,{admin:true,body:importBody})).json(),{imported:1,skipped:0});
@@ -102,7 +112,10 @@ test('welfare shop protects employee media and reserves stock through the real W
   const photo=api+'/photo?id='+draft.id;
   assert.equal((await call(photo,{cookie:one})).status,404);
   assert.equal((await call(admin+'/photo?id='+draft.id,{admin:true})).status,200);
-  const publish=await call(admin,{admin:true,body:{...draft,action:'save',status:'published',stock:1,pickup_note:'由福委會聯絡'}});
+  assert.equal((await call(admin+'/photo?id='+draft.id,{headers:{'X-Line-Access-Token':'access-admin'}})).status,200);
+  const publishData={...draft,action:'save',status:'published',stock:1,pickup_note:'由福委會聯絡'};
+  assert.equal((await call(admin,{admin:true,body:publishData})).status,400);
+  const publish=await call(admin,{admin:true,body:{...publishData,batch_id:batchId}});
   assert.equal(publish.status,200,await publish.clone().text());
   const view=await call(api,{cookie:one});
   assert.equal(view.headers.get('Cache-Control'),'private, no-store');
@@ -202,7 +215,7 @@ test('welfare shop protects employee media and reserves stock through the real W
   const mail=async()=>(await call('/fixture/mail')).json();
   assert.deepEqual(await mail(),[]);
   const half=await call(admin,{admin:true,body:{action:'save',category:'配件',name:'整元進位測試',
-    condition_note:'現品',pickup_note:'現場',price_cents:2359650,stock:2,employee_limit:2,status:'published'}});
+    condition_note:'現品',pickup_note:'現場',price_cents:2359650,stock:2,employee_limit:2,status:'published',batch_id:batchId}});
   assert.equal(half.status,200,await half.clone().text());
   const halfId=(await half.json()).id;
   const assignment={action:'venue.assign',venue_id:taipei,products:[{id:halfId,revision:1},{id:draft.id,revision:afterHide.revision}]};
@@ -243,7 +256,7 @@ test('welfare shop protects employee media and reserves stock through the real W
   assert.equal(replay.status,200);
   assert.equal((await mail()).length,1);
   assert.equal((await (await call(admin,{admin:true})).json()).requests.find(r=>r.id===record.id).email_status,'accepted');
-  const branchProduct={action:'save',category:'配件',name:'台中樣品',condition_note:'現品',pickup_note:'台中',price_cents:10000,stock:2,employee_limit:1,status:'published'};
+  const branchProduct={action:'save',category:'配件',name:'台中樣品',condition_note:'現品',pickup_note:'台中',price_cents:10000,stock:2,employee_limit:1,status:'published',batch_id:batchId};
   const lineSettings=await (await call(settings,{token:'line-admin'})).json();
   assert.deepEqual(Object.keys(lineSettings).sort(),['email_configured','products','venues']);
   assert.ok(lineSettings.products.every(item=>Object.keys(item).length===4));
@@ -265,6 +278,40 @@ test('welfare shop protects employee media and reserves stock through the real W
   assert.deepEqual((await mail()).at(-1).to,['timeout@example.test']);
   assert.equal((await mail()).length,3);
   assert.equal((await (await call(admin,{admin:true})).json()).requests.find(r=>r.id===newOrder.id).email_status,'unknown');
+  const expiryBatch=await (await saveVenue({...batchRequest,name:'到期測試',ends_at:'2099-12-31T19:00'})).json();
+  const {id:expiringId}=await (await saveProduct({...branchProduct,name:'到期商品',photo:'/9j/2Q=='})).json();
+  const legacyId=randomUUID();
+  await db.prepare("INSERT INTO welfare_shop_products(id,category,name,condition_note,status,price_cents,stock,employee_limit,updated_at) VALUES(?,?,?,?,'published',10000,2,1,'fixture')")
+    .bind(legacyId,'配件','既有已上架商品','現品').run();
+  const expiringAssignment={action:'batch.assign',batch_id:expiryBatch.id,products:[{id:expiringId,revision:1},{id:draft.id,revision:afterHide.revision+1}]};
+  assert.equal((await saveVenue({...expiringAssignment,products:[{id:expiringId,revision:1},{id:draft.id,revision:1}]})).status,409);
+  assert.deepEqual(await (await saveVenue(expiringAssignment)).json(),{assigned:2});
+  const expiringPhoto=api+'/photo?id='+expiringId;
+  const expiringOrder={...taichungOrder,id:randomUUID(),product_id:expiringId,revision:2};
+  assert.equal((await call(expiringPhoto,{cookie:one})).status,200);
+  assert.equal((await call(api,{cookie:one,body:expiringOrder})).status,200);
+  await db.prepare("UPDATE welfare_shop_batches SET ends_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?").bind(expiryBatch.id).run();
+  const afterDeadline=await (await call(api,{cookie:one})).json();
+  assert.equal(afterDeadline.products.some(item=>item.id===expiringId),false);
+  assert.equal(afterDeadline.products.some(item=>item.id===legacyId),true);
+  assert.equal(afterDeadline.products.some(item=>item.id===halfId),true);
+  assert.equal(afterDeadline.requests.some(item=>item.id===expiringOrder.id),true);
+  assert.equal((await call(expiringPhoto,{cookie:one})).status,404);
+  assert.equal((await call(admin+'/photo?id='+expiringId,{admin:true})).status,200);
+  const afterExpiryId=randomUUID();
+  const denied=await call(api,{cookie:two,body:{...expiringOrder,id:afterExpiryId}});
+  assert.equal(denied.status,409);
+  assert.match((await denied.json()).error,/已下架/);
+  assert.equal(await journal(afterExpiryId),null);
+  assert.equal((await call(api,{cookie:one,body:expiringOrder})).status,200);
+  const currentBatches=(await (await call(admin,{token:'line-admin'})).json()).batches;
+  assert.equal(currentBatches.find(batch=>batch.id===expiryBatch.id).expired,1);
+  assert.equal((await saveVenue({...expiringAssignment,products:[{id:legacyId,revision:1}]})).status,400);
+  assert.equal((await saveVenue({...batchRequest,id:expiryBatch.id,revision:99,name:'到期測試'})).status,409);
+  assert.equal((await saveVenue({...batchRequest,id:expiryBatch.id,revision:1,name:'到期測試'})).status,200);
+  const afterExtension=(await (await call(api,{cookie:one})).json()).products;
+  assert.equal(afterExtension.some(item=>item.id===expiringId),true);
+  assert.equal(afterExtension.some(item=>item.id===draft.id),false);
   const phoneMessage=(await flush()).find(message=>message.includes(record.id));
   assert.match(phoneMessage,/金額｜\$47,194\n/);
   assert.doesNotMatch(phoneMessage,/02-0000-0000/);

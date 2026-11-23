@@ -29,7 +29,7 @@ export async function decorateAdministrativeResponse(request,response){
   const path=new URL(request.url).pathname;
   if(request.method!=='GET'||(!administrativePages.has(path)&&!['/welfare-shop-admin','/line-push-history'].includes(path))||!response.headers.get('Content-Type')?.includes('text/html'))return response;
   let html=await response.text();
-  if(path==='/sakura-admin')html=html.replace('>活動花絮貼文</button></div><div class="metrics">','>活動花絮貼文</button><a class="btn" href="/welfare-shop-admin">福利品商城管理</a></div><div class="metrics">');
+  if(path==='/sakura-admin')html=html.replace('>活動花絮貼文</button></div><div class="metrics">','>活動花絮貼文</button><a class="btn" href="/welfare-shop-admin">福利品專區設定</a></div><div class="metrics">');
   const headers=new Headers(response.headers);headers.delete('Content-Length');headers.set('Cache-Control','no-store');
   return new Response(html.replace(/<head[^>]*>/i,head=>head+'<script>(()=>{const __name=fn=>fn;('+bridge.toString()+')();})();</script>'),{status:response.status,headers});
 }

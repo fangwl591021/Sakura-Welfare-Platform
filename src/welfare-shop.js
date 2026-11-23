@@ -6,7 +6,7 @@ export const shopPhotoPrefix = 'welfare_shop_private_';
 const headers = {
   'Cache-Control': 'private, no-store',
   'X-Content-Type-Options': 'nosniff',
-  Vary: 'Cookie, Authorization, X-Line-Id-Token'
+  Vary: 'Cookie, Authorization, X-Line-Id-Token, X-Line-Access-Token'
 };
 const uuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 const employee = "status='active' AND bind_status='bound' AND member_type IN ('employee','foreign_employee','manager')";
@@ -69,7 +69,9 @@ async function savePhoto(bucket, photo) {
   return key;
 }
 
-const insertProduct = 'INSERT INTO welfare_shop_products (id,source_key,category,series,name,condition_note,pickup_note,price_cents,stock,employee_limit,status,photo_key,updated_at,venue_id,venue_assigned_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+const dbNow = "strftime('%Y-%m-%dT%H:%M:%fZ','now')";
+const unexpired = "(p.batch_id IS NULL OR EXISTS (SELECT 1 FROM welfare_shop_batches b WHERE b.id=p.batch_id AND b.ends_at>" + dbNow + "))";
+const insertProduct = 'INSERT INTO welfare_shop_products (id,source_key,category,series,name,condition_note,pickup_note,price_cents,stock,employee_limit,status,photo_key,updated_at,venue_id,venue_assigned_by,batch_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 const productColumns = 'p.id,p.category,p.series,p.name,p.condition_note,p.pickup_note,p.employee_limit,p.revision';
 const roundedPrice = '(CAST((p.price_cents+50)/100 AS INTEGER)*100)';
 const orderColumns = 'id,product_id,product_name,price_cents,quantity,status,created_at,updated_at';
@@ -82,17 +84,21 @@ async function memberView(request, env, url, path, onNewRequest) {
   if (!activeBenefitEmployee(identity)) fail('福利品商城限已綁定的在職員工使用。', 403);
 
   if (path === '/api/welfare-shop/photo' && request.method === 'GET') {
-    const row = await db.prepare("SELECT photo_key FROM welfare_shop_products WHERE id=? AND status='published'").bind(url.searchParams.get('id') || '').first();
+    const row = await db.prepare("SELECT p.photo_key FROM welfare_shop_products p WHERE p.id=? AND p.status='published' AND " + unexpired)
+      .bind(url.searchParams.get('id') || '').first();
     return servePhoto(env.R2_BUCKET, row?.photo_key);
   }
   if (path !== '/api/welfare-shop') fail('找不到資料。', 404);
   if (request.method === 'GET') {
-    const [catalog, orders] = await db.batch([
+    const [catalog, orders, clock] = await db.batch([
       db.prepare("SELECT " + productColumns + "," + roundedPrice + " AS price_cents,(photo_key<>'') AS has_photo,stock-" + used +
-        " AS available FROM welfare_shop_products p WHERE status='published' ORDER BY series,category,name,id LIMIT 200"),
-      db.prepare('SELECT ' + orderColumns + ' FROM welfare_shop_requests WHERE employee_uid=? ORDER BY created_at DESC,id DESC LIMIT 100').bind(uid)
+        " AS available,b.ends_at FROM welfare_shop_products p LEFT JOIN welfare_shop_batches b ON b.id=p.batch_id" +
+        " WHERE p.status='published' AND (p.batch_id IS NULL OR b.ends_at>" + dbNow + ") ORDER BY p.series,p.category,p.name,p.id LIMIT 200"),
+      db.prepare('SELECT ' + orderColumns + ' FROM welfare_shop_requests WHERE employee_uid=? ORDER BY created_at DESC,id DESC LIMIT 100').bind(uid),
+      db.prepare('SELECT '+dbNow+' AS server_time')
     ]);
-    return json({ products: catalog.results, requests: orders.results, viewer: identity.display_name || '員工' });
+    return json({ products: catalog.results, requests: orders.results, viewer: identity.display_name || '員工',
+      server_time: clock.results[0].server_time });
   }
   if (request.method !== 'POST') fail('不支援此操作。', 405);
 
@@ -109,6 +115,7 @@ async function memberView(request, env, url, path, onNewRequest) {
     db.prepare("INSERT INTO welfare_shop_requests (id,product_id,employee_uid,product_name,price_cents,quantity,contact,contact_phone,comment,status,created_at,updated_at)" +
       " SELECT ?,p.id,?,p.name," + roundedPrice + ",?,?,?,?,'pending',?,? FROM welfare_shop_products p" +
       " WHERE p.id=? AND p.status='published' AND p.revision=? AND p.employee_limit>=? AND p.stock-" + used + ">=?" +
+      " AND " + unexpired +
       // An older open form carries no quote. It can submit only if rounding would not change its price.
       " AND " + roundedPrice + "=COALESCE(?,p.price_cents)" +
       " AND EXISTS (SELECT 1 FROM welfare_members WHERE line_user_id=? AND " + employee + ") ON CONFLICT DO NOTHING")
@@ -122,7 +129,7 @@ async function memberView(request, env, url, path, onNewRequest) {
     db.prepare('SELECT ' + orderColumns + ' FROM welfare_shop_requests WHERE id=? AND employee_uid=? AND product_id=?')
       .bind(data.id, uid, data.product_id)
   ]);
-  if (!result.results.length) fail('商品、價格或庫存已變更，或您已有此商品的申請。請重新整理。', 409);
+  if (!result.results.length) fail('商品可能已下架、價格或庫存已變更，或您已有此商品的申請。請重新整理。', 409);
   if (notification.meta.changes === 1) onNewRequest?.(data.id);
   return json({ request: result.results[0] });
 }
@@ -156,13 +163,51 @@ async function saveVenue(db, data, actor, now) {
   return json({ id });
 }
 
-async function assignVenueProducts(db, data, actor, now) {
-  if (typeof data.venue_id !== 'string' || !uuid.test(data.venue_id) ||
-      !await db.prepare('SELECT 1 FROM welfare_shop_venues WHERE id=?').bind(data.venue_id).first()) {
-    fail('找不到指定的出貨館別。');
+function batchDeadline(value, now) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) {
+    fail('請填寫下架日期與時間（台北時間）。');
+  }
+  const epoch = Date.parse(value + ':00+08:00');
+  if (!Number.isFinite(epoch) || new Date(epoch + 8 * 60 * 60 * 1000).toISOString().slice(0,16) !== value) {
+    fail('請填寫有效的下架日期與時間。');
+  }
+  const deadline = new Date(epoch).toISOString();
+  if (deadline <= now) fail('下架時間須晚於現在。');
+  return deadline;
+}
+
+async function saveBatch(db, data, actor, now) {
+  const name = field(data.name, 80, true);
+  const deadline = batchDeadline(data.ends_at, now);
+  const id = data.id ?? crypto.randomUUID();
+  if (typeof id !== 'string' || !uuid.test(id)) fail('批次編號不正確。');
+  const result = data.id
+    ? await db.prepare("UPDATE OR IGNORE welfare_shop_batches SET name=?,ends_at=?,updated_by=?,updated_at=?,revision=revision+1 WHERE id=? AND revision=?")
+      .bind(name,deadline,actor,now,id,integer(data.revision,1,Number.MAX_SAFE_INTEGER)).run()
+    : await db.prepare("INSERT INTO welfare_shop_batches(id,name,ends_at,updated_by,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(name) DO NOTHING")
+      .bind(id,name,deadline,actor,now).run();
+  if (!result.meta.changes) fail('批次名稱已存在，或批次已更新。請重新整理後確認。', 409);
+  return json({ id });
+}
+
+async function findBatchId(db, id) {
+  if (id === undefined || id === null || id === '') return null;
+  if (typeof id !== 'string' || !uuid.test(id) ||
+      !await db.prepare('SELECT 1 FROM welfare_shop_batches WHERE id=?').bind(id).first()) fail('找不到指定的批次。');
+  return id;
+}
+
+async function assignProducts(db, data, actor, now) {
+  const batch = data.action === 'batch.assign';
+  const id = batch ? data.batch_id : data.venue_id;
+  const allowed = batch
+    ? "EXISTS (SELECT 1 FROM welfare_shop_batches WHERE id=? AND ends_at>" + dbNow + ")"
+    : "EXISTS (SELECT 1 FROM welfare_shop_venues WHERE id=?)";
+  if (typeof id !== 'string' || !uuid.test(id) || !(await db.prepare('SELECT '+allowed+' AS allowed').bind(id).first()).allowed) {
+    fail(batch ? '請指定尚未到期的批次。' : '找不到指定的出貨館別。');
   }
   if (!Array.isArray(data.products) || data.products.length < 1 || data.products.length > 200) {
-    fail('請選擇要指定館別的商品。');
+    fail('請選擇要套用的商品。');
   }
   const products = data.products.map(item => {
     if (typeof item?.id !== 'string' || !uuid.test(item.id)) fail('商品編號不正確。');
@@ -172,10 +217,11 @@ async function assignVenueProducts(db, data, actor, now) {
   const result = await db.prepare(
     "WITH matching AS MATERIALIZED (SELECT p.id FROM json_each(?) AS item JOIN welfare_shop_products p" +
     " ON p.id=json_extract(item.value,'$.id') AND p.revision=json_extract(item.value,'$.revision'))" +
-    " UPDATE welfare_shop_products SET venue_id=?,venue_assigned_by=?,revision=revision+1,updated_at=?" +
-    " WHERE id IN (SELECT id FROM matching WHERE (SELECT count(*) FROM matching)=?)"
-  ).bind(JSON.stringify(products),data.venue_id,actor,now,products.length).run();
-  if (result.meta.changes !== products.length) fail('選取的商品已有更新。請重新整理並確認館別。', 409);
+    " UPDATE welfare_shop_products SET " + (batch ? 'batch_id=?,' : 'venue_id=?,venue_assigned_by=?,') +
+    "revision=revision+1,updated_at=?" +
+    " WHERE " + allowed + " AND id IN (SELECT id FROM matching WHERE (SELECT count(*) FROM matching)=?)"
+  ).bind(JSON.stringify(products),id,...(batch?[]:[actor]),now,id,products.length).run();
+  if (result.meta.changes !== products.length) fail('商品或指定的設定已變更，請重新整理後確認。', 409);
   return json({ assigned: result.meta.changes });
 }
 
@@ -194,7 +240,8 @@ async function adminView(request, env, url, path, admin) {
     const data = await shopJson(request, 32_000);
     const now = new Date().toISOString();
     if (data?.action === 'venue.save') return saveVenue(db, data, admin.actor, now);
-    if (data?.action === 'venue.assign') return assignVenueProducts(db, data, admin.actor, now);
+    if (data?.action === 'venue.assign' || data?.action === 'batch.assign') return assignProducts(db, data, admin.actor, now);
+    if (data?.action === 'batch.save') return saveBatch(db, data, admin.actor, now);
     fail('不支援此操作。');
   }
   if (path === '/admin-api/welfare-shop/photo' && request.method === 'GET') {
@@ -206,23 +253,27 @@ async function adminView(request, env, url, path, admin) {
     const state = url.searchParams.get('status') || 'pending';
     if (!['pending','confirmed','completed','cancelled'].includes(state)) fail('申請狀態不正確。');
     const offset = integer(Number(url.searchParams.get('offset') || 0), 0, 100000);
-    const [catalog, orders, venues] = await db.batch([
-      db.prepare('SELECT ' + productColumns + ',p.venue_id,p.price_cents,stock,status,(photo_key<>\'\') AS has_photo,' + used +
-        ' AS committed FROM welfare_shop_products p ORDER BY updated_at DESC,id LIMIT 200'),
+    const [catalog, orders, venues, batches] = await db.batch([
+      db.prepare('SELECT ' + productColumns + ',p.venue_id,p.batch_id,p.price_cents,p.stock,p.status,(p.photo_key<>\'\') AS has_photo,' + used +
+        ' AS committed FROM welfare_shop_products p ORDER BY p.updated_at DESC,p.id LIMIT 200'),
       db.prepare('SELECT ' + orderColumns.split(',').map(c => 'r.' + c).join(',') +
         ',r.contact,r.contact_phone,r.comment,COALESCE(m.display_name,\'員工\') AS employee,e.venue_name,e.status AS email_status FROM welfare_shop_requests r' +
         ' LEFT JOIN welfare_members m ON m.line_user_id=r.employee_uid LEFT JOIN welfare_shop_director_email e ON e.request_id=r.id' +
         ' WHERE r.status=? ORDER BY r.created_at,r.id LIMIT 51 OFFSET ?').bind(state, offset),
-      db.prepare('SELECT id,name FROM welfare_shop_venues ORDER BY name,id')
+      db.prepare('SELECT id,name,director_name,email,revision FROM welfare_shop_venues ORDER BY name,id'),
+      db.prepare('SELECT b.id,b.name,b.ends_at,b.revision,b.ends_at<='+dbNow+
+        ' AS expired,(SELECT COUNT(*) FROM welfare_shop_products p WHERE p.batch_id=b.id) AS product_count' +
+        ' FROM welfare_shop_batches b ORDER BY b.ends_at DESC,b.id')
     ]);
     return json({ products: catalog.results, requests: orders.results.slice(0, 50), next: orders.results.length > 50,
-      venues: venues.results });
+      venues: venues.results, batches: batches.results, email_configured: welfareShopEmailConfigured(env) });
   }
   if (request.method !== 'POST') fail('不支援此操作。', 405);
   const data = await shopJson(request, 8_000_000);
   const now = new Date().toISOString();
   if (data?.action === 'import') {
     if (!Array.isArray(data.products) || data.products.length < 1 || data.products.length > 50) fail('每批請匯入 1 至 50 件商品。');
+    const batchId = await findBatchId(db,data.batch_id);
     const entries = data.products.map(item => ({
       source: field(item.source_key, 180, true),
       values: product({ ...item, stock: 0, employee_limit: 1 }),
@@ -234,7 +285,7 @@ async function adminView(request, env, url, path, admin) {
       if (await db.prepare('SELECT 1 FROM welfare_shop_products WHERE source_key=?').bind(source).first()) continue;
       const key = await savePhoto(bucket, photo);
       planned.push({ key, stmt: db.prepare(insertProduct + ' ON CONFLICT(source_key) DO NOTHING')
-        .bind(crypto.randomUUID(), source, ...values, 'draft', key, now, null, null) });
+        .bind(crypto.randomUUID(), source, ...values, 'draft', key, now, null, null, batchId) });
     }
     const results = planned.length ? await db.batch(planned.map(item => item.stmt)) : [];
     const count = results.filter(row => row.meta.changes === 1).length;
@@ -256,6 +307,17 @@ async function adminView(request, env, url, path, admin) {
     if (status === 'published' && (!data.pickup_note?.trim() || values[6] < 1)) fail('上架前請填寫取貨說明，並確認庫存。');
     const id = data.id || crypto.randomUUID();
     if (!uuid.test(id)) fail('商品編號不正確。');
+    const revision = data.id ? integer(data.revision, 1, Number.MAX_SAFE_INTEGER) : null;
+    const previous = data.id
+      ? await db.prepare('SELECT status,batch_id FROM welfare_shop_products WHERE id=? AND revision=?').bind(id,revision).first()
+      : null;
+    if (data.id && !previous) fail('商品已被更新，請重新整理。', 409);
+    const batchId = Object.hasOwn(data,'batch_id') ? await findBatchId(db,data.batch_id) : previous?.batch_id ?? null;
+    if (status==='published' && !(previous?.status==='published' && previous.batch_id===batchId)) {
+      if (!batchId || !await db.prepare('SELECT 1 FROM welfare_shop_batches WHERE id=? AND ends_at>'+dbNow).bind(batchId).first()) {
+        fail('上架前請先指定尚未到期的批次。');
+      }
+    }
     const venueId = data.venue_id || null;
     if (venueId && (typeof venueId !== 'string' || !uuid.test(venueId) ||
         !await db.prepare('SELECT 1 FROM welfare_shop_venues WHERE id=?').bind(venueId).first())) {
@@ -264,17 +326,16 @@ async function adminView(request, env, url, path, admin) {
     const photo = data.photo ? photoData(data.photo) : null;
     if (!data.id) {
       const key = await savePhoto(bucket, photo);
-      await db.prepare(insertProduct).bind(id, null, ...values, status, key, now, venueId, venueId ? admin.actor : null).run();
+      await db.prepare(insertProduct).bind(id, null, ...values, status, key, now, venueId, venueId ? admin.actor : null, batchId).run();
     } else {
-      const revision = integer(data.revision, 1, Number.MAX_SAFE_INTEGER);
       const key = await savePhoto(bucket, photo);
       const result = await db.prepare('UPDATE welfare_shop_products AS p SET category=?,series=?,name=?,condition_note=?,pickup_note=?,' +
         "price_cents=?,stock=?,employee_limit=?,status=?,photo_key=COALESCE(NULLIF(?,''),photo_key)," +
         'venue_assigned_by=CASE WHEN ? AND venue_id IS NOT ? THEN ? ELSE venue_assigned_by END,' +
-        'venue_id=CASE WHEN ? THEN ? ELSE venue_id END,revision=revision+1,updated_at=?' +
+        'venue_id=CASE WHEN ? THEN ? ELSE venue_id END,batch_id=?,revision=revision+1,updated_at=?' +
         ' WHERE id=? AND revision=? AND ?>=' + used)
         .bind(...values, status, key, Number(Object.hasOwn(data,'venue_id')), venueId, admin.actor,
-          Number(Object.hasOwn(data,'venue_id')), venueId, now, id, revision, values[6]).run();
+          Number(Object.hasOwn(data,'venue_id')), venueId, batchId, now, id, revision, values[6]).run();
       if (!result.meta.changes) {
         if (key) await bucket.delete(key);
         fail('商品已被更新，或庫存低於已申請數量。請重新整理。', 409);

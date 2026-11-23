@@ -15,6 +15,17 @@ dialog{width:min(540px,calc(100% - 26px));max-height:85dvh;border:1px solid #bfc
 .venue-checklist{max-height:260px;overflow:auto;border:1px solid #dce1e8;border-radius:8px;padding:8px 12px}
 .venue-checklist label{display:flex;align-items:flex-start;gap:8px}
 .venue-checklist input[type=checkbox]{width:auto;min-height:0;margin-top:6px;flex:none}
+.shop-management{display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px;align-items:start}
+.shop-menu{display:grid;gap:8px;position:sticky;top:80px}
+.shop-menu button,.shop-menu a{text-align:left}
+.shop-menu button[aria-pressed=true]{background:#aa1541;border-color:#aa1541;color:white;font-weight:650}
+.shop-content{min-width:0}.shop-content .card{overflow-wrap:anywhere}.shop-content form{margin-top:14px}
+.shop-content fieldset{border:0;padding:0;margin:12px 0}.shop-content legend{font-weight:650}
+@media(max-width:720px){
+  .shop-management{grid-template-columns:minmax(0,1fr);gap:14px}
+  .shop-menu{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .shop-content .row{grid-template-columns:minmax(0,1fr)}
+}
 `;
 const browserHelpers = `
 const q = id => document.getElementById(id);
@@ -60,7 +71,7 @@ export const welfareShopHtml = page('福利品商城',
   <label>備註<textarea id="comment" maxlength="500"></textarea></label>
   <button class="primary" id="submit">送出購買申請</button></form><p id="detailNotice" role="status"></p></dialog>`,
   `
-let products=[], requests=[], selected, submission, pending=false, sdkReady;
+let products=[], requests=[], selected, submission, pending=false, sdkReady, deadlineTimer, loadGeneration=0;
 function sdk() {
   return sdkReady ||= (async()=>{ await liff.init({liffId:'__SAKURA_LIFF_ID__'}); return liff; })();
 }
@@ -133,12 +144,26 @@ q('apply').onsubmit=async event=>{
   finally{pending=false;q('submit').disabled=false;}
 };
 async function load() {
+  const generation=++loadGeneration;
+  clearTimeout(deadlineTimer);
   try {
     const data=await call('/api/welfare-shop');
+    if(generation!==loadGeneration)return;
     products=data.products; requests=data.requests;
+    if(q('detail').open&&selected?.ends_at&&!products.some(item=>item.id===selected.id)){
+      q('buy').hidden=true;q('apply').hidden=true;
+      q('itemInfo').querySelector('img')?.remove();
+      q('detailNotice').textContent='商品已下架，已送出的申請可在「我的申請」查看。';
+    }
+    const nextDeadline=Math.min(...products.filter(item=>item.ends_at).map(item=>Date.parse(item.ends_at)));
+    if(Number.isFinite(nextDeadline)&&data.server_time){
+      const delay=Math.max(1000,nextDeadline-Date.parse(data.server_time)+250);
+      deadlineTimer=setTimeout(()=>load().catch(()=>signIn(false)),Math.min(delay,2147483647));
+    }
     q('watermark').textContent=data.viewer+' · '+time(new Date());
     q('shop').hidden=false; q('login').hidden=true; q('notice').textContent=''; render();
   } catch(error) {
+    if(generation!==loadGeneration)return;
     q('shop').hidden=true; q('notice').textContent=error.message; q('login').hidden=error.status!==401;
     q('catalog').replaceChildren();q('requests').replaceChildren();
     if(error.status===401)throw error;
@@ -162,10 +187,41 @@ q('refresh').onclick=()=>load().catch(()=>signIn(false));
 load().catch(()=>signIn(false));
 `,true);
 
-export const welfareShopSettingsHtml = page('福利品專區設定',
-  '<strong>櫻花福委會</strong><button id="close" type="button">返回／關閉</button>',
-  `<p id="notice" class="notice" role="status">正在驗證 LINE 管理員身分…</p>
-  <section id="venues" class="card" hidden>
+function managementPage(fromLine) {
+  return page('福利品商城管理',
+    fromLine ? '<strong>櫻花福委會</strong><button id="close" type="button">返回／關閉</button>'
+      : '<strong>櫻花福委會</strong><a class="button" href="/sakura-admin">返回管理後台</a>',
+    `<p id="notice" class="notice" role="status"></p>
+  <div id="admin" class="shop-management" hidden>
+  <nav id="managementMenu" class="shop-menu" aria-label="福利品商城功能">
+    <button type="button" data-panel="productPanel" aria-controls="productPanel">商品管理</button>
+    <button type="button" data-panel="batchPanel" aria-controls="batchPanel">批次與下架時間</button>
+    <button type="button" data-panel="venues" aria-controls="venues">館長與通知信箱</button>
+    <button type="button" data-panel="orderPanel" aria-controls="orderPanel">購買申請</button>
+    <a id="entry" class="button">LINE 商城入口</a>
+  </nav>
+  <div class="shop-content"><section id="productPanel" aria-labelledby="productsHeading">
+  <div class="bar"><button id="add" type="button" class="primary">新增商品</button><button id="reload" type="button">重新整理</button></div>
+  <details><summary>匯入 Excel 商品草稿</summary><label>選擇由 Excel 轉出的商城匯入檔<input id="importFile" type="file" accept=".json,application/json"></label><label>匯入批次<select id="importBatch"></select></label><div id="preview"></div><button id="importConfirm" type="button" class="primary" hidden>確認匯入草稿</button></details>
+  <h2 id="productsHeading">商品</h2><div id="catalog" class="grid"></div></section>
+  <section id="batchPanel" hidden aria-labelledby="batchesHeading">
+  <h2 id="batchesHeading">批次與下架時間</h2>
+  <div class="card"><form id="batchForm"><h3 id="batchFormHeading">新增批次</h3>
+  <div class="row"><label>批次名稱<input name="name" maxlength="80" required></label>
+  <label>下架時間（台北時間）<input name="ends_at" type="datetime-local" required></label></div>
+  <p class="muted">時間一到，該批商品會從員工商城下架，已送出的申請可繼續處理。</p>
+  <div class="bar"><button class="primary" id="saveBatch">儲存批次</button><button id="resetBatch" type="button" hidden>取消編輯</button></div>
+  <p id="batchNotice" role="status"></p></form></div>
+  <div id="batchList" class="grid"></div>
+  <form id="batchAssignment" class="card"><h3>將商品加入批次</h3>
+  <label><span id="assignmentBatchLabel">指定批次</span><select id="assignmentBatch" aria-labelledby="assignmentBatchLabel" required></select></label>
+  <fieldset><legend>選擇商品</legend><div class="bar"><button type="button" id="toggleBatchProducts">全選</button></div>
+  <div id="batchProducts" class="venue-checklist"></div></fieldset>
+  <button class="primary" id="saveBatchAssignment" disabled>套用批次與下架時間</button>
+  <p id="batchAssignmentNotice" role="status"></p></form></section>
+  <section id="orderPanel" hidden aria-labelledby="ordersHeading"><h2 id="ordersHeading">購買申請</h2><label>申請狀態<select id="status"><option value="pending">等待確認</option><option value="confirmed">已確認</option><option value="completed">已完成</option><option value="cancelled">已取消</option></select></label>
+  <div id="requests"></div><div class="bar"><button id="prev">上一頁</button><button id="next">下一頁</button></div></section>
+  <section id="venues" class="card" hidden aria-labelledby="venuesHeading"><h2 id="venuesHeading">館長與通知信箱</h2>
   <p id="emailSetup" class="muted"></p><p id="venueNotice" role="status"></p>
   <div id="venueList" class="grid"></div>
   <form id="venueForm"><h3 id="venueFormHeading">新增館別</h3>
@@ -176,28 +232,60 @@ export const welfareShopSettingsHtml = page('福利品專區設定',
   <details id="assignProducts"><summary>批次指定商品的出貨館別</summary>
   <form id="venueAssignment"><label>指定出貨館別<select id="assignmentVenue" required></select></label>
   <div id="venueProducts" class="venue-checklist" role="group" aria-label="選擇要指定館別的商品"></div>
-  <button class="primary" id="saveAssignment" disabled>套用到勾選的商品</button><p id="assignmentNotice" role="status"></p></form></details></section>`,
+  <button class="primary" id="saveAssignment" disabled>套用到勾選的商品</button><p id="assignmentNotice" role="status"></p></form></details></section>
+  </div></div>
+  <dialog id="productDialog"><form id="edit"><div class="bar"><button type="button" id="editClose">返回商品列表</button></div><h2 id="editTitle"></h2>
+  <label>商品名稱<input name="name" required maxlength="150"></label><div class="row"><label>系列<input name="series" maxlength="80"></label><label>分類<input name="category" required maxlength="50"></label></div>
+  <label>商品狀況<textarea name="condition_note" required maxlength="2000"></textarea></label><label>取貨說明<textarea name="pickup_note" maxlength="1000"></textarea></label>
+  <label><span id="productVenueLabel">出貨館別</span><select name="venue_id" aria-labelledby="productVenueLabel"></select></label>
+  <label><span id="productBatchLabel">上架批次</span><select name="batch_id" aria-labelledby="productBatchLabel"></select></label>
+  <div class="row"><label>員工價（元）<input name="price" type="number" min="0" max="1000000" step="1" required></label><label>總庫存（含已申請）<input name="stock" type="number" min="0" max="9999" required></label></div>
+  <div class="row"><label>每人可申請上限<input name="employee_limit" type="number" min="1" max="9999" required></label><label>商品狀態<select name="status"><option value="draft">草稿</option><option value="published">上架</option><option value="hidden">下架</option></select></label></div>
+  <label>更換商品照片<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label><p id="editNotice" role="status"></p><button class="primary" id="save">儲存商品</button></form></dialog>`,
   `
-let inFlight=false, venueEdit, venues=[], catalog=[];
-function request(options={}) {
-  const identity=liff.getIDToken?.(), access=liff.getAccessToken?.();
-  if(!identity&&!access)throw new Error('無法取得 LINE 身分，請回聊天室重新開啟。');
-  return call('/admin-api/welfare-shop/settings',{
-    ...options,
-    headers:{...options.headers,...(identity?{'X-Line-Id-Token':identity}:{}),...(access?{'X-Line-Access-Token':access}:{})}
-  });
+const fromLine = ${fromLine};
+let editItem, imported, offset=0, inFlight=false, loadRevision=0, displayedPhotos=[], venues=[], venueEdit, catalog=[], batches=[], batchEdit;
+const api='/admin-api/welfare-shop';
+function auth(options={}) {
+  if(fromLine){
+    const identity=liff.getIDToken?.(), access=liff.getAccessToken?.();
+    if(!identity&&!access)throw new Error('無法取得 LINE 身分，請回聊天室重新開啟。');
+    return {...options,headers:{...options.headers,...(identity?{'X-Line-Id-Token':identity}:{}),...(access?{'X-Line-Access-Token':access}:{})}};
+  }
+  let token='';
+  try{token=JSON.parse(localStorage.getItem('sakura_admin_session')||'null')?.token||'';}catch{}
+  return {...options,headers:{...(options.headers||{}),...(token?{Authorization:'Bearer '+token}:{})}};
 }
-q('close').onclick=()=>{
+const request = (path, options) => call(path,auth(options));
+q('entry').href='https://liff.line.me/'+encodeURIComponent('__SAKURA_LIFF_ID__')+'/welfare-shop';
+q('editClose').onclick=()=>{if(!inFlight)q('productDialog').close();};
+q('productDialog').oncancel=event=>{if(inFlight)event.preventDefault();};
+q('add').onclick=()=>edit(null);
+q('reload').onclick=()=>load();
+q('status').onchange=()=>{offset=0;load();};
+q('prev').onclick=()=>{offset=Math.max(0,offset-50);load();};
+q('next').onclick=()=>{offset+=50;load();};
+if(fromLine)q('close').onclick=()=>{
   if(window.liff?.isInClient())liff.closeWindow();
   else if(history.length>1)history.back();
   else location.assign('/');
 };
 function showError(error, element=q('notice')) {
   if(error.status===403){
-    q('venues').hidden=true;
-    q('notice').textContent='目前的 LINE 帳號沒有福利品專區設定權限。';
+    q('admin').hidden=true;
+    q('notice').textContent=fromLine?'目前的 LINE 帳號沒有福利品專區設定權限。':'請使用福委會管理員帳號。';
   }else element.textContent=error.message;
 }
+const menuButtons=[...q('managementMenu').querySelectorAll('button[data-panel]')];
+function selectPanel(id) {
+  for(const toggle of menuButtons){
+    const selected=toggle.dataset.panel===id;
+    toggle.setAttribute('aria-pressed',selected);
+    q(toggle.dataset.panel).hidden=!selected;
+  }
+}
+for(const toggle of menuButtons)toggle.onclick=()=>selectPanel(toggle.dataset.panel);
+selectPanel('productPanel');
 function editVenue(venue) {
   venueEdit=venue;
   const form=q('venueForm');
@@ -216,7 +304,7 @@ q('venueForm').onsubmit=async event=>{
   inFlight=true;q('saveVenue').disabled=true;
   try{
     const fields=Object.fromEntries(new FormData(q('venueForm')));
-    await request(post({action:'venue.save',id:venueEdit?.id,revision:venueEdit?.revision,...fields}));
+    await request(api+'/settings',post({action:'venue.save',id:venueEdit?.id,revision:venueEdit?.revision,...fields}));
     editVenue(null);
     await load();
     q('venueNotice').textContent='館別與館長資訊已儲存。';
@@ -235,7 +323,7 @@ q('venueAssignment').onsubmit=async event=>{
   if(inFlight||!venue||!products.length||!confirm('將 '+products.length+' 件商品的出貨館別設為「'+venue.name+'」？'))return;
   inFlight=true;toggleAssignment();
   try{
-    const result=await request(post({action:'venue.assign',venue_id:venue.id,products}));
+    const result=await request(api+'/settings',post({action:'venue.assign',venue_id:venue.id,products}));
     await load();
     q('assignmentNotice').textContent='已指定 '+result.assigned+' 件商品。';
   }catch(error){showError(error,q('assignmentNotice'));}
@@ -263,62 +351,89 @@ function showVenues(data) {
   q('assignProducts').hidden=!venues.length||!catalog.length;
   toggleAssignment();
 }
-async function load() {
-  showVenues(await request());
-  q('venues').hidden=false;
-  q('notice').textContent='';
+function populateBatches(select, label, selected=select.value) {
+  select.replaceChildren(new Option(label,''),...batches.filter(batch=>!batch.expired||batch.id===selected)
+    .map(batch=>new Option(batch.name+(batch.expired?'（已到期）':''),batch.id)));
+  select.value=batches.some(batch=>batch.id===selected)?selected:'';
 }
-async function start() {
-  try {
-    if(!window.liff)throw new Error('請從 LINE 聊天室重新開啟。');
-    await liff.init({liffId:'__SAKURA_LIFF_ID__'});
-    if(!liff.isLoggedIn()){
-      if(liff.isInClient()||new URL(location.href).searchParams.has('line_auth_callback')){
-        throw new Error('無法確認 LINE 登入狀態，請回聊天室重新開啟。');
-      }
-      liff.login({redirectUri:location.origin+'/?liff.state='+encodeURIComponent('/welfare-shop-settings?line_auth_callback=1')});
-      return;
-    }
-    await load();
-  } catch(error) {
-    showError(error);
+function editBatch(batch) {
+  batchEdit=batch;
+  const form=q('batchForm');
+  form.reset();
+  q('batchFormHeading').textContent=batch?'編輯批次':'新增批次';
+  q('resetBatch').hidden=!batch;
+  if(batch){
+    form.elements.name.value=batch.name;
+    form.elements.ends_at.value=new Date(Date.parse(batch.ends_at)+8*60*60*1000).toISOString().slice(0,16);
+    form.elements.name.focus();
   }
 }
-start();
-`,true);
-
-export const welfareShopAdminHtml = page('福利品商城管理',
-  '<strong>櫻花福委會</strong><a class="button" href="/sakura-admin">返回管理後台</a>',
-  `<p id="notice" class="notice" role="status"></p>
-  <div id="admin" hidden><div class="bar"><button id="add" type="button" class="primary">新增商品</button><button id="reload" type="button">重新整理</button><a id="entry">LINE 商城入口</a></div>
-  <details><summary>匯入 Excel 商品草稿</summary><label>選擇由 Excel 轉出的商城匯入檔<input id="importFile" type="file" accept=".json,application/json"></label><div id="preview"></div><button id="importConfirm" type="button" class="primary" hidden>確認匯入草稿</button></details>
-  <h2 style="margin-top:20px">商品</h2><div id="catalog" class="grid"></div>
-  <h2 style="margin-top:22px">購買申請</h2><label>申請狀態<select id="status"><option value="pending">等待確認</option><option value="confirmed">已確認</option><option value="completed">已完成</option><option value="cancelled">已取消</option></select></label>
-  <div id="requests"></div><div class="bar"><button id="prev">上一頁</button><button id="next">下一頁</button></div></div>
-  <dialog id="productDialog"><form id="edit"><div class="bar"><button type="button" id="editClose">返回商品列表</button></div><h2 id="editTitle"></h2>
-  <label>商品名稱<input name="name" required maxlength="150"></label><div class="row"><label>系列<input name="series" maxlength="80"></label><label>分類<input name="category" required maxlength="50"></label></div>
-  <label>商品狀況<textarea name="condition_note" required maxlength="2000"></textarea></label><label>取貨說明<textarea name="pickup_note" maxlength="1000"></textarea></label>
-  <label><span id="productVenueLabel">出貨館別</span><select name="venue_id" aria-labelledby="productVenueLabel"></select></label>
-  <div class="row"><label>員工價（元）<input name="price" type="number" min="0" max="1000000" step="1" required></label><label>總庫存（含已申請）<input name="stock" type="number" min="0" max="9999" required></label></div>
-  <div class="row"><label>每人可申請上限<input name="employee_limit" type="number" min="1" max="9999" required></label><label>商品狀態<select name="status"><option value="draft">草稿</option><option value="published">上架</option><option value="hidden">下架</option></select></label></div>
-  <label>更換商品照片<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label><p id="editNotice" role="status"></p><button class="primary" id="save">儲存商品</button></form></dialog>`,
-  `
-let editItem, imported, offset=0, inFlight=false, loadRevision=0, displayedPhotos=[], venues=[];
-const api='/admin-api/welfare-shop';
-function auth(options={}) {
-  let token='';
-  try{token=JSON.parse(localStorage.getItem('sakura_admin_session')||'null')?.token||'';}catch{}
-  return {...options,headers:{...(options.headers||{}),...(token?{Authorization:'Bearer '+token}:{})}};
+q('resetBatch').onclick=()=>editBatch();
+q('batchForm').onsubmit=async event=>{
+  event.preventDefault();
+  if(inFlight)return;
+  if(batchEdit?.expired&&batchEdit.product_count&&!confirm('延後下架時間可能會讓此批原本上架的商品重新出現在員工商城。確定儲存？'))return;
+  inFlight=true;q('saveBatch').disabled=true;
+  try{
+    const fields=Object.fromEntries(new FormData(q('batchForm')));
+    await request(api+'/settings',post({action:'batch.save',id:batchEdit?.id,revision:batchEdit?.revision,...fields}));
+    editBatch();
+    await load();
+    q('batchNotice').textContent='批次與下架時間已儲存。';
+  }catch(error){showError(error,q('batchNotice'));}
+  finally{inFlight=false;q('saveBatch').disabled=false;}
+};
+function updateBatchAssignment() {
+  const inputs=[...q('batchProducts').querySelectorAll('input')];
+  const checked=inputs.filter(input=>input.checked).length;
+  q('toggleBatchProducts').textContent=inputs.length&&checked===inputs.length?'取消全選':'全選';
+  q('saveBatchAssignment').disabled=inFlight||!q('assignmentBatch').value||!checked;
 }
-const request = (path, options) => call(path,auth(options));
-q('entry').href='https://liff.line.me/'+encodeURIComponent('__SAKURA_LIFF_ID__')+'/welfare-shop';
-q('editClose').onclick=()=>{if(!inFlight)q('productDialog').close();};
-q('productDialog').oncancel=event=>{if(inFlight)event.preventDefault();};
-q('add').onclick=()=>edit(null);
-q('reload').onclick=()=>load();
-q('status').onchange=()=>{offset=0;load();};
-q('prev').onclick=()=>{offset=Math.max(0,offset-50);load();};
-q('next').onclick=()=>{offset+=50;load();};
+q('batchAssignment').onchange=updateBatchAssignment;
+q('toggleBatchProducts').onclick=()=>{
+  const inputs=[...q('batchProducts').querySelectorAll('input')];
+  const checked=!inputs.every(input=>input.checked);
+  for(const input of inputs)input.checked=checked;
+  updateBatchAssignment();
+};
+q('batchAssignment').onsubmit=async event=>{
+  event.preventDefault();
+  const batch=batches.find(item=>item.id===q('assignmentBatch').value);
+  const checked=new Set([...q('batchProducts').querySelectorAll('input:checked')].map(input=>input.value));
+  const selected=catalog.filter(item=>checked.has(item.id));
+  if(inFlight||!batch||!selected.length)return;
+  const willReopen=selected.some(item=>item.status==='published'&&batches.some(previous=>previous.id===item.batch_id&&previous.expired));
+  const confirmation='將 '+selected.length+' 件商品加入「'+batch.name+'」，統一於 '+time(batch.ends_at)+'（台北時間）下架？';
+  if(!confirm(confirmation+(willReopen?'已到期的上架商品將重新開放申請。':'')))return;
+  const products=selected.map(({id,revision})=>({id,revision}));
+  inFlight=true;updateBatchAssignment();
+  try{
+    const result=await request(api+'/settings',post({action:'batch.assign',batch_id:batch.id,products}));
+    await load();
+    q('batchAssignmentNotice').textContent='已套用到 '+result.assigned+' 件商品。';
+  }catch(error){showError(error,q('batchAssignmentNotice'));}
+  finally{inFlight=false;updateBatchAssignment();}
+};
+function showBatches(data) {
+  batches=data.batches||[];
+  q('batchList').replaceChildren(...batches.map(batch=>{
+    const card=node('article',undefined,'card');
+    card.append(node('h3',batch.name),node('p',(batch.expired?'已到期':'下架時間')+'｜'+time(batch.ends_at)+'（台北時間）','muted'),
+      node('p',batch.product_count+' 件商品'),button('編輯 '+batch.name,()=>{if(!inFlight)editBatch(batch);}));
+    return card;
+  }));
+  populateBatches(q('importBatch'),'先匯入草稿，之後指定');
+  populateBatches(q('assignmentBatch'),'請選擇批次','');
+  q('batchAssignment').hidden=!catalog.length||!batches.some(batch=>!batch.expired);
+  q('batchProducts').replaceChildren(...catalog.map(item=>{
+    const label=node('label'), input=node('input');
+    input.type='checkbox';input.value=item.id;
+    label.append(input,node('span',item.name+' · '+(batches.find(batch=>batch.id===item.batch_id)?.name||'未指定批次')));
+    return label;
+  }));
+  updateBatchAssignment();
+}
+
 function edit(item) {
   editItem=item;
   q('edit').reset();
@@ -329,6 +444,7 @@ function edit(item) {
   const venue=q('edit').elements.namedItem('venue_id');
   venue.replaceChildren(new Option('未指定',''),...venues.map(item=>new Option(item.name,item.id)));
   venue.value=item?.venue_id||'';
+  populateBatches(q('edit').elements.namedItem('batch_id'),'未指定批次',item?.batch_id||'');
   q('editTitle').textContent=item?'編輯商品':'新增商品';
   q('editNotice').textContent=item?.committed?'已申請或完成 '+item.committed+' 件':'';
   q('productDialog').showModal();
@@ -341,7 +457,8 @@ async function load() {
     for(const photo of displayedPhotos)URL.revokeObjectURL(photo);
     displayedPhotos=[];
     q('notice').textContent=''; q('admin').hidden=false;
-    venues=data.venues||[];
+    showVenues(data);
+    showBatches(data);
     q('catalog').replaceChildren(...(data.products.length?data.products.map(p=>{
       const card=node('article',undefined,'card');
       if(p.has_photo){
@@ -356,9 +473,13 @@ async function load() {
       }
       const actions=node('div',undefined,'bar');
       actions.append(button('編輯商品',()=>{if(!inFlight)edit(p);}));
+      const batch=batches.find(item=>item.id===p.batch_id);
       if(p.status==='published')actions.append(button('下架',()=>hideProduct(p)));
-      card.append(node('p',[p.series,p.category,venues.find(venue=>venue.id===p.venue_id)?.name,labels[p.status]].filter(Boolean).join(' · '),'muted'),
-        node('h3',p.name),node('p',money(p.price_cents),'price'),node('p','可申請 '+(p.stock-p.committed)+' 件'),actions);
+      const expired=p.status==='published'&&batch?.expired;
+      card.append(node('p',[p.series,p.category,venues.find(venue=>venue.id===p.venue_id)?.name,
+        expired?'已到期下架':labels[p.status]].filter(Boolean).join(' · '),'muted'),
+        node('h3',p.name),node('p',money(p.price_cents),'price'),node('p',expired?'已停止申請':'可申請 '+(p.stock-p.committed)+' 件'));
+      card.append(node('p',batch?batch.name+' · 下架 '+time(batch.ends_at):'未設定下架時間','muted'),actions);
       return card;
     }):[node('p','目前沒有商品。')]));
     q('requests').replaceChildren(...(data.requests.length?data.requests.map(r=>{
@@ -379,7 +500,7 @@ async function load() {
       card.append(actions);return card;
     }):[node('p','此頁沒有申請。')]));
     q('prev').disabled=offset===0; q('next').disabled=!data.next;
-  }catch(error){if(generation===loadRevision){q('admin').hidden=true;q('notice').textContent=error.message;}}
+  }catch(error){if(generation===loadRevision){q('admin').hidden=true;showError(error);}}
 }
 async function hideProduct(item) {
   if(inFlight||!confirm('確定下架「'+item.name+'」？下架後，員工商城會隱藏此商品。'))return;
@@ -390,14 +511,14 @@ async function hideProduct(item) {
     q('notice').textContent='「'+item.name+'」已下架。'+(q('admin').hidden?'商品列表未能更新，請重新整理。':'');
   }catch(error){
     if(error.status===409)await load();
-    q('notice').textContent=error.message;
+    showError(error);
   }finally{inFlight=false;}
 }
 async function status(item,next) {
   if(inFlight||!confirm((next==='cancelled'?'取消這筆申請並釋放庫存？':'將這筆申請標記為'+labels[next]+'？')))return;
   inFlight=true;
   try{await request(api,post({action:'status',id:item.id,previous:item.status,status:next}));await load();}
-  catch(error){q('notice').textContent=error.message;}
+  catch(error){showError(error);}
   finally{inFlight=false;}
 }
 async function imageData(file) {
@@ -414,15 +535,20 @@ q('edit').onsubmit=async event=>{
   const form=new FormData(q('edit')); const state=form.get('status');
   const price=Number(form.get('price'));
   const priceCents=editItem&&price===wholeYuan(editItem.price_cents)?editItem.price_cents:price*100;
-  if(state==='published'&&editItem?.status!=='published'&&!confirm('確定讓員工看到此商品？'))return;
+  const nextBatch=form.get('batch_id');
+  const rescheduling=editItem?.batch_id!==nextBatch&&batches.some(batch=>batch.id===editItem?.batch_id&&batch.expired);
+  if(state==='published'&&(editItem?.status!=='published'||rescheduling)&&!confirm('確定讓員工看到此商品？'))return;
   inFlight=true;q('save').disabled=true;
   try{
     await request(api,post({action:'save',id:editItem?.id,revision:editItem?.revision,name:form.get('name'),series:form.get('series'),
       category:form.get('category'),condition_note:form.get('condition_note'),pickup_note:form.get('pickup_note'),price_cents:priceCents,
       stock:Number(form.get('stock')),employee_limit:Number(form.get('employee_limit')),status:state,
-      venue_id:form.get('venue_id'),photo:await imageData(form.get('image'))}));
+      venue_id:form.get('venue_id'),batch_id:nextBatch,photo:await imageData(form.get('image'))}));
     q('productDialog').close();await load();q('notice').textContent='商品已儲存。';
-  }catch(error){q('editNotice').textContent=error.message;}
+  }catch(error){
+    if(error.status===403)q('productDialog').close();
+    showError(error,q('editNotice'));
+  }
   finally{inFlight=false;q('save').disabled=false;}
 };
 q('importFile').onchange=async()=>{
@@ -452,11 +578,32 @@ q('importConfirm').onclick=async()=>{
   if(!imported||inFlight)return;
   inFlight=true;q('importConfirm').disabled=true;q('importFile').disabled=true;
   try{
-    const data=await request(api,post({action:'import',products:imported}));
+    const data=await request(api,post({action:'import',batch_id:q('importBatch').value,products:imported}));
     q('importFile').value='';q('preview').replaceChildren();q('importConfirm').hidden=true;imported=null;
     await load();q('notice').textContent='已建立 '+data.imported+' 件草稿，略過 '+data.skipped+' 件已匯入商品。';
-  }catch(error){q('notice').textContent=error.message;}
+  }catch(error){showError(error);}
   finally{inFlight=false;q('importConfirm').disabled=false;q('importFile').disabled=false;}
 };
-load();
-`);
+async function start() {
+  try {
+    if(fromLine){
+      q('notice').textContent='正在驗證 LINE 管理員身分…';
+      if(!window.liff)throw new Error('請從 LINE 聊天室重新開啟。');
+      await liff.init({liffId:'__SAKURA_LIFF_ID__'});
+      if(!liff.isLoggedIn()){
+        if(liff.isInClient()||new URL(location.href).searchParams.has('line_auth_callback')){
+          throw new Error('無法確認 LINE 登入狀態，請回聊天室重新開啟。');
+        }
+        liff.login({redirectUri:location.origin+'/?liff.state='+encodeURIComponent('/welfare-shop-settings?line_auth_callback=1')});
+        return;
+      }
+    }
+    await load();
+  }catch(error){showError(error);}
+}
+start();
+`,fromLine);
+}
+
+export const welfareShopAdminHtml = managementPage(false);
+export const welfareShopSettingsHtml = managementPage(true);
