@@ -4,10 +4,10 @@ import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { welfareShopHtml, welfareShopAdminHtml } from '../src/welfare-shop-ui.js';
+import { welfareShopHtml, welfareShopAdminHtml, welfareShopSettingsHtml } from '../src/welfare-shop-ui.js';
 
 test('mall pages have complete browser scripts and expose the expected entry actions', () => {
-  for (const html of [welfareShopHtml,welfareShopAdminHtml]) {
+  for (const html of [welfareShopHtml,welfareShopAdminHtml,welfareShopSettingsHtml]) {
     const [, script] = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)][0];
     new vm.Script(script.replaceAll('__SAKURA_LIFF_ID__','synthetic'));
   }
@@ -23,7 +23,15 @@ test('welfare shop protects employee media and reserves stock through the real W
     import {handleWelfareShop} from './src/welfare-shop.js';
     import {handleVendorBenefitAccess} from './src/vendor-benefit-access.js';
     import {flushWelfareShopTelegram} from './src/welfare-shop-telegram.js';
-    const messages=[], tasks=new Set();
+    import {flushWelfareShopDirectorEmail} from './src/welfare-shop-director-email.js';
+    import {resolveAdminPrincipal} from './src/editor-access.js';
+    const messages=[], emails=[], tasks=new Set();
+    const sendMail=async(url,options)=>{
+      const mail=JSON.parse(options.body);
+      emails.push({url,key:options.headers['Idempotency-Key'],...mail});
+      if(mail.to[0]==='timeout@example.test')throw Error('Synthetic response timeout');
+      return Response.json({id:'fixture-email'});
+    };
     const send=async lines=>{
       const id=lines.find(line=>line.startsWith('申請編號')).split('｜')[1];
       const attempts=messages.filter(message=>message.includes(id)).length;
@@ -33,13 +41,19 @@ test('welfare shop protects employee media and reserves stock through the real W
       return {ok:true,status:200};
     };
     const flush=(db,id)=>flushWelfareShopTelegram(db,send,'https://isolated.test/welfare-shop-admin',id);
+    const adminDeps={
+      requireAdmin:async({sessionToken})=>sessionToken==='admin'?{ok:true,user:{role:'admin',id:'fixture'}}:null,
+      verifyLine:async (_env,token)=>token==='line-admin'?{lineUserId:'fixture-admin'}:token==='line-editor'?{lineUserId:'fixture-editor'}:null,
+      verifyLineAccess:async (_env,token)=>token==='access-admin'?{lineUserId:'fixture-admin'}:null,
+      findAdmin:async (_db,uid)=>uid==='fixture-admin'?{role:'admin',active:1}:{role:'activity_editor',active:1}
+    };
     export default {fetch(request,env,ctx){
       if(new URL(request.url).pathname==='/fixture/flush')return Promise.all([...tasks]).then(()=>flush(env.DB)).then(()=>Response.json(messages));
+      if(new URL(request.url).pathname==='/fixture/mail')return flushWelfareShopDirectorEmail(env,undefined,sendMail).then(()=>Response.json(emails));
       return handleVendorBenefitAccess(request,env,{
         verifyLine:async(_env,token)=>({one:{lineUserId:'${first}'},two:{lineUserId:'${second}'},visitor:{lineUserId:'${visitor}'}}[token]),
         ensureBinding:async()=>{}
-      },current=>handleWelfareShop(current,env,async()=>request.headers.get('Authorization')==='Bearer admin'?
-        {role:'admin',actor:'admin:fixture'}:{role:'viewer',actor:'viewer:fixture'},id=>{
+      },current=>handleWelfareShop(current,env,()=>resolveAdminPrincipal(current,env.DB,env,adminDeps),id=>{
           const task=flush(env.DB,id).finally(()=>tasks.delete(task));
           tasks.add(task);
           ctx.waitUntil(task);
@@ -47,11 +61,12 @@ test('welfare shop protects employee media and reserves stock through the real W
     }};`;
   const bundle=await build({stdin:{contents:entry,resolveDir:process.cwd()},bundle:true,write:false,format:'esm'});
   const mf=new Miniflare({modules:true,script:bundle.outputFiles[0].text,compatibilityDate:'2026-05-08',
-    d1Databases:['DB'],r2Buckets:['R2_BUCKET'],bindings:{LINE_CHANNEL_SECRET:'synthetic-shop-only'}});
+    d1Databases:['DB'],r2Buckets:['R2_BUCKET'],bindings:{LINE_CHANNEL_SECRET:'synthetic-shop-only',
+      WELFARE_SHOP_EMAIL_FROM:'from@example.test',RESEND_API_KEY:'synthetic'}});
   t.after(()=>mf.dispose());
   const db=await mf.getD1Database('DB');
   await db.prepare('CREATE TABLE welfare_members(line_user_id TEXT PRIMARY KEY,member_type TEXT,status TEXT,bind_status TEXT,display_name TEXT)').run();
-  for(const file of ['0049_employee_welfare_shop.sql','0050_welfare_shop_telegram.sql']){
+  for(const file of ['0049_employee_welfare_shop.sql','0050_welfare_shop_telegram.sql','0053_welfare_shop_contact_phone.sql','0054_welfare_shop_venues.sql']){
     for(const sql of readFileSync(new URL('../migrations/'+file,import.meta.url),'utf8').split(';').filter(s=>s.trim()))await db.prepare(sql).run();
   }
   for(const [uid,type] of [[first,'employee'],[second,'employee'],[visitor,'visitor']]){
@@ -67,9 +82,15 @@ test('welfare shop protects employee media and reserves stock through the real W
   };
   const [one,two,guest]=await Promise.all(['one','two','visitor'].map(login));
   const api='/api/welfare-shop',admin='/admin-api/welfare-shop';
+  const settings=admin+'/settings';
   assert.equal((await call(api)).status,401);
   assert.equal((await call(api,{cookie:guest})).status,403);
   assert.equal((await call(admin,{cookie:one})).status,403);
+  assert.equal((await call(settings)).status,403);
+  assert.equal((await call(settings,{token:'line-editor'})).status,403);
+  assert.equal((await call(settings,{headers:{'X-Line-Access-Token':'access-admin','Sec-Fetch-Site':'cross-site'}})).status,403);
+  assert.equal((await call(settings,{headers:{'X-Line-Access-Token':'access-admin'}})).status,200);
+  assert.equal((await call(admin,{headers:{'X-Line-Access-Token':'access-admin'}})).status,403);
   const item={source_key:'fixture:2',category:'廚電',series:'測試',name:'展示品',condition_note:'現品',price_cents:12345,photo:'/9j/2Q=='};
   const importBody={action:'import',products:[item]};
   assert.deepEqual(await (await call(admin,{admin:true,body:importBody})).json(),{imported:1,skipped:0});
@@ -101,6 +122,10 @@ test('welfare shop protects employee media and reserves stock through the real W
   const winner=outcomes.findIndex(r=>r.status===200),other=1-winner;
   const saved=(await outcomes[winner].json()).request;
   assert.equal(saved.price_cents,product.price_cents);
+  const legacyRecord=(await (await call(admin,{admin:true})).json()).requests.find(r=>r.id===saved.id);
+  assert.equal(legacyRecord.contact,'private-fixture-contact');
+  assert.equal(legacyRecord.contact_phone,null);
+  assert.equal(legacyRecord.email_status,null);
   assert.equal((await (await send(winner)).json()).request.id,saved.id);
   assert.equal((await send(winner,request())).status,409);
   assert.equal((await (await call(api,{cookie:cookies[other]})).json()).requests.length,0);
@@ -164,18 +189,85 @@ test('welfare shop protects employee media and reserves stock through the real W
   const oldReplay=await call(api,{cookie:one,body:{...oldForm,id:retryId}});
   assert.equal(oldReplay.status,200,await oldReplay.clone().text());
   assert.equal((await oldReplay.json()).request.price_cents,12345);
+  const taipeiData={action:'venue.save',name:'台北品牌館',director_name:'隔離台北館長',email:'taipei@example.test'};
+  const taichungData={action:'venue.save',name:'台中品牌館',director_name:'隔離台中館長',email:'taichung@example.test'};
+  const saveVenue=body=>call(settings,{token:'line-admin',body});
+  const saveProduct=body=>call(admin,{admin:true,body});
+  assert.equal((await call(settings,{cookie:one,body:taipeiData})).status,403);
+  assert.equal((await call(settings,{token:'line-editor',body:taipeiData})).status,403);
+  assert.equal((await saveVenue({...taipeiData,email:'a@example.test,b@example.test'})).status,400);
+  const {id:taipei}=await (await saveVenue(taipeiData)).json();
+  const {id:taichung}=await (await saveVenue(taichungData)).json();
+  assert.equal((await saveVenue(taipeiData)).status,409);
+  const mail=async()=>(await call('/fixture/mail')).json();
+  assert.deepEqual(await mail(),[]);
   const half=await call(admin,{admin:true,body:{action:'save',category:'配件',name:'整元進位測試',
     condition_note:'現品',pickup_note:'現場',price_cents:2359650,stock:2,employee_limit:2,status:'published'}});
   assert.equal(half.status,200,await half.clone().text());
+  const halfId=(await half.json()).id;
+  const assignment={action:'venue.assign',venue_id:taipei,products:[{id:halfId,revision:1},{id:draft.id,revision:afterHide.revision}]};
+  assert.equal((await call(settings,{cookie:one,body:assignment})).status,403);
+  assert.equal((await saveVenue({...assignment,products:[assignment.products[0],{...assignment.products[1],revision:1}]})).status,409);
+  assert.equal((await db.prepare('SELECT venue_id FROM welfare_shop_products WHERE id=?').bind(halfId).first()).venue_id,null);
+  assert.deepEqual(await (await saveVenue(assignment)).json(),{assigned:2});
   const [halfProduct]=(await (await call(api,{cookie:one})).json()).products;
-  assert.equal(halfProduct.id,(await half.json()).id);
+  assert.equal(halfProduct.id,halfId);
+  assert.equal(Object.hasOwn(halfProduct,'venue_id'),false);
   assert.equal(halfProduct.price_cents,2359700);
-  const halfOrder=await call(api,{cookie:one,body:{id:randomUUID(),product_id:halfProduct.id,revision:halfProduct.revision,
-    unit_price_cents:halfProduct.price_cents,quantity:2,contact:'synthetic'}});
+  const phoneOrder={id:randomUUID(),product_id:halfProduct.id,revision:halfProduct.revision,
+    unit_price_cents:halfProduct.price_cents,quantity:2};
+  for(const invalid of ['', '1234', 'example@invalid.test', 200000000]){
+    const response=await call(api,{cookie:one,body:{...phoneOrder,contact_phone:invalid}});
+    assert.equal(response.status,400);
+    assert.match((await response.json()).error,/聯絡電話/);
+  }
+  assert.equal((await call(api,{cookie:one,body:phoneOrder})).status,400);
+  assert.equal(await journal(phoneOrder.id),null);
+  const halfOrder=await call(api,{cookie:one,body:{...phoneOrder,contact_phone:'０２-００００-００００'}});
   assert.equal(halfOrder.status,200,await halfOrder.clone().text());
   const {request:record}=await halfOrder.json();
   assert.equal(record.price_cents*record.quantity,4719400);
-  assert.ok((await flush()).some(message=>message.includes('金額｜$47,194\n')));
+  assert.equal(Object.hasOwn(record,'contact_phone'),false);
+  const adminPhoneOrder=(await (await call(admin,{admin:true})).json()).requests.find(r=>r.id===record.id);
+  assert.equal(adminPhoneOrder.contact_phone,'02-0000-0000');
+  assert.equal(adminPhoneOrder.contact,'02-0000-0000');
+  assert.equal(adminPhoneOrder.email_status,'pending');
+  const [firstMail]=await mail();
+  assert.equal(firstMail.url,'https://api.resend.com/emails');
+  assert.deepEqual(firstMail.to,['taipei@example.test']);
+  assert.equal(firstMail.key,'welfare-shop-director/'+record.id);
+  assert.match(firstMail.text,/待福委會確認/);
+  assert.match(firstMail.text,/聯絡電話：02-0000-0000/);
+  assert.doesNotMatch(firstMail.text,/U[12]{32}/);
+  const replay=await call(api,{cookie:one,body:{...phoneOrder,contact_phone:'02-0000-0000'}});
+  assert.equal(replay.status,200);
+  assert.equal((await mail()).length,1);
+  assert.equal((await (await call(admin,{admin:true})).json()).requests.find(r=>r.id===record.id).email_status,'accepted');
+  const branchProduct={action:'save',category:'配件',name:'台中樣品',condition_note:'現品',pickup_note:'台中',price_cents:10000,stock:2,employee_limit:1,status:'published'};
+  const lineSettings=await (await call(settings,{token:'line-admin'})).json();
+  assert.deepEqual(Object.keys(lineSettings).sort(),['email_configured','products','venues']);
+  assert.ok(lineSettings.products.every(item=>Object.keys(item).length===4));
+  const {id:taichungItem}=await (await saveProduct({...branchProduct,venue_id:taichung})).json();
+  assert.equal((await saveProduct({...branchProduct,id:taichungItem,revision:1})).status,200);
+  const taichungOrder={id:randomUUID(),product_id:taichungItem,revision:2,unit_price_cents:10000,quantity:1,contact_phone:'04-0000-0000'};
+  assert.equal((await call(api,{cookie:two,body:taichungOrder})).status,200);
+  const sent=await mail();
+  assert.deepEqual(sent.map(item=>item.to),[['taipei@example.test'],['taichung@example.test']]);
+  const {id:oldRecipientItem}=await (await saveProduct({...branchProduct,venue_id:taichung})).json();
+  const oldRecipientOrder={...taichungOrder,id:randomUUID(),product_id:oldRecipientItem,revision:1};
+  assert.equal((await call(api,{cookie:one,body:oldRecipientOrder})).status,200);
+  assert.equal((await saveVenue({...taichungData,id:taichung,revision:1,email:'timeout@example.test'})).status,200);
+  assert.equal((await saveVenue({...taichungData,id:taichung,revision:1})).status,409);
+  assert.equal((await mail()).length,2);
+  assert.equal((await (await call(admin,{admin:true})).json()).requests.find(r=>r.id===oldRecipientOrder.id).email_status,'recipient_changed');
+  const newOrder={...taichungOrder,id:randomUUID()};
+  assert.equal((await call(api,{cookie:one,body:newOrder})).status,200);
+  assert.deepEqual((await mail()).at(-1).to,['timeout@example.test']);
+  assert.equal((await mail()).length,3);
+  assert.equal((await (await call(admin,{admin:true})).json()).requests.find(r=>r.id===newOrder.id).email_status,'unknown');
+  const phoneMessage=(await flush()).find(message=>message.includes(record.id));
+  assert.match(phoneMessage,/金額｜\$47,194\n/);
+  assert.doesNotMatch(phoneMessage,/02-0000-0000/);
   await db.prepare("UPDATE welfare_members SET status='inactive' WHERE line_user_id=?").bind(first).run();
   assert.equal((await call(photo,{cookie:one})).status,403);
   assert.equal((await call(api,{cookie:one})).status,403);

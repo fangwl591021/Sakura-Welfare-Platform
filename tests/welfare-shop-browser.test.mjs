@@ -3,6 +3,7 @@ import test from 'node:test';
 import {pathToFileURL} from 'node:url';
 import vm from 'node:vm';
 import {chromium} from 'playwright';
+import {buildWorkspaceDashboardFlex} from '../src/workspace/dashboard-flex.js';
 const bundle=process.env.STORE_APP_BUNDLE;
 const {default:worker}=await import(bundle?pathToFileURL(bundle).href:'../src/index.js');
 const origin='https://welfare-shop-price.test';
@@ -18,12 +19,22 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
   for(const width of [390,1366])await t.test(String(width),async()=>{
     const page=await browser.newPage({viewport:{width,height:880}});
     const submissions=[],orders=[],errors=[];
+    const products=fixtures.map(item=>({...item}));
+    const venues=[];
+    let denySettings=false;
+    await page.addInitScript(()=>localStorage.setItem('sakura_admin_session',JSON.stringify({token:'isolated-admin'})));
     page.on('pageerror',error=>errors.push(error.message));
     await page.route('**/*',async route=>{
       const req=route.request(),url=new URL(req.url());
-      if(url.hostname==='static.line-scdn.net')return route.fulfill({body:''});
+      if(url.hostname==='static.line-scdn.net')return route.fulfill({contentType:'application/javascript',body:`
+        window.liff = {
+          init: async () => {}, isLoggedIn: () => true, isInClient: () => true,
+          getIDToken: () => 'isolated-line-admin',
+          closeWindow: () => { window.closedByLiff = true; }
+        };
+      `});
       if(url.origin!==origin)return route.abort();
-      if(['/welfare-shop','/welfare-shop-admin'].includes(url.pathname)){
+      if(['/','/sakura-admin','/welfare-shop','/welfare-shop-admin','/welfare-shop-settings'].includes(url.pathname)){
         const response=await worker.fetch(new Request(req.url()),{},{});
         const html=await response.text();
         for(const [,script] of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))if(script.trim())new vm.Script(script);
@@ -39,10 +50,28 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
         }
         return route.fulfill({json:{products:fixtures,requests:orders,viewer:'隔離員工'}});
       }
+      if(url.pathname==='/admin-api/welfare-shop/settings'){
+        assert.equal(req.headers()['x-line-id-token'],'isolated-line-admin');
+        assert.equal(req.headers().authorization,undefined);
+        if(denySettings)return route.fulfill({status:403,json:{error:'forbidden'}});
+        if(req.method()==='POST'){
+          const body=req.postDataJSON();
+          if(body.action==='venue.save'){
+            venues.push({...body,id:'taipei',revision:1});
+            return route.fulfill({json:{id:'taipei'}});
+          }
+          if(body.action==='venue.assign'){
+            for(const item of products.filter(p=>body.products.some(s=>s.id===p.id)))item.venue_id=body.venue_id;
+            return route.fulfill({json:{assigned:body.products.length}});
+          }
+        }
+        return route.fulfill({json:{products,venues,email_configured:false}});
+      }
       if(url.pathname==='/admin-api/welfare-shop'){
-        return route.fulfill({json:{products:fixtures,requests:orders.map(r=>({...r,employee:'隔離員工',contact:'synthetic'})),next:false}});
+        return route.fulfill({json:{products,venues,requests:orders.map((r,i)=>({...r,employee:'隔離員工',contact_phone:submissions[i].contact_phone})),next:false}});
       }
       if(url.pathname==='/admin-api/editor-context')return route.fulfill({json:{success:true,role:'admin',editor:false}});
+      if(url.pathname==='/api'&&req.method()==='POST')return route.fulfill({json:{success:true,data:{role:'admin'}}});
       return route.fulfill({status:204,body:''});
     });
     await page.goto(origin+'/welfare-shop');
@@ -55,16 +84,50 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
     assert.equal(await page.locator('#applyAmount').textContent(),'單價 $23,597 · 申請總額 $23,597');
     await page.getByLabel('數量').fill('2');
     assert.equal(await page.locator('#applyAmount').textContent(),'單價 $23,597 · 申請總額 $47,194');
-    await page.getByLabel('聯絡方式').fill('synthetic');
+    const phone=page.getByRole('textbox',{name:'聯絡電話'});
+    assert.equal(await phone.getAttribute('type'),'tel');
+    assert.equal(await phone.inputValue(),'');
+    await page.getByRole('button',{name:'送出購買申請'}).click();
+    assert.equal(await phone.evaluate(input=>input.validity.valueMissing),true);
+    assert.equal(submissions.length,0);
+    await phone.fill('02-0000-0000');
     await page.getByRole('button',{name:'送出購買申請'}).click();
     await page.locator('#requests').getByText(/\$47,194/).waitFor();
-    assert.deepEqual(submissions.map(b=>[b.unit_price_cents,b.quantity]),[[2359700,2]]);
-    await page.goto(origin+'/welfare-shop-admin');
+    assert.deepEqual(submissions.map(b=>[b.unit_price_cents,b.quantity,b.contact_phone]),[[2359700,2,'02-0000-0000']]);
+    const flex=buildWorkspaceDashboardFlex({},new Date(),{welfareShopUri:'https://liff.line.me/synthetic/welfare-shop-settings'});
+    const uri=flex.contents.footer.contents.find(item=>item.action?.label==='福利品專區設定').action.uri;
+    const path=new URL(uri).pathname.replace('/synthetic','');
+    await page.goto(origin+'/?liff.state='+encodeURIComponent(path));
+    await page.waitForURL('**/welfare-shop-settings');
+    const settings=page.locator('#venues');
+    await settings.getByLabel('館別名稱').fill('隔離台北品牌館');
+    await settings.getByLabel('館長姓名').fill('隔離台北館長');
+    await settings.getByLabel('預訂通知信箱').fill('taipei@example.test');
+    await settings.getByRole('button',{name:'儲存館別'}).click();
+    await settings.getByText('taipei@example.test',{exact:true}).waitFor();
+    await settings.getByText('批次指定商品的出貨館別',{exact:true}).click();
+    await settings.getByLabel('指定出貨館別').selectOption({label:'隔離台北品牌館'});
+    await settings.getByRole('checkbox',{name:/隔離進位驗證/}).check();
+    page.once('dialog',dialog=>dialog.accept());
+    await settings.getByRole('button',{name:'套用到勾選的商品'}).click();
+    await settings.getByText('已指定 1 件商品。',{exact:true}).waitFor();
+    await page.getByRole('button',{name:'返回／關閉'}).click();
+    assert.equal(await page.evaluate(()=>window.closedByLiff),true);
+    denySettings=true;
+    await page.reload();
+    await page.getByText('目前的 LINE 帳號沒有福利品專區設定權限。',{exact:true}).waitFor();
+    assert.equal(await settings.isVisible(),false);
+    await page.goto(origin+'/sakura-admin');
+    assert.equal(await page.getByRole('link',{name:'福利品專區設定',exact:true}).count(),0);
+    await page.getByRole('link',{name:'福利品商城管理',exact:true}).click();
     await page.locator('#requests').getByText(/\$47,194/).waitFor();
+    await page.locator('#requests').getByText('聯絡電話｜02-0000-0000',{exact:true}).waitFor();
     const card=page.locator('#catalog article').filter({hasText:'隔離進位驗證'});
     await card.getByText('$23,597',{exact:true}).waitFor();
+    await card.getByText(/隔離台北品牌館/).waitFor();
     await card.getByRole('button',{name:'編輯商品'}).click();
     assert.equal(await page.getByLabel('員工價（元）').inputValue(),'23597');
+    assert.equal(await page.getByLabel('出貨館別',{exact:true}).inputValue(),'taipei');
     assert.deepEqual(errors,[]);
     await page.close();
   });

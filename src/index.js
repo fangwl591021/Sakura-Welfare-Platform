@@ -71,7 +71,8 @@ import { handleClubRequest } from "./club-service.js";
 import { handleActivityStoryRequest } from "./activity-stories-service.js";
 import { handleWelfareShop, shopPhotoPrefix } from "./welfare-shop.js";
 import { flushWelfareShopTelegram } from "./welfare-shop-telegram.js";
-import { welfareShopHtml, welfareShopAdminHtml } from "./welfare-shop-ui.js";
+import { flushWelfareShopDirectorEmail } from "./welfare-shop-director-email.js";
+import { welfareShopHtml, welfareShopAdminHtml, welfareShopSettingsHtml } from "./welfare-shop-ui.js";
 import { buildWelfareShopMessage, isWelfareShopCommand, isWelfareShopEvent } from "./welfare-shop-chat.js";
 import { activityStoriesAdminHtml } from "./activity-stories-admin-ui.js";
 import { buildClubPageHtml } from "./club-ui.js";
@@ -319,7 +320,7 @@ const welfareWorker = {
   async scheduled(_controller, env, ctx) {
     if (_controller.cron === '* * * * *') {
       ctx.waitUntil(runDueSegmentSchedules(env.DB,env,{actorAuthorized:actor=>scheduledPushActorAuthorized(env.DB,actor)}));
-      queueWelfareShopTelegram(env,ctx);
+      queueWelfareShopNotifications(env,ctx);
       return;
     }
     if (_controller.cron && _controller.cron !== '*/5 * * * *') return;
@@ -427,9 +428,10 @@ const welfareWorker = {
     const activityAuth = { ...editorDeps, extractLineUserIdFromQr, ensureEmployeeBinding: ensureBinding };
     if (request.method === "GET" && url.pathname === "/welfare-shop") return htmlResponse(welfareShopHtml, env);
     if (request.method === "GET" && url.pathname === "/welfare-shop-admin") return htmlResponse(welfareShopAdminHtml, env);
+    if (request.method === "GET" && url.pathname === "/welfare-shop-settings") return htmlResponse(welfareShopSettingsHtml, env);
     if (/^\/(?:api|admin-api)\/welfare-shop(?:\/|$)/.test(url.pathname)) {
       return handleWelfareShop(request, env, () => resolveAdminPrincipal(request, DB, env, editorDeps),
-        id => queueWelfareShopTelegram(env,ctx,id));
+        id => queueWelfareShopNotifications(env,ctx,id));
     }
     const storyResponse = await handleActivityStoryRequest(request, env, { ...activityAuth, callAi: callOpenAiJson });
     if (storyResponse) return storyResponse;
@@ -511,7 +513,8 @@ const welfareWorker = {
         }
         return Response.redirect(liffTargetUrl.toString(), 302);
       }
-      if (liffTargetUrl && liffTargetUrl.origin === url.origin && liffAllowedPaths.includes(liffTargetUrl.pathname)) {
+      const welfareShopSettingsEntry = liffStatePath === "/welfare-shop-settings" || liffStatePath === "/welfare-shop-settings?line_auth_callback=1";
+      if (liffTargetUrl && liffTargetUrl.origin === url.origin && (liffAllowedPaths.includes(liffTargetUrl.pathname) || welfareShopSettingsEntry)) {
         return htmlResponse(buildLiffLandingHtml(liffStatePath), env);
       }
     }
@@ -1589,7 +1592,7 @@ async function sendTelegramNotification(DB, env, settingKey, lines, options = {}
   }
 }
 
-function queueWelfareShopTelegram(env,ctx,requestId) {
+function queueWelfareShopNotifications(env,ctx,requestId) {
   if (!env.DB || typeof ctx?.waitUntil !== 'function') return;
   const send=lines=>sendTelegramNotification(env.DB,env,'telegram_notify_welfare_shop_request',lines,{
     signal:AbortSignal.timeout(5000),requireTelegramOk:true,quietFailure:true
@@ -1597,6 +1600,9 @@ function queueWelfareShopTelegram(env,ctx,requestId) {
   const adminUrl=getPublicOrigin(env)+'/welfare-shop-admin';
   ctx.waitUntil(flushWelfareShopTelegram(env.DB,send,adminUrl,requestId).catch(()=>{
     console.warn('Welfare shop Telegram queue check failed');
+  }));
+  ctx.waitUntil(flushWelfareShopDirectorEmail(env,requestId).catch(()=>{
+    console.warn('Welfare shop director email queue check failed');
   }));
 }
 
@@ -2086,8 +2092,11 @@ function buildLiffLandingHtml(targetPath) {
         await liff.init({ liffId: LIFF_ID });
         if (!liff.isLoggedIn()) {
           const destination = new URL(targetUrl());
-          if ((destination.pathname === "/line-segment-push" && destination.searchParams.get("chat_auth_callback") === "1") || (destination.pathname === "/activity-stories-admin" && destination.searchParams.get("line_auth_callback") === "1")) throw new Error("無法確認 LINE 登入狀態，請返回聊天室重新開啟。");
-          liff.login({ redirectUri: loginRedirectUri() });
+          const settings = destination.pathname === "/welfare-shop-settings";
+          if ((destination.pathname === "/line-segment-push" && destination.searchParams.get("chat_auth_callback") === "1") || ((destination.pathname === "/activity-stories-admin" || settings) && destination.searchParams.get("line_auth_callback") === "1")) throw new Error("無法確認 LINE 登入狀態，請返回聊天室重新開啟。");
+          liff.login({ redirectUri: settings
+            ? location.origin + "/?liff.state=" + encodeURIComponent("/welfare-shop-settings?line_auth_callback=1")
+            : loginRedirectUri() });
           return;
         }
         location.replace(targetUrl());
@@ -4985,6 +4994,8 @@ async function maybeHandleLineDashboardCommand(db, env, item, origin) {
           findAdmin,
           loadSummary: () => getWorkspaceDashboardSummary(db),
           storyUri: buildLiffUrl(env,'/activity-stories-admin'),
+          welfareShopUri: editorialRow?.role === "admin" && item.activitySignatureVerified === true && item.sourceType === "user"
+            ? buildLiffUrl(env,'/welfare-shop-settings') : "",
         })
       : await handleWorkspaceChatCardIntent({
           lineUserId,

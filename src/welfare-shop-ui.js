@@ -12,6 +12,9 @@ dialog{width:min(540px,calc(100% - 26px));max-height:85dvh;border:1px solid #bfc
 #shop button,#detail button,#close,#login{height:44px;padding-block:0}
 #detail #itemInfo img{display:block;width:100%;max-height:40vh;object-fit:contain;margin:8px 0 12px}
 #apply{margin-top:16px}#apply h3{font-size:18px}
+.venue-checklist{max-height:260px;overflow:auto;border:1px solid #dce1e8;border-radius:8px;padding:8px 12px}
+.venue-checklist label{display:flex;align-items:flex-start;gap:8px}
+.venue-checklist input[type=checkbox]{width:auto;min-height:0;margin-top:6px;flex:none}
 `;
 const browserHelpers = `
 const q = id => document.getElementById(id);
@@ -51,7 +54,10 @@ export const welfareShopHtml = page('福利品商城',
   <section id="requests" style="margin-top:14px" hidden></section><span id="watermark" class="watermark" aria-hidden="true"></span></div>
   <dialog id="detail" aria-labelledby="itemName"><div class="bar"><button id="closeDetail" type="button">返回商品</button></div><h2 id="itemName"></h2><div id="itemInfo"></div>
   <button id="buy" type="button" class="primary" aria-controls="apply" hidden>我要購買</button>
-  <form id="apply" aria-labelledby="applyHeading" hidden><h3 id="applyHeading" tabindex="-1">購買申請</h3><label>數量<input id="quantity" type="number" min="1" required></label><p id="applyAmount" aria-live="polite"></p><label>聯絡方式<input id="contact" required maxlength="120" autocomplete="tel"></label><label>備註<textarea id="comment" maxlength="500"></textarea></label>
+  <form id="apply" aria-labelledby="applyHeading" hidden><h3 id="applyHeading" tabindex="-1">購買申請</h3><label>數量<input id="quantity" type="number" min="1" required></label><p id="applyAmount" aria-live="polite"></p>
+  <label>聯絡電話<input id="contactPhone" type="tel" inputmode="tel" required maxlength="32" autocomplete="tel" aria-describedby="contactPhoneHint"></label>
+  <small id="contactPhoneHint" class="muted">請填寫可聯絡的電話，供安排取貨使用。</small>
+  <label>備註<textarea id="comment" maxlength="500"></textarea></label>
   <button class="primary" id="submit">送出購買申請</button></form><p id="detailNotice" role="status"></p></dialog>`,
   `
 let products=[], requests=[], selected, submission, pending=false, sdkReady;
@@ -120,7 +126,7 @@ q('apply').onsubmit=async event=>{
   event.preventDefault(); if(pending)return;
   pending=true; q('submit').disabled=true;
   try {
-    await call('/api/welfare-shop',post({id:submission,product_id:selected.id,revision:selected.revision,unit_price_cents:wholeYuan(selected.price_cents)*100,quantity:Number(q('quantity').value),contact:q('contact').value,comment:q('comment').value}));
+    await call('/api/welfare-shop',post({id:submission,product_id:selected.id,revision:selected.revision,unit_price_cents:wholeYuan(selected.price_cents)*100,quantity:Number(q('quantity').value),contact_phone:q('contactPhone').value,comment:q('comment').value}));
     q('detail').close(); section(false); await load();
     q('notice').textContent='申請已提交，等待福委會確認。';
   } catch(error) {q('detailNotice').textContent=error.message;}
@@ -156,6 +162,131 @@ q('refresh').onclick=()=>load().catch(()=>signIn(false));
 load().catch(()=>signIn(false));
 `,true);
 
+export const welfareShopSettingsHtml = page('福利品專區設定',
+  '<strong>櫻花福委會</strong><button id="close" type="button">返回／關閉</button>',
+  `<p id="notice" class="notice" role="status">正在驗證 LINE 管理員身分…</p>
+  <section id="venues" class="card" hidden>
+  <p id="emailSetup" class="muted"></p><p id="venueNotice" role="status"></p>
+  <div id="venueList" class="grid"></div>
+  <form id="venueForm"><h3 id="venueFormHeading">新增館別</h3>
+  <div class="row"><label>館別名稱<input name="name" required maxlength="80" placeholder="例：台北品牌館"></label>
+  <label>館長姓名<input name="director_name" required maxlength="80"></label></div>
+  <label>預訂通知信箱<input name="email" type="email" required maxlength="254"></label>
+  <div class="bar"><button class="primary" id="saveVenue">儲存館別</button><button type="button" id="resetVenue" hidden>取消編輯</button></div></form>
+  <details id="assignProducts"><summary>批次指定商品的出貨館別</summary>
+  <form id="venueAssignment"><label>指定出貨館別<select id="assignmentVenue" required></select></label>
+  <div id="venueProducts" class="venue-checklist" role="group" aria-label="選擇要指定館別的商品"></div>
+  <button class="primary" id="saveAssignment" disabled>套用到勾選的商品</button><p id="assignmentNotice" role="status"></p></form></details></section>`,
+  `
+let inFlight=false, venueEdit, venues=[], catalog=[];
+function request(options={}) {
+  const identity=liff.getIDToken?.(), access=liff.getAccessToken?.();
+  if(!identity&&!access)throw new Error('無法取得 LINE 身分，請回聊天室重新開啟。');
+  return call('/admin-api/welfare-shop/settings',{
+    ...options,
+    headers:{...options.headers,...(identity?{'X-Line-Id-Token':identity}:{}),...(access?{'X-Line-Access-Token':access}:{})}
+  });
+}
+q('close').onclick=()=>{
+  if(window.liff?.isInClient())liff.closeWindow();
+  else if(history.length>1)history.back();
+  else location.assign('/');
+};
+function showError(error, element=q('notice')) {
+  if(error.status===403){
+    q('venues').hidden=true;
+    q('notice').textContent='目前的 LINE 帳號沒有福利品專區設定權限。';
+  }else element.textContent=error.message;
+}
+function editVenue(venue) {
+  venueEdit=venue;
+  const form=q('venueForm');
+  form.reset();
+  q('venueFormHeading').textContent=venue?'編輯館別':'新增館別';
+  q('resetVenue').hidden=!venue;
+  if(venue){
+    for(const key of ['name','director_name','email'])form.elements.namedItem(key).value=venue[key];
+    form.elements.namedItem('name').focus();
+  }
+}
+q('resetVenue').onclick=()=>editVenue(null);
+q('venueForm').onsubmit=async event=>{
+  event.preventDefault();
+  if(inFlight)return;
+  inFlight=true;q('saveVenue').disabled=true;
+  try{
+    const fields=Object.fromEntries(new FormData(q('venueForm')));
+    await request(post({action:'venue.save',id:venueEdit?.id,revision:venueEdit?.revision,...fields}));
+    editVenue(null);
+    await load();
+    q('venueNotice').textContent='館別與館長資訊已儲存。';
+  }catch(error){showError(error,q('venueNotice'));}
+  finally{inFlight=false;q('saveVenue').disabled=false;}
+};
+function toggleAssignment() {
+  q('saveAssignment').disabled=inFlight||!q('assignmentVenue').value||!q('venueProducts').querySelector('input:checked');
+}
+q('venueAssignment').onchange=toggleAssignment;
+q('venueAssignment').onsubmit=async event=>{
+  event.preventDefault();
+  const venue=venues.find(item=>item.id===q('assignmentVenue').value);
+  const checked=new Set([...q('venueProducts').querySelectorAll('input:checked')].map(input=>input.value));
+  const products=catalog.filter(item=>checked.has(item.id)).map(({id,revision})=>({id,revision}));
+  if(inFlight||!venue||!products.length||!confirm('將 '+products.length+' 件商品的出貨館別設為「'+venue.name+'」？'))return;
+  inFlight=true;toggleAssignment();
+  try{
+    const result=await request(post({action:'venue.assign',venue_id:venue.id,products}));
+    await load();
+    q('assignmentNotice').textContent='已指定 '+result.assigned+' 件商品。';
+  }catch(error){showError(error,q('assignmentNotice'));}
+  finally{inFlight=false;toggleAssignment();}
+};
+function showVenues(data) {
+  venues=data.venues||[];
+  catalog=data.products;
+  q('emailSetup').textContent=data.email_configured
+    ?'新預訂依商品的出貨館別寄給對應館長。'
+    :'寄信服務尚未設定。可先儲存館長與通知信箱。';
+  q('venueList').replaceChildren(...venues.map(venue=>{
+    const card=node('article',undefined,'card');
+    card.append(node('h3',venue.name),node('p',venue.director_name),node('p',venue.email),
+      button('編輯 '+venue.name,()=>{if(!inFlight)editVenue(venue);}));
+    return card;
+  }));
+  q('assignmentVenue').replaceChildren(new Option('請選擇館別',''),...venues.map(venue=>new Option(venue.name,venue.id)));
+  q('venueProducts').replaceChildren(...catalog.map(item=>{
+    const label=node('label'), input=node('input');
+    input.type='checkbox';input.value=item.id;
+    label.append(input,node('span',item.name+' · '+(venues.find(venue=>venue.id===item.venue_id)?.name||'未指定')));
+    return label;
+  }));
+  q('assignProducts').hidden=!venues.length||!catalog.length;
+  toggleAssignment();
+}
+async function load() {
+  showVenues(await request());
+  q('venues').hidden=false;
+  q('notice').textContent='';
+}
+async function start() {
+  try {
+    if(!window.liff)throw new Error('請從 LINE 聊天室重新開啟。');
+    await liff.init({liffId:'__SAKURA_LIFF_ID__'});
+    if(!liff.isLoggedIn()){
+      if(liff.isInClient()||new URL(location.href).searchParams.has('line_auth_callback')){
+        throw new Error('無法確認 LINE 登入狀態，請回聊天室重新開啟。');
+      }
+      liff.login({redirectUri:location.origin+'/?liff.state='+encodeURIComponent('/welfare-shop-settings?line_auth_callback=1')});
+      return;
+    }
+    await load();
+  } catch(error) {
+    showError(error);
+  }
+}
+start();
+`,true);
+
 export const welfareShopAdminHtml = page('福利品商城管理',
   '<strong>櫻花福委會</strong><a class="button" href="/sakura-admin">返回管理後台</a>',
   `<p id="notice" class="notice" role="status"></p>
@@ -167,11 +298,12 @@ export const welfareShopAdminHtml = page('福利品商城管理',
   <dialog id="productDialog"><form id="edit"><div class="bar"><button type="button" id="editClose">返回商品列表</button></div><h2 id="editTitle"></h2>
   <label>商品名稱<input name="name" required maxlength="150"></label><div class="row"><label>系列<input name="series" maxlength="80"></label><label>分類<input name="category" required maxlength="50"></label></div>
   <label>商品狀況<textarea name="condition_note" required maxlength="2000"></textarea></label><label>取貨說明<textarea name="pickup_note" maxlength="1000"></textarea></label>
+  <label><span id="productVenueLabel">出貨館別</span><select name="venue_id" aria-labelledby="productVenueLabel"></select></label>
   <div class="row"><label>員工價（元）<input name="price" type="number" min="0" max="1000000" step="1" required></label><label>總庫存（含已申請）<input name="stock" type="number" min="0" max="9999" required></label></div>
   <div class="row"><label>每人可申請上限<input name="employee_limit" type="number" min="1" max="9999" required></label><label>商品狀態<select name="status"><option value="draft">草稿</option><option value="published">上架</option><option value="hidden">下架</option></select></label></div>
   <label>更換商品照片<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label><p id="editNotice" role="status"></p><button class="primary" id="save">儲存商品</button></form></dialog>`,
   `
-let editItem, imported, offset=0, inFlight=false, loadRevision=0, displayedPhotos=[];
+let editItem, imported, offset=0, inFlight=false, loadRevision=0, displayedPhotos=[], venues=[];
 const api='/admin-api/welfare-shop';
 function auth(options={}) {
   let token='';
@@ -194,6 +326,9 @@ function edit(item) {
   for(const key of ['name','series','category','condition_note','pickup_note','price','stock','employee_limit','status']){
     q('edit').elements.namedItem(key).value=data[key]??'';
   }
+  const venue=q('edit').elements.namedItem('venue_id');
+  venue.replaceChildren(new Option('未指定',''),...venues.map(item=>new Option(item.name,item.id)));
+  venue.value=item?.venue_id||'';
   q('editTitle').textContent=item?'編輯商品':'新增商品';
   q('editNotice').textContent=item?.committed?'已申請或完成 '+item.committed+' 件':'';
   q('productDialog').showModal();
@@ -206,6 +341,7 @@ async function load() {
     for(const photo of displayedPhotos)URL.revokeObjectURL(photo);
     displayedPhotos=[];
     q('notice').textContent=''; q('admin').hidden=false;
+    venues=data.venues||[];
     q('catalog').replaceChildren(...(data.products.length?data.products.map(p=>{
       const card=node('article',undefined,'card');
       if(p.has_photo){
@@ -221,14 +357,20 @@ async function load() {
       const actions=node('div',undefined,'bar');
       actions.append(button('編輯商品',()=>{if(!inFlight)edit(p);}));
       if(p.status==='published')actions.append(button('下架',()=>hideProduct(p)));
-      card.append(node('p',[p.series,p.category,labels[p.status]].filter(Boolean).join(' · '),'muted'),
+      card.append(node('p',[p.series,p.category,venues.find(venue=>venue.id===p.venue_id)?.name,labels[p.status]].filter(Boolean).join(' · '),'muted'),
         node('h3',p.name),node('p',money(p.price_cents),'price'),node('p','可申請 '+(p.stock-p.committed)+' 件'),actions);
       return card;
     }):[node('p','目前沒有商品。')]));
     q('requests').replaceChildren(...(data.requests.length?data.requests.map(r=>{
       const card=node('article',undefined,'card');
-      card.append(node('h3',r.product_name),node('p',r.employee+' · '+r.quantity+' 件 · '+money(r.price_cents*r.quantity)),
-        node('p','聯絡方式｜'+r.contact),node('p',time(r.created_at),'muted'));
+      card.append(node('h3',r.product_name),node('p',r.employee+' · '+r.quantity+' 件 · '+money(r.price_cents*r.quantity)));
+      if(r.contact_phone)card.append(node('p','聯絡電話｜'+r.contact_phone));
+      if(r.contact && r.contact!==r.contact_phone)card.append(node('p','聯絡方式｜'+r.contact));
+      if(r.email_status){
+        const emailStatus={pending:'待寄送',sending:'處理中',accepted:'寄信服務已接受',failed:'寄送失敗',unknown:'需人工確認',disabled:'寄信服務未設定',cancelled:'申請已取消',recipient_changed:'館長信箱已變更，未寄送'};
+        card.append(node('p','館長通知｜'+r.venue_name+' · '+emailStatus[r.email_status],'muted'));
+      }
+      card.append(node('p',time(r.created_at),'muted'));
       if(r.comment)card.append(node('p','備註｜'+r.comment));
       const actions=node('div',undefined,'bar');
       if(r.status==='pending')actions.append(button('確認申請',()=>status(r,'confirmed')));
@@ -277,7 +419,8 @@ q('edit').onsubmit=async event=>{
   try{
     await request(api,post({action:'save',id:editItem?.id,revision:editItem?.revision,name:form.get('name'),series:form.get('series'),
       category:form.get('category'),condition_note:form.get('condition_note'),pickup_note:form.get('pickup_note'),price_cents:priceCents,
-      stock:Number(form.get('stock')),employee_limit:Number(form.get('employee_limit')),status:state,photo:await imageData(form.get('image'))}));
+      stock:Number(form.get('stock')),employee_limit:Number(form.get('employee_limit')),status:state,
+      venue_id:form.get('venue_id'),photo:await imageData(form.get('image'))}));
     q('productDialog').close();await load();q('notice').textContent='商品已儲存。';
   }catch(error){q('editNotice').textContent=error.message;}
   finally{inFlight=false;q('save').disabled=false;}

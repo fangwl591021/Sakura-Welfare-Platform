@@ -20,6 +20,7 @@ export async function handleDashboardSummaryIntent({
   buildFlex = buildWorkspaceDashboardFlex,
   now = new Date(),
   storyUri = "",
+  welfareShopUri = "",
 }) {
   const admin = await findAdmin(lineUserId);
   if (!admin) {
@@ -34,7 +35,7 @@ export async function handleDashboardSummaryIntent({
   }
 
   try {
-    return { handled: true, authorized: true, message: buildFlex(summary, now, { storyUri }) };
+    return { handled: true, authorized: true, message: buildFlex(summary, now, { storyUri, welfareShopUri }) };
   } catch {
     return { handled: true, authorized: true, text: FLEX_FALLBACK_MESSAGE };
   }

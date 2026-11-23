@@ -66,7 +66,7 @@ function postbackButton(label, data, color) {
   };
 }
 
-export function buildWorkspaceDashboardFlex(summary = {}, now = new Date(), { storyUri = "" } = {}) {
+export function buildWorkspaceDashboardFlex(summary = {}, now = new Date(), { storyUri = "", welfareShopUri = "" } = {}) {
   let safeStoryUri = "";
   try { const u = new URL(storyUri); if (u.protocol === "https:" && u.hostname === "liff.line.me" && !u.username && !u.password) safeStoryUri = u.href; } catch { /* Keep the original dashboard if no usable link is configured. */ }
   const vendorPending = availableNumber(summary.vendor_pending);
@@ -144,6 +144,10 @@ export function buildWorkspaceDashboardFlex(summary = {}, now = new Date(), { st
             type: "button", style: "primary", height: "sm", flex: 1, color: "#9d174d",
             action: { type: "uri", label: "活動花絮", uri: safeStoryUri },
           }] }] : []),
+          ...(/^https:\/\/liff\.line\.me\/[\w-]+\/welfare-shop-settings$/.test(welfareShopUri) ? [{
+            type: "button", style: "primary", height: "sm", color: "#9d174d",
+            action: { type: "uri", label: "福利品專區設定", uri: welfareShopUri },
+          }] : []),
         ],
       },
     },

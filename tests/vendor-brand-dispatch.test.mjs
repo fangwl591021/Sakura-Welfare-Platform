@@ -38,9 +38,10 @@ function dispatcher(db, role = 'none', extra = {}) {
   const deps = {
     buildVendorBrandChatPlan, isVendorBrandChatCandidate, withVendorBrandSwitchButton, buildVendorQrChatPlan, isVendorBranchQrChatCandidate, withVendorQrDashboardButton,
     resolveWorkspaceIntent, WORKSPACE_INTENTS, handleDashboardSummaryIntent, handleWorkspaceChatCardIntent, editorRole, editorChatCard,
-    findAdminUidWhitelistRowReadOnly: async () => editorRole(role) ? { role } : null,
+    findAdminUidWhitelistRowReadOnly: async () => role === 'admin' || editorRole(role) ? { role } : null,
     findAdminUidWhitelistRow: async () => null,
-    resolveWorkspaceIdentity: async () => ({ identity: { admin: role === 'admin' } }), getWorkspaceDashboardSummary: async () => ({ vendor_pending: 2 }), buildLiffUrl: () => origin,
+    resolveWorkspaceIdentity: async () => ({ identity: { admin: role === 'admin' } }), getWorkspaceDashboardSummary: async () => ({ vendor_pending: 2 }),
+    buildLiffUrl: (_env,path) => path==='/welfare-shop-settings' ? 'https://liff.line.me/synthetic/welfare-shop-settings' : origin,
     buildVendorLineDashboardFlex: async (_db, _origin, vendor) => { dashboards.push(vendor.id); return card('營運 ' + vendor.name); },
     buildVendorPortalFlex: async (_env, _origin, vendor, item, uid) => { portals.push({ id: vendor.id, uid, eventUid: item.LINE_user_id }); return card('專區 ' + vendor.name); },
     findVisibleVendorByLineUserId: async () => null,
@@ -92,6 +93,27 @@ test('actual admin/editor dashboards preserve original cards and only add switch
     const prior = JSON.stringify(f.replies[0]);
     await f.run(command('action=vendor.brand.select&vendor_id=brand-3')); assert.deepEqual(f.dashboards, ['brand-3']);
     await f.run(entry()); assert.equal(JSON.stringify(f.replies.at(-1)), prior);
+  }
+});
+
+test('welfare shop settings is an LIFF button for verified private admin dashboard requests', async t => {
+  const db = setup(t, 1);
+  const admin = dispatcher(db, 'admin');
+  for(const keyword of ['儀表板','仪表板']){
+    await admin.run(entry(keyword));
+    const buttons=admin.replies.at(-1).messages[0].contents.footer.contents;
+    assert.deepEqual(buttons.find(item=>item.action?.label==='福利品專區設定')?.action,{
+      type:'uri',label:'福利品專區設定',uri:'https://liff.line.me/synthetic/welfare-shop-settings'
+    });
+  }
+  for(const extra of [{sourceType:'group'},{sourceType:'room'},{activitySignatureVerified:false}]){
+    await admin.run(entry('儀表板',extra));
+    assert.doesNotMatch(JSON.stringify(admin.replies.at(-1)),/welfare-shop-settings/);
+  }
+  for(const role of ['activity_editor','none']){
+    const other=dispatcher(db,role);
+    await other.run(entry());
+    assert.doesNotMatch(JSON.stringify(other.replies.at(-1)),/welfare-shop-settings/);
   }
 });
 
