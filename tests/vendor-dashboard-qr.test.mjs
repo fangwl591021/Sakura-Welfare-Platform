@@ -6,7 +6,7 @@ import {withVendorQrDashboardButton,buildVendorQrChatPlan,isVendorBranchQrChatCa
 import {isVendorBrandChatCandidate} from '../src/vendor-brand-chat.js';
 import {resolveWorkspaceIntent,WORKSPACE_INTENTS} from '../src/workspace/intent-router.js';
 import {handleDashboardSummaryIntent} from '../src/workspace/dashboard-handler.js';
-import {buildWorkspaceDashboardFlex} from '../src/workspace/dashboard-flex.js';
+import {buildWorkspaceDashboardFlex,lotteryChatEntryPath} from '../src/workspace/dashboard-flex.js';
 import {editorRole} from '../src/editor-access.js';
 import {editorChatCard} from '../src/editor-ui.js';
 
@@ -82,7 +82,7 @@ test('single-branch fast path rechecks current branch state and still rejects fo
 const source=readFileSync(new URL('../src/index.js',import.meta.url),'utf8');
 function extract(name,async=false){const code=source.match(new RegExp(`${async?'async ':''}function ${name}\\([^]*?\\n\\}`))?.[0];assert.ok(code,name);return code;}
 function dispatcher(db,replies,role='admin'){
- const deps={withVendorQrDashboardButton,isVendorBranchQrChatCandidate,isVendorBrandChatCandidate,buildVendorQrChatPlan,resolveWorkspaceIntent,WORKSPACE_INTENTS,handleDashboardSummaryIntent,editorRole,editorChatCard,
+ const deps={withVendorQrDashboardButton,isVendorBranchQrChatCandidate,isVendorBrandChatCandidate,buildVendorQrChatPlan,resolveWorkspaceIntent,WORKSPACE_INTENTS,handleDashboardSummaryIntent,editorRole,editorChatCard,lotteryChatEntryPath,
   vendorBrandPlan:async()=>({handled:false,authorized:false,messages:[]}),withVendorBrandSwitchButton:async({message})=>message,
   findAdminUidWhitelistRowReadOnly:async()=>editorRole(role)?{role}:null,
   resolveWorkspaceIdentity:async()=>({identity:{admin:role==='admin'}}),getWorkspaceDashboardSummary:async()=>({vendor_pending:2}),buildLiffUrl:()=>origin,

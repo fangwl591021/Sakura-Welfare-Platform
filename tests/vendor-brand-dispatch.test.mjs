@@ -9,6 +9,7 @@ import { handleDashboardSummaryIntent } from '../src/workspace/dashboard-handler
 import { handleWorkspaceChatCardIntent } from '../src/workspace/workspace-chat-card-handler.js';
 import { editorRole } from '../src/editor-access.js';
 import { editorChatCard } from '../src/editor-ui.js';
+import { lotteryChatEntryPath } from '../src/workspace/dashboard-flex.js';
 
 const UID = 'U' + '1'.repeat(32), origin = 'https://brand-dispatch.example.test';
 const source = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
@@ -37,11 +38,11 @@ function dispatcher(db, role = 'none', extra = {}) {
   const replies = [], dashboards = [], portals = [];
   const deps = {
     buildVendorBrandChatPlan, isVendorBrandChatCandidate, withVendorBrandSwitchButton, buildVendorQrChatPlan, isVendorBranchQrChatCandidate, withVendorQrDashboardButton,
-    resolveWorkspaceIntent, WORKSPACE_INTENTS, handleDashboardSummaryIntent, handleWorkspaceChatCardIntent, editorRole, editorChatCard,
+    resolveWorkspaceIntent, WORKSPACE_INTENTS, handleDashboardSummaryIntent, handleWorkspaceChatCardIntent, editorRole, editorChatCard, lotteryChatEntryPath,
     findAdminUidWhitelistRowReadOnly: async () => role === 'admin' || editorRole(role) ? { role } : null,
     findAdminUidWhitelistRow: async () => null,
     resolveWorkspaceIdentity: async () => ({ identity: { admin: role === 'admin' } }), getWorkspaceDashboardSummary: async () => ({ vendor_pending: 2 }),
-    buildLiffUrl: (_env,path) => path==='/welfare-shop-settings' ? 'https://liff.line.me/synthetic/welfare-shop-settings' : origin,
+    buildLiffUrl: (_env,path) => ['/welfare-shop-settings', lotteryChatEntryPath].includes(path) ? 'https://liff.line.me/synthetic' + path : origin,
     buildVendorLineDashboardFlex: async (_db, _origin, vendor) => { dashboards.push(vendor.id); return card('營運 ' + vendor.name); },
     buildVendorPortalFlex: async (_env, _origin, vendor, item, uid) => { portals.push({ id: vendor.id, uid, eventUid: item.LINE_user_id }); return card('專區 ' + vendor.name); },
     findVisibleVendorByLineUserId: async () => null,
@@ -56,6 +57,27 @@ function dispatcher(db, role = 'none', extra = {}) {
   const env = { LINE_CHANNEL_ACCESS_TOKEN: 'synthetic', DB: db };
   return { replies, dashboards, portals, run: ev => all.maybeHandleLineDashboardCommand(db, env, ev, origin), onboarding: ev => all.maybeHandleVendorLineOnboarding(db, env, ev, origin) };
 }
+
+test('only authorized private LINE dashboards include the lottery settings link', async t => {
+  for (const [role, text, verified, sourceType, allowedModules, visible] of [
+    ['admin', '儀表板', true, 'user', 'activity-calendar', true],
+    ['admin', '儀錶板', true, 'user', '*', true],
+    ['admin', '儀表板', true, 'user', 'line-push', false],
+    ['admin', '儀表板', false, 'user', '*', false],
+    ['admin', '儀表板', true, 'group', '*', false],
+    ['activity_editor', '儀表板', true, 'user', '*', true],
+    ['club_editor', '儀錶板', true, 'user', '*', true],
+    ['activity_editor', '小編工作區', true, 'user', '*', false],
+    ['welfare_editor', '儀表板', true, 'user', '*', false],
+  ]) {
+    const f = dispatcher(setup(t), role, { findAdminUidWhitelistRowReadOnly: async () => ({ role, allowed_modules: allowedModules }) });
+    await f.run({ eventType: 'message', messageType: 'text', sourceType, LINE_user_id: UID, replyToken: 'synthetic', activitySignatureVerified: verified, text });
+    assert.equal(f.replies.length, 1);
+    const packet = JSON.stringify(f.replies[0]);
+    assert.equal(packet.includes('"label":"抽獎設定"'), visible, role + ' ' + text);
+    assert.equal(packet.includes('https://liff.line.me/synthetic' + lotteryChatEntryPath), visible);
+  }
+});
 
 test('actual dashboard dispatcher plus real access SQL chooses, remembers, scopes QR and refreshes authority', async t => {
   const db = setup(t), f = dispatcher(db), unchanged = db.raw.prepare('SELECT * FROM welfare_vendor_line_bindings').all();

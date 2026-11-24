@@ -4,6 +4,54 @@ export const activityLotteryPanel = `<div id="activity-lottery-entry" class="ae-
   <button id="activity-lottery-open" class="btn" type="button">抽獎與獎項</button>
 </div>`;
 
+export function buildActivityLotteryEntryHtml() {
+  return `<!doctype html><html lang="zh-Hant"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>抽獎設定 | SAKURA Welfare</title>
+  <style>
+  *{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#182333;font:16px/1.55 system-ui,sans-serif}
+  .lottery-picker-bar{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border-bottom:1px solid #d2dce7;padding:12px 16px}
+  h1{font-size:23px;margin:0}.lottery-picker-bar a,.btn,select{font:inherit;min-height:44px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:inherit;padding:8px 12px}
+  .lottery-picker-bar a{display:inline-flex;align-items:center;text-decoration:none}.btn:disabled{opacity:.55}
+  main{max-width:680px;margin:auto;padding:20px 16px}section.picker{background:#fff;border:1px solid #d2dce7;border-radius:12px;padding:16px}
+  .picker label{display:block;font-weight:700}.picker select{width:100%;margin:6px 0 12px}.picker p{margin:4px 0 12px}
+  </style>${activityLotteryStyles}</head><body>
+  <header class="lottery-picker-bar"><h1>抽獎設定</h1><a href="/editor-workspace">返回工作區</a></header>
+  <main><section class="picker" aria-label="選擇抽獎活動">
+    <label for="lottery-picker">選擇活動</label>
+    <select id="lottery-picker" disabled><option value="">請選擇活動</option></select>
+    <p id="lottery-picker-status" role="status">正在載入可管理的活動…</p>
+    ${activityLotteryPanel}
+  </section></main>
+  ${activityLotteryDialog}
+  <script>
+  ${installActivityLottery}
+  const picker = document.getElementById('lottery-picker');
+  const notice = document.getElementById('lottery-picker-status');
+  const open = document.getElementById('activity-lottery-open');
+  const events = new Map();
+  open.disabled = true;
+  picker.onchange = () => { open.disabled = !events.has(picker.value); };
+  installActivityLottery(async () => ({}), () => events.get(picker.value));
+  async function loadEvents() {
+    const response = await fetch('/admin-api/activity-checkin?view=lottery_picker', {cache:'no-store', signal:AbortSignal.timeout(15000)});
+    if (response.status === 403) throw new Error('此帳號沒有抽獎設定權限，或登入已逾期。請從 LINE 聊天室重新開啟。');
+    if (!response.ok) throw new Error('暫時無法載入活動，請重新整理。');
+    const result = await response.json();
+    const date = new Intl.DateTimeFormat('zh-TW', {dateStyle:'medium', timeStyle:'short', timeZone:'Asia/Taipei'});
+    for (const event of result.events) {
+      events.set(event.id, event);
+      const start = event.start_at ? new Date(event.start_at) : null;
+      const time = start && Number.isFinite(start.getTime()) ? ' · ' + date.format(start) : '';
+      picker.add(new Option(event.title + time, event.id));
+    }
+    picker.disabled = events.size === 0;
+    notice.textContent = events.size ? '' : '目前沒有可管理的活動。';
+  }
+  loadEvents().catch(error => { notice.textContent = error.name === 'Error' ? error.message : '暫時無法載入活動，請重新整理。'; });
+  </script></body></html>`;
+}
+
 export const activityLotteryDialog = `<dialog id="activity-lottery" aria-labelledby="lottery-heading">
   <header class="lottery-header"><div><h2 id="lottery-heading">抽獎與獎項</h2><p id="lottery-event"></p></div><button id="lottery-close" type="button">關閉／返回活動</button></header>
   <p id="lottery-message" role="status" aria-live="polite"></p>

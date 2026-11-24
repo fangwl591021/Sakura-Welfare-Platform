@@ -1,4 +1,5 @@
 import {editorPresets} from './editor-access.js';
+import {lotteryChatEntryPath, lotteryDashboardAction} from './workspace/dashboard-flex.js';
 function bridge(){
   const original=window.fetch.bind(window);
   const managed=p=>p.startsWith('/admin-api/')||p.startsWith('/workspace-api/')||p.startsWith('/api/line-oa/')||p==='/api/admin-access-check'||p==='/api';
@@ -38,20 +39,29 @@ export function editorWorkspaceHtml(){return `<!doctype html><html lang="zh-Hant
 body[data-workspace] #notice{color:#263e54;margin:0 0 12px}body[data-workspace] .workspace-layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:20px;align-items:start}body[data-workspace] #tabs{display:grid;gap:8px;position:sticky;top:16px}body[data-workspace] #tabs button{text-align:left;padding:12px 14px;font-weight:700;color:#183a55;background:#fff}body[data-workspace] #tabs button[aria-pressed=true]{background:#c8103d;color:#fff}body[data-workspace] #tabs small{display:block;font-size:14px;line-height:1.5;font-weight:400;margin-top:4px}.workspace-scope{margin:0 0 18px;color:#263e54}.workspace-scope summary{cursor:pointer;font-weight:600;min-height:36px}.workspace-scope p{margin:4px 0}#current-section{font-size:21px;line-height:1.4;margin:0 0 12px}body[data-workspace] #content{height:calc(100dvh - 225px);min-height:440px}body[data-workspace] .workspace-panel{min-width:0}@media(max-width:760px){body[data-workspace] .workspace-layout{grid-template-columns:1fr;gap:16px}body[data-workspace] #tabs{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}body[data-workspace] #tabs button{padding:10px;font-size:16px}body[data-workspace] #content{height:70dvh;min-height:460px}body[data-workspace=activity]>header h1{flex:1 0 100%}body[data-workspace=activity] #tabs button:last-child{grid-column:1/-1}}
 </style></head><body><header><h1 id="title">小編工作區</h1><a class="action" href="/sakura-admin">返回後台</a><button id="logout">登出</button></header><main><p id="notice" role="status">正在驗證管理範圍…</p><details id="club-scope" class="workspace-scope" hidden><summary>查看目前管理範圍</summary><p>社團資料／活動／相簿：全部社團；文章與花絮：已授權社團。</p><p>社團相簿用來整理照片；文章與花絮用來編寫圖文貼文。未獲文章授權時，請洽管理員。</p></details><details id="activity-scope" class="workspace-scope" hidden><summary>查看目前管理範圍</summary><p>活動管理／報名簽到：一般活動（非社團活動）；文章與花絮：福委會。</p><p>活動管理用來設定活動與報名欄位；報名簽到用來查看名冊、匯出及處理出席。</p></details><div class="workspace-layout"><nav id="tabs" aria-label="工作區功能"></nav><section class="workspace-panel"><h2 id="current-section" hidden></h2><iframe id="content" title="所屬單位管理功能" hidden></iframe></section></div><section id="presets" hidden></section></main><script>
   const q=s=>document.querySelector(s);let context=null;
+  const lotteryView=new URLSearchParams(location.search).get('view')==='lottery';
   async function lineLogin(){
     q('#notice').textContent='正在確認 LINE 身分與小編權限…';
     if(!window.liff)await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://static.line-scdn.net/liff/edge/2/sdk.js';s.onload=resolve;s.onerror=()=>reject(new Error('LINE 登入元件載入失敗，請重新開啟。'));document.head.append(s);});
     await liff.init({liffId:'__SAKURA_LIFF_ID__'});
-    if(!liff.isLoggedIn()){liff.login({redirectUri:location.origin+'/?liff.state='+encodeURIComponent('/editor-workspace?line_login=1')});return false;}
+    if(!liff.isLoggedIn()){
+      const entry=lotteryView?${JSON.stringify(lotteryChatEntryPath)}:'/editor-workspace?line_login=1';
+      liff.login({redirectUri:location.origin+'/?liff.state='+encodeURIComponent(entry)});return false;
+    }
     const profile=await liff.getProfile();
     const response=await fetch('/api',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'reviewerLineLogin',data:{lineUserId:profile.userId,lineIdToken:liff.getIDToken?.()||'',lineAccessToken:liff.getAccessToken?.()||''}}),signal:AbortSignal.timeout(20000)});
     const result=await response.json();if(!response.ok||!result.success)throw new Error(result.message||'LINE 登入未完成，請聯絡管理員。');
     if(!['admin','welfare_editor','activity_editor','club_editor'].includes(result.data?.role))throw new Error('此帳號沒有小編工作區權限，請聯絡管理員。');
     localStorage.setItem('sakura_admin_session',JSON.stringify(result.data));return true;
   }
-  window.sakuraAdminEnsureSession=async()=>{if(new URLSearchParams(location.search).get('line_login')==='1'){if(!await lineLogin())return false;history.replaceState(null,'',location.pathname);}const r=await fetch('/admin-api/editor-context',{cache:'no-store'});if(!r.ok){q('#notice').textContent='登入已失效，請從聊天室重新開啟或聯絡管理員。';return false;}context=await r.json();window.sakuraAdminSessionRole=context.role;return true;};
+  window.sakuraAdminEnsureSession=async()=>{if(new URLSearchParams(location.search).get('line_login')==='1'){if(!await lineLogin())return false;history.replaceState(null,'',location.pathname+(lotteryView?'?view=lottery':''));}const r=await fetch('/admin-api/editor-context',{cache:'no-store'});if(!r.ok){q('#notice').textContent='登入已失效，請從聊天室重新開啟或聯絡管理員。';return false;}context=await r.json();window.sakuraAdminSessionRole=context.role;return true;};
   q('#logout').onclick=()=>{localStorage.removeItem('sakura_admin_session');location.replace('/sakura-admin');};
   (async()=>{if(!await window.sakuraAdminEnsureSession())return;
+    if(lotteryView){
+      if(['admin','activity_editor','club_editor'].includes(context.role))location.replace('/activity-checkin-admin?view=lottery');
+      else q('#notice').textContent='此帳號沒有抽獎設定權限。';
+      return;
+    }
     if(!context.editor){q('#notice').textContent=context.role==='admin'?'管理員可選擇活動、社團或福利功能。':'小編權限範本已備妥；請在 UID 白名單選擇人員及角色後啟用。';q('#presets').hidden=false;for(const preset of context.presets||[]){const section=document.createElement('section'),h=document.createElement('h2'),p=document.createElement('p');h.textContent=context.role==='admin'?preset.label.replace('小編','工作區'):preset.label;p.textContent=context.role==='admin'?({welfare_editor:'管理福利優惠內容。',activity_editor:'管理活動、報名、簽到及花絮。',club_editor:'管理社團資料、活動與花絮。'}[preset.role]||''):preset.description;section.append(h,p);if(context.role==='admin')for(const page of preset.pages||[]){const a=document.createElement('a');a.className='action';a.href=page.url;a.textContent=page.label;section.append(a,document.createTextNode(' '));}q('#presets').append(section);}return;}
     q('#title').textContent=context.preset.label+'工作區';q('#notice').textContent=context.preset.description;
     const club=context.role==='club_editor',activity=context.role==='activity_editor',sectioned=club||activity;
@@ -107,11 +117,13 @@ export function decorateWhitelistEditorPresets(html){
   return html.replace('</body>',client+'</body>');
 }
 
-export function editorChatCard(role,origin,storyUri='',entryUri=''){
+export function editorChatCard(role,origin,storyUri='',entryUri='',lotteryUri=''){
  const preset=role==='admin'?{label:'管理員',description:'開啟活動、社團與福利工作區。'}:editorPresets().find(p=>p.role===role);if(!preset)return null;
  let safeStoryUri='';try{const u=new URL(storyUri);if(u.protocol==='https:'&&u.hostname==='liff.line.me'&&!u.username&&!u.password)safeStoryUri=u.href;}catch{}
  let safeEntry='';try{const u=new URL(entryUri);if(u.protocol==='https:'&&u.hostname==='liff.line.me'&&!u.username&&!u.password)safeEntry=u.href;}catch{}
  const buttons=[{type:'button',style:'primary',action:{type:'uri',label:'開啟我的工作區',uri:safeEntry||new URL('/sakura-admin?line_login=1',origin).toString()}}];
  if(['activity_editor','club_editor'].includes(role)&&safeStoryUri)buttons.push({type:'button',style:'secondary',action:{type:'uri',label:'活動花絮',uri:safeStoryUri}});
+ const lotteryAction=lotteryDashboardAction(lotteryUri);
+ if(['activity_editor','club_editor'].includes(role)&&lotteryAction)buttons.push({type:'button',style:'secondary',action:lotteryAction});
  return {type:'flex',altText:preset.label+'工作區',contents:{type:'bubble',body:{type:'box',layout:'vertical',spacing:'md',contents:[{type:'text',text:preset.label+'工作區',weight:'bold',size:'xl'},{type:'text',text:preset.description,wrap:true,size:'sm'}]},footer:{type:'box',layout:'vertical',contents:buttons}}};
 }

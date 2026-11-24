@@ -1,4 +1,10 @@
 export const WORKSPACE_DASHBOARD_ALT_TEXT = "櫻花福委會 AI 工作台";
+export const lotteryChatEntryPath = "/editor-workspace?line_login=1&view=lottery";
+
+export function lotteryDashboardAction(uri) {
+  if (!/^https:\/\/liff\.line\.me\/[\w-]+\/editor-workspace\?line_login=1&view=lottery$/.test(uri)) return null;
+  return { type: "uri", label: "抽獎設定", uri };
+}
 
 const DASHBOARD_ACTIONS = Object.freeze([
   ["新增活動", "action=workspace.activity.create", "#06c755"],
@@ -66,7 +72,8 @@ function postbackButton(label, data, color) {
   };
 }
 
-export function buildWorkspaceDashboardFlex(summary = {}, now = new Date(), { storyUri = "", welfareShopUri = "" } = {}) {
+export function buildWorkspaceDashboardFlex(summary = {}, now = new Date(), { storyUri = "", welfareShopUri = "", lotteryUri = "" } = {}) {
+  const lotteryAction = lotteryDashboardAction(lotteryUri);
   let safeStoryUri = "";
   try { const u = new URL(storyUri); if (u.protocol === "https:" && u.hostname === "liff.line.me" && !u.username && !u.password) safeStoryUri = u.href; } catch { /* Keep the original dashboard if no usable link is configured. */ }
   const vendorPending = availableNumber(summary.vendor_pending);
@@ -148,6 +155,7 @@ export function buildWorkspaceDashboardFlex(summary = {}, now = new Date(), { st
             type: "button", style: "primary", height: "sm", color: "#9d174d",
             action: { type: "uri", label: "福利品專區設定", uri: welfareShopUri },
           }] : []),
+          ...(lotteryAction ? [{ type: "button", style: "primary", height: "sm", color: "#9d174d", action: lotteryAction }] : []),
         ],
       },
     },

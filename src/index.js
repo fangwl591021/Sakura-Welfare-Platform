@@ -64,6 +64,7 @@ import { decorateVendorPrivateContractHtml } from "./vendor-private-contracts-ui
 import { createWorkspaceActivityRuntime, handleWorkspaceAgentTurn } from "./workspace/workspace-agent-entry-handler.js";
 import { handleActivityFormRequest, authorizeActivityFormAdmin } from "./activity-form-service.js";
 import { handleActivityLottery } from "./activity-lottery.js";
+import { buildActivityLotteryEntryHtml } from "./activity-lottery-ui.js";
 import { handleActivityLotteryVideo, serveDefaultLotteryVideo } from "./activity-lottery-video.js";
 import { normalizeRegistrationWindow } from "./activity-registration-window.js";
 import { attachActivityKeywords, prepareActivityKeywordRule, isActivityKeywordRule, checkinByActivityKeyword } from "./activity-keyword-checkin.js";
@@ -94,6 +95,7 @@ import { recordBindingCompletion,flushBindingNotifications,readBindingHistory } 
 import { queueRetiredIdentityMenus,repairRetiredMenuPayload } from "./rich-menu-retirement.js";
 import { editorRole,editorPresets,persistWhitelistEditorRole,reconcileEditorSession,resolveAdminPrincipal,guardAdminRequest,editorActorRole,editorCanReadEvent,filterEditorEvents,activityScopeSql } from "./editor-access.js";
 import { editorChatCard, decorateAdministrativeResponse,decorateWhitelistEditorPresets,editorWorkspaceHtml,welfareEditorHtml } from "./editor-ui.js";
+import { lotteryChatEntryPath } from "./workspace/dashboard-flex.js";
 import { findLineOpinion, getPendingLineOpinions, readLineOpinionContext } from "./line-opinion.js";
 import { handleEditorWelfare } from "./editor-welfare.js";
 /**
@@ -525,7 +527,8 @@ const welfareWorker = {
         return Response.redirect(liffTargetUrl.toString(), 302);
       }
       const welfareShopSettingsEntry = liffStatePath === "/welfare-shop-settings" || liffStatePath === "/welfare-shop-settings?line_auth_callback=1";
-      if (liffTargetUrl && liffTargetUrl.origin === url.origin && (liffAllowedPaths.includes(liffTargetUrl.pathname) || welfareShopSettingsEntry)) {
+      const lotteryEntry = liffTargetUrl?.pathname === "/editor-workspace" && liffStatePath === lotteryChatEntryPath;
+      if (liffTargetUrl && liffTargetUrl.origin === url.origin && (liffAllowedPaths.includes(liffTargetUrl.pathname) || welfareShopSettingsEntry || lotteryEntry)) {
         return htmlResponse(buildLiffLandingHtml(liffStatePath), env);
       }
     }
@@ -601,6 +604,9 @@ const welfareWorker = {
     }
 
     if (request.method === "GET" && url.pathname === "/activity-checkin-admin") {
+      if (url.searchParams.get("view") === "lottery") {
+        return htmlResponse(decorateActivityTutorialHtml(buildActivityLotteryEntryHtml()), env);
+      }
       return htmlResponse(decorateActivityAdminHtml(buildActivityCheckinAdminHtml()), env);
     }
 
@@ -987,6 +993,15 @@ const welfareWorker = {
 
     if (request.method === "GET" && url.pathname === "/admin-api/activity-checkin") {
       if (!DB) return corsJson({ success: false, message: "D1 binding DB is not configured." });
+      if (url.searchParams.get("view") === "lottery_picker") {
+        const scope = activityScopeSql(activityManagerActor);
+        const rows = await DB.prepare(`
+          SELECT e.id, e.title, e.start_at FROM welfare_activity_events e
+          ${scope ? "WHERE " + scope : ""}
+          ORDER BY COALESCE(NULLIF(e.start_at, ''), e.created_at) DESC, e.id
+        `).all();
+        return Response.json({ success: true, events: rows.results || [] }, { headers: { "Cache-Control": "no-store" } });
+      }
       return corsJson(await getActivityCheckinDashboard(DB, url, env, activityManagerActor));
     }
 
@@ -4979,9 +4994,19 @@ async function maybeHandleLineDashboardCommand(db, env, item, origin) {
     return { type: "vendor_branch_qr", role: plan.authorized ? "vendor_qr" : "none", ok: lineResult.ok, status: lineResult.status };
   }
   const editorialRow=await findAdminUidWhitelistRowReadOnly(db,lineUserId);
+  const workspaceIntent = resolveWorkspaceIntent(getLineItemWorkspaceInput(item));
+  let lotteryUri = "";
+  if (workspaceIntent === WORKSPACE_INTENTS.DASHBOARD_SUMMARY && item.activitySignatureVerified === true && item.sourceType === "user") {
+    const role = editorialRow?.role;
+    const modules = (String(editorialRow?.allowed_modules || "").trim() || "*").split(",").map(module => module.trim());
+    if (["activity_editor", "club_editor"].includes(role)
+      || (role === "admin" && modules.some(module => ["*", "activity-calendar", "activity-checkin", "activities"].includes(module)))) {
+      lotteryUri = buildLiffUrl(env, lotteryChatEntryPath);
+    }
+  }
   if(editorRole(editorialRow?.role)){
-    let message=editorChatCard(editorialRow.role,origin,buildLiffUrl(env,'/activity-stories-admin'),buildLiffUrl(env,'/editor-workspace?line_login=1'));
-    if(resolveWorkspaceIntent(getLineItemWorkspaceInput(item))===WORKSPACE_INTENTS.DASHBOARD_SUMMARY){message=await withVendorQrDashboardButton({db,item,message});message=await withVendorBrandSwitchButton({db,item,message,surface:"dashboard"});}
+    let message=editorChatCard(editorialRow.role,origin,buildLiffUrl(env,'/activity-stories-admin'),buildLiffUrl(env,'/editor-workspace?line_login=1'),lotteryUri);
+    if(workspaceIntent===WORKSPACE_INTENTS.DASHBOARD_SUMMARY){message=await withVendorQrDashboardButton({db,item,message});message=await withVendorBrandSwitchButton({db,item,message,surface:"dashboard"});}
     const lineResult=await replyLineMessages(env,item.replyToken,[message]);
     return {type:'line_dashboard',role:editorialRow.role,ok:lineResult.ok,status:lineResult.status};
   }
@@ -4992,7 +5017,6 @@ async function maybeHandleLineDashboardCommand(db, env, item, origin) {
     const reply = await replyLineMessages(env,item.replyToken,[message]);
     return {type:'line_dashboard',role:'admin',ok:reply.ok,status:reply.status};
   }
-  const workspaceIntent = resolveWorkspaceIntent(getLineItemWorkspaceInput(item));
   if (workspaceIntent) {
     const findAdmin = async (userId) => {
       const result = await resolveWorkspaceIdentity({
@@ -5008,6 +5032,7 @@ async function maybeHandleLineDashboardCommand(db, env, item, origin) {
           storyUri: buildLiffUrl(env,'/activity-stories-admin'),
           welfareShopUri: editorialRow?.role === "admin" && item.activitySignatureVerified === true && item.sourceType === "user"
             ? buildLiffUrl(env,'/welfare-shop-settings') : "",
+          lotteryUri,
         })
       : await handleWorkspaceChatCardIntent({
           lineUserId,

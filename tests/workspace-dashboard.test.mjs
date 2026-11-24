@@ -207,7 +207,7 @@ test("workspace implementation remains read-only and owns one LINE reply", () =>
   assert.doesNotMatch(workspaceSource, /\b(?:INSERT|UPDATE|DELETE)\b/i);
   assert.match(indexSource, /resolveWorkspaceIntent\(getLineItemWorkspaceInput\(item\)\)/);
   const workspaceBranch = indexSource.match(
-    /const workspaceIntent = resolveWorkspaceIntent\(getLineItemWorkspaceInput\(item\)\);[\s\S]*?\r?\n  }\r?\n  const subcommand =/
+    /\r?\n  if \(workspaceIntent\) \{[\s\S]*?\r?\n  }\r?\n  const subcommand =/
   )?.[0] || "";
   assert.match(workspaceBranch, /const result = workspaceIntent === WORKSPACE_INTENTS\.DASHBOARD_SUMMARY/);
   assert.equal((workspaceBranch.match(/await replyLineMessages\(/g) || []).length, 1);

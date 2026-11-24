@@ -6,6 +6,7 @@ import vm from 'node:vm';
 import worker from '../src/index.js';
 import { lotteryDefaultVideoPath } from '../src/activity-lottery-video.js';
 import { ACTIVITY_TUTORIALS } from '../src/activity-tutorial-media.js';
+import { lotteryChatEntryPath } from '../src/workspace/dashboard-flex.js';
 
 function fixture(t) {
   const sqlite = new DatabaseSync(':memory:');
@@ -31,6 +32,7 @@ function fixture(t) {
     if (line) sqlite.prepare("INSERT INTO admin_uid_whitelist VALUES(?,?,'*',1)").run(line,role);
   }
   sqlite.exec("INSERT INTO welfare_activity_events VALUES('family','家庭日','active'),('solo','員工聚會','active'),('club','社團聚會','active')");
+  sqlite.exec("ALTER TABLE welfare_activity_events ADD COLUMN start_at TEXT; ALTER TABLE welfare_activity_events ADD COLUMN created_at TEXT;");
   sqlite.exec("INSERT INTO welfare_activity_club_links VALUES('club')");
   const person = (name, type, attendance, {event = 'family', status = 'active', checked = true} = {}) => {
     const uid = 'fixture-uid-' + name;
@@ -180,6 +182,26 @@ test('the Worker keeps the existing admin and editor scope, and serves syntax-va
   assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
 });
 
+test('the LINE lottery picker accepts only its LIFF state and returns scoped activity summaries', async t => {
+  const f = fixture(t);
+  const liffPath = '/?liff.state=' + encodeURIComponent(lotteryChatEntryPath);
+  assert.match(await (await f.call('family', {token:'',path:liffPath})).text(), /const TARGET_PATH = "\/editor-workspace\?line_login=1&view=lottery"/);
+  const unexpected = await f.call('family', {token:'',path:liffPath + encodeURIComponent('&extra=1')});
+  assert.doesNotMatch(await unexpected.text(), /const TARGET_PATH = "\/editor-workspace/);
+  const path = '/admin-api/activity-checkin?view=lottery_picker';
+  for (const [token, ids] of [['admin',['club','family','solo']],['activities',['family','solo']],['clubs',['club']]]) {
+    const result = await ok(f.call('family', { token, path }));
+    assert.deepEqual(result.events.map(event => event.id), ids);
+    assert.deepEqual(Object.keys(result.events[0]), ['id','title','start_at']);
+  }
+  for (const token of ['', 'member', 'welfare']) assert.equal((await f.call('family', {token, path})).status, 403);
+  const html = await (await f.call('family', {token:'', path:'/activity-checkin-admin?view=lottery'})).text();
+  assert.match(html, /<h1>抽獎設定<\/h1>/);
+  assert.match(html, /返回工作區/);
+  for (const [, script] of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) new vm.Script(script);
+  assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n, 0);
+});
+
 test('the bundled clip supports video ranges and custom MP4s stay scoped to one event',async t=>{
   const f=fixture(t), mime={'Content-Type':'video/mp4'};
   const head=await f.call('family',{token:'',path:lotteryDefaultVideoPath,method:'HEAD'});
@@ -233,10 +255,17 @@ test('mobile browser can select a mode, create a prize, and draw from the correc
     page.on('pageerror',error=>errors.push(error.message));
     page.on('dialog',dialog=>dialog.accept());
     await page.addInitScript(()=>localStorage.setItem('sakura_admin_session',JSON.stringify({token:'admin'})));
+    await page.addInitScript(()=>{
+      window.liff={init:async()=>{},isLoggedIn:()=>true,getProfile:async()=>({userId:'synthetic'}),getIDToken:()=> 'fixture-token'};
+    });
     await page.route('**/*',async route=>{
       const request=route.request(), url=new URL(request.url());
       if(url.origin!=='https://isolated.test') return route.abort();
-      if(url.pathname==='/admin-api/activity-checkin') return route.fulfill({json:{
+      if(url.pathname==='/api' && request.method()==='POST'){
+        assert.equal(request.postDataJSON().action,'reviewerLineLogin');
+        return route.fulfill({json:{success:true,data:{role:'admin',token:'admin'}}});
+      }
+      if(url.pathname==='/admin-api/activity-checkin' && url.searchParams.get('view')!=='lottery_picker') return route.fulfill({json:{
         success:true, selected_event_id:'family', events:[{id:'family',title:'家庭日',status:'active',checkin_count:1,checkin_url:'https://isolated.test/qr'}],
         summary:{event_total:1,active_total:1,checkin_total:1}, attendance:[]
       }});
@@ -248,6 +277,17 @@ test('mobile browser can select a mode, create a prize, and draw from the correc
         body:request.method()==='POST'?request.postDataJSON():undefined,raw:request.method()==='PUT'?request.postDataBuffer():undefined});
       return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:Buffer.from(await response.arrayBuffer())});
     });
+    const liffEntry='https://isolated.test/?liff.state='+encodeURIComponent(lotteryChatEntryPath);
+    await page.goto(liffEntry);
+    await page.getByRole('heading',{name:'抽獎設定',exact:true}).waitFor();
+    const picker=page.getByLabel('選擇活動',{exact:true});
+    await picker.selectOption('family');
+    await page.getByRole('button',{name:'抽獎與獎項',exact:true}).click();
+    await page.getByText(/可列入名單 1 人/).waitFor();
+    await page.getByRole('button',{name:'關閉／返回活動',exact:true}).click();
+    assert.equal(await picker.isVisible(),true);
+    assert.equal(await page.getByRole('link',{name:'返回工作區'}).isVisible(),true);
+    assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
     await page.goto('https://isolated.test/activity-checkin-admin');
     await page.getByText('家庭日',{exact:true}).first().waitFor();
     const lesson=page.locator('#activity-lottery-entry').getByRole('button',{name:'操作教學：抽獎與獎項',exact:true});
