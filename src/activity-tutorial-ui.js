@@ -21,6 +21,7 @@ const installTutorials = String.raw`function installActivityTutorials(tutorials)
     [document.querySelector('label[for="activity-checkin-keyword"]'), 'keyword', 0, 'LINE 簽到關鍵字'],
     [document.getElementById('af-roster-heading'), 'roster', 0, '報名名單'],
     [document.getElementById('af-roster-dialog-title'), 'roster', 0, '報名名單查詢與下載'],
+    [document.getElementById('activity-lottery-open'), 'lottery', 0, '抽獎與獎項'],
     [document.getElementById('admin-access-heading'), 'adminAccess', 0, '後台帳號與 LINE 輔助登入'],
     [document.getElementById('vendor-page-editor-heading'), 'vendorPage', 0, '編輯自己的店家頁面'],
     [document.querySelector('#br-pos-workspace h2'), 'branchQr', 0, '分店 QR 掃碼核銷']

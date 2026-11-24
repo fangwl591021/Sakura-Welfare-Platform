@@ -5,6 +5,7 @@ export const ACTIVITY_TUTORIALS = Object.freeze({
   checkin: { title: "管理員掃描個人 QR 核銷出席", path: "/activity-tutorials/activity-checkin-20260916-v1.mp4", key: "tutorials/activity/activity-checkin-20260916-v1.mp4" },
   keyword: { title: "LINE 關鍵字簽到流程", path: "/activity-tutorials/activity-keyword-20260916-v1.mp4", key: "tutorials/activity/activity-keyword-20260916-v1.mp4" },
   roster: { title: "報名名單查詢、下載與列印", path: "/activity-tutorials/activity-roster-20260930-v1.mp4", key: "tutorials/activity/activity-roster-20260930-v1.mp4" },
+  lottery: { title: "活動抽獎操作教學", path: "/activity-tutorials/activity-lottery-20261124-v2.mp4", key: "tutorials/activity/activity-lottery-20261124-v2.mp4" },
   adminAccess: { title: "後台帳號與 LINE 輔助登入設定", path: "/activity-tutorials/admin-access-20261001-v1.mp4", key: "tutorials/admin/admin-access-20261001-v1.mp4" },
   vendorPage: { title: "店家編輯自己的店家頁面", path: "/activity-tutorials/vendor-page-20261001-v1.mp4", key: "tutorials/vendor/vendor-page-20261001-v1.mp4" },
   vendorDocuments: { title: "店家上傳文件與客戶下載", path: "/activity-tutorials/vendor-documents-20261004-v1.mp4", key: "tutorials/vendor/vendor-documents-20261004-v1.mp4" }

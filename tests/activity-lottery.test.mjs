@@ -5,6 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
 import worker from '../src/index.js';
 import { lotteryDefaultVideoPath } from '../src/activity-lottery-video.js';
+import { ACTIVITY_TUTORIALS } from '../src/activity-tutorial-media.js';
 
 function fixture(t) {
   const sqlite = new DatabaseSync(':memory:');
@@ -58,7 +59,11 @@ function fixture(t) {
   const media = new Map();
   const bucket = {
     head: async key => media.has(key) ? {size:media.get(key).length} : null,
-    get: async key => media.has(key) ? {size:media.get(key).length,body:media.get(key)} : null,
+    get: async (key, {range} = {}) => {
+      const bytes = media.get(key);
+      if (!bytes) return null;
+      return {size:bytes.length, body:range ? bytes.subarray(range.offset,range.offset+range.length) : bytes};
+    },
     put: async (key, bytes) => media.set(key, bytes),
     delete: async key => media.delete(key)
   };
@@ -71,7 +76,7 @@ function fixture(t) {
   const send = (state, action, extra = {}, options = {}) => call(state.event.id, { ...options, body:{
     event_id:state.event.id, revision:state.revision, rosterVersion:state.rosterVersion, request_id:crypto.randomUUID(), action,...extra
   }});
-  return { sqlite, person, call, send, onBeforeSave(callback) { beforeSave = callback; } };
+  return { sqlite, person, call, send, bucket, onBeforeSave(callback) { beforeSave = callback; } };
 }
 
 async function ok(request) {
@@ -168,6 +173,8 @@ test('the Worker keeps the existing admin and editor scope, and serves syntax-va
   assert.equal(page.status,200);
   const html=await page.text();
   assert.match(html,/id="activity-lottery-open"[^>]*>抽獎與獎項/);
+  assert.match(html,/getElementById\('activity-lottery-open'\), 'lottery', 0/);
+  assert.ok(html.includes(ACTIVITY_TUTORIALS.lottery.path));
   assert.match(html,/id="lottery-mode"/);
   for(const [,script] of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) new vm.Script(script);
   assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
@@ -214,6 +221,12 @@ test('mobile browser can select a mode, create a prize, and draw from the correc
     t.after(()=>browser.close());
     const f=fixture(t);
     f.person('A','employee',4);
+    const tutorial=ACTIVITY_TUTORIALS.lottery;
+    const clip=await f.call('family',{token:'',path:lotteryDefaultVideoPath});
+    const defaultBytes=Buffer.from(await clip.arrayBuffer());
+    const tutorialBytes=process.env.LOTTERY_TUTORIAL_TEST_FILE
+      ? readFileSync(process.env.LOTTERY_TUTORIAL_TEST_FILE) : defaultBytes;
+    await f.bucket.put(tutorial.key,tutorialBytes);
     const page=await browser.newPage({viewport:{width:390,height:844},acceptDownloads:true});
     page.setDefaultTimeout(5000);
     const errors=[];
@@ -237,12 +250,23 @@ test('mobile browser can select a mode, create a prize, and draw from the correc
     });
     await page.goto('https://isolated.test/activity-checkin-admin');
     await page.getByText('家庭日',{exact:true}).first().waitFor();
-    await page.getByRole('button',{name:'抽獎與獎項'}).click();
+    const lesson=page.locator('#activity-lottery-entry').getByRole('button',{name:'操作教學：抽獎與獎項',exact:true});
+    await lesson.click();
+    const lessonDialog=page.getByRole('dialog',{name:'活動抽獎操作教學'});
+    assert.equal(await lessonDialog.isVisible(),true);
+    await page.waitForFunction(()=>document.getElementById('at-video').currentTime>0);
+    const lessonLength=await page.locator('#at-video').evaluate(video=>video.duration);
+    if(process.env.LOTTERY_TUTORIAL_TEST_FILE) assert.ok(lessonLength>190 && lessonLength<200, lessonLength);
+    assert.equal(await page.locator('#at-video').getAttribute('src'),tutorial.path);
+    await lessonDialog.getByRole('button',{name:'關閉操作教學'}).click();
+    assert.equal(await lessonDialog.isVisible(),false);
+    assert.equal(await lesson.evaluate(button=>document.activeElement===button),true);
+    assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
+    await page.getByRole('button',{name:'抽獎與獎項',exact:true}).click();
     await page.getByText(/可列入名單 1 人/).waitFor();
     await page.locator('#lottery-video-options summary').click();
     await page.getByText('目前使用系統預設影片。',{exact:true}).waitFor();
-    const clip=await f.call('family',{token:'',path:lotteryDefaultVideoPath});
-    await page.locator('#lottery-video-file').setInputFiles({name:'custom.mp4',mimeType:'video/mp4',buffer:Buffer.from(await clip.arrayBuffer())});
+    await page.locator('#lottery-video-file').setInputFiles({name:'custom.mp4',mimeType:'video/mp4',buffer:defaultBytes});
     await page.getByRole('button',{name:'上傳影片',exact:true}).click();
     await page.getByText('已上傳，本活動將使用自訂影片。',{exact:true}).waitFor();
     await page.getByRole('button',{name:'預覽影片',exact:true}).click();
