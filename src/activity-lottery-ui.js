@@ -1,4 +1,5 @@
 import { lotteryDefaultVideoPath, lotteryVideoAdminPath, maxLotteryVideoBytes } from './activity-lottery-video.js';
+import { lotteryStagePath } from './activity-lottery-stage-ui.js';
 
 export const activityLotteryPanel = `<div id="activity-lottery-entry" class="ae-attendance-only">
   <button id="activity-lottery-open" class="btn" type="button">抽獎與獎項</button>
@@ -53,11 +54,12 @@ export function buildActivityLotteryEntryHtml() {
 }
 
 export const activityLotteryDialog = `<dialog id="activity-lottery" aria-labelledby="lottery-heading">
-  <header class="lottery-header"><div><h2 id="lottery-heading">抽獎與獎項</h2><p id="lottery-event"></p></div><button id="lottery-close" type="button">關閉／返回活動</button></header>
+  <header class="lottery-header"><div><h2 id="lottery-heading">抽獎與獎項</h2><p id="lottery-event"></p></div><div class="lottery-actions"><button id="lottery-stage-open" type="button">開啟現場投影</button><button id="lottery-close" type="button">關閉／返回活動</button></div></header>
   <p id="lottery-message" role="status" aria-live="polite"></p>
   <div class="lottery-actions"><button id="lottery-refresh" type="button">重新載入</button><button id="lottery-retry" type="button" hidden>重試同一次操作</button></div>
   <section id="lottery-playback" hidden aria-labelledby="lottery-playback-heading">
     <h3 id="lottery-playback-heading">抽獎過場</h3>
+    <p id="lottery-stage-playing" hidden>正在現場投影視窗播放過場影片。</p>
     <video id="lottery-player" controls playsinline preload="none" aria-label="抽獎過場影片"></video>
     <div class="lottery-actions"><button id="lottery-skip-video" type="button">略過影片，顯示結果</button></div>
   </section>
@@ -93,6 +95,7 @@ export const activityLotteryDialog = `<dialog id="activity-lottery" aria-labelle
       <div id="lottery-prizes"></div>
     </section><section>
       <h3 id="lottery-results-heading">中獎結果</h3>
+      <div class="lottery-actions"><button id="lottery-stage-results" type="button" hidden>投影本獎項結果</button></div>
       <div class="lottery-actions" id="lottery-exports" hidden><button type="button" data-lottery-export="xlsx">下載 Excel</button><button type="button" data-lottery-export="csv">下載 CSV</button></div>
       <div id="lottery-trial" hidden></div>
       <div id="lottery-results"></div>
@@ -143,6 +146,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
   const workspace = el('workspace'), status = el('message');
   let data = null, activeId = '', busy = false, pending = null, editing = '', redraw = null, visiblePrize = '';
   let customVideo = null, videoStatusRead = 0, playbackId = 0, videoRequest = null, objectUrl = '';
+  let stage = null, stageReady = false, stagePlayback = null, stageWatcher;
   const endpoint = '/admin-api/activity-lottery';
   const videoEndpoint = '${lotteryVideoAdminPath}';
   const defaultVideo = '${lotteryDefaultVideoPath}';
@@ -151,6 +155,44 @@ export const installActivityLottery = String.raw`function installActivityLottery
   const videoQuery = () => videoEndpoint + '?event_id=' + encodeURIComponent(activeId);
   const date = value => new Date(value).toLocaleString('zh-TW', { timeZone:'Asia/Taipei', hourCycle:'h23' });
   const node = (tag, text) => { const n = document.createElement(tag); n.textContent = text; return n; };
+  const hasStage = () => stageReady && stage && !stage.closed;
+  function stageFrame(phase, prizeId = visiblePrize) {
+    const prize = data?.prizes.find(p => p.id === prizeId);
+    const rows = phase === 'trial' ? data?.trial : phase === 'result' ? data?.winners.filter(winner => winner.prizeId === prizeId && winner.status !== 'absent') : [];
+    const winners = (rows || []).filter(row => /^\d{4,}(?:-\d+)?$/.test(row.code)).map(row => {
+      const chars = Array.from(row.ordinal ? row.label.replace(/-\d+$/, '') : row.label);
+      return { name: (chars.length > 1 ? chars[0] : '') + '＊＊', code: row.code };
+    });
+    return { event: el('event').textContent, prize: prize?.name || '', phase: winners.length ? phase : 'waiting', winners };
+  }
+  function showOnStage(frame, playback = {}) {
+    if (hasStage()) stage.postMessage({type:'lottery-stage-frame', frame, ...playback}, location.origin);
+  }
+  el('stage-open').onclick = () => {
+    if (stage && !stage.closed) { stage.focus(); return; }
+    stageReady = false;
+    stage = window.open('${lotteryStagePath}', '_blank', 'popup,width=1200,height=760');
+    if (!stage) status.textContent = '瀏覽器擋住投影視窗，請在電腦瀏覽器允許彈出視窗後再開啟。';
+  };
+  window.addEventListener('message', event => {
+    if (!dialog.open || !stage || event.source !== stage || event.origin !== location.origin) return;
+    if (event.data?.type === 'lottery-stage-ready') {
+      stageReady = true;
+      showOnStage(stageFrame('waiting'));
+      updateStageResultButton();
+    }
+    if (event.data?.type === 'lottery-stage-finished' && stagePlayback && event.data.round === stagePlayback.round) {
+      stagePlayback = null;
+      finishVideo();
+    }
+  });
+  function updateStageResultButton() {
+    el('stage-results').hidden = !hasStage() || !stageFrame('result').winners.length;
+  }
+  el('stage-results').onclick = () => {
+    if (hasStage()) showOnStage(stageFrame('result'));
+    else updateStageResultButton();
+  };
   function button(label, onClick, disabled = false) {
     const b = node('button', label); b.type = 'button'; b.onclick = onClick; b.disabled = disabled; return b;
   }
@@ -194,6 +236,10 @@ export const installActivityLottery = String.raw`function installActivityLottery
   }
   function finishVideo(message) {
     playbackId++;
+    clearInterval(stageWatcher);
+    if (stagePlayback) showOnStage(stagePlayback.frame);
+    stagePlayback = null;
+    el('stage-playing').hidden = true;
     if (videoRequest) videoRequest.abort();
     videoRequest = null;
     const video = el('player');
@@ -203,15 +249,22 @@ export const installActivityLottery = String.raw`function installActivityLottery
     el('playback').hidden = true;
     el('refresh').disabled = busy;
     workspace.hidden = !data;
+    updateStageResultButton();
     if (message) status.textContent = message;
   }
-  async function playVideo(preview = false) {
+  async function playVideo(preview = false, phase = '') {
     const token = ++playbackId, video = el('player');
     const failure = () => { if (token === playbackId) finishVideo('影片無法播放，已回到抽獎頁面。'); };
     workspace.hidden = true; el('playback').hidden = false; el('refresh').disabled = true;
     el('skip-video').textContent = preview ? '結束預覽' : '略過影片，顯示結果';
     el('skip-video').focus();
-    let source = defaultVideo;
+    const frame = !preview && hasStage() ? stageFrame(phase) : null;
+    if (frame) {
+      stagePlayback = {round: token, frame};
+      video.hidden = true; el('stage-playing').hidden = false;
+      showOnStage(stageFrame('waiting'));
+    }
+    let clip = null;
     if (customVideo === null) await readVideoStatus();
     if (token !== playbackId || !dialog.open) return;
     if (customVideo === true) {
@@ -220,17 +273,26 @@ export const installActivityLottery = String.raw`function installActivityLottery
       try {
         const response = await videoFetch(videoQuery(),'GET',undefined,AbortSignal.any([controller.signal,AbortSignal.timeout(15000)]));
         if (response.ok) {
-          const blob = await response.blob();
+          clip = await response.blob();
           if (token !== playbackId || !dialog.open) return;
-          objectUrl = URL.createObjectURL(blob); source = objectUrl;
         }
       } catch { /* Use the bundled default when custom media is temporarily unavailable. */ }
     }
     if (token !== playbackId || !dialog.open) return;
+    if (frame && hasStage()) {
+      showOnStage(frame, { clip, sound:el('video-sound').checked, round:token });
+      stageWatcher = setInterval(() => {
+        if (!hasStage()) finishVideo('投影已關閉，結果仍可在管理頁查看。');
+      }, 750);
+      return;
+    }
+    stagePlayback = null; el('stage-playing').hidden = true;
+    video.hidden = false;
+    if (clip) objectUrl = URL.createObjectURL(clip);
     video.muted = !el('video-sound').checked;
     video.onended = () => { if (token === playbackId) finishVideo(); };
     video.onerror = failure;
-    video.src = source;
+    video.src = objectUrl || defaultVideo;
     try { await video.play(); }
     catch (error) {
       if (token !== playbackId) return;
@@ -318,6 +380,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
     el('trial').hidden = !trial;
     el('trial').textContent = trial ? '試抽（未存檔） ' + trial.map(row => row.label + '〔' + row.code + '〕').join('、') : '';
     const rows = winners.filter(row => row.prizeId === visiblePrize);
+    updateStageResultButton();
     const byId = new Map(rows.map(row => [row.id,row]));
     if (!rows.length) results.append(node('p','尚無正式中獎結果。'));
     for (const winner of rows) {
@@ -356,7 +419,8 @@ export const installActivityLottery = String.raw`function installActivityLottery
       closeRedraw(); paint();
       status.textContent = data.replayed ? '已讀回前次操作結果。' : body.action === 'trial' ? '試抽完成。'
         : ({draw:'正式中獎名單已儲存。',redraw:'已保留原紀錄並補抽一位。',claim:'已確認領獎。'})[body.action] || '已儲存。';
-      if (!data.replayed && ['trial','draw','redraw'].includes(body.action)) void playVideo();
+      if (!data.replayed && ['trial','draw','redraw'].includes(body.action)) void playVideo(false, body.action === 'trial' ? 'trial' : 'result');
+      else if (data.replayed && ['draw','redraw'].includes(body.action)) showOnStage(stageFrame('result'));
     } catch (error) {
       pending = error.definite || body.action === 'trial' ? null : body;
       status.textContent = pending ? '尚未確認操作結果。請重試同一次操作，或重新載入核對。' : error.message;
@@ -370,7 +434,10 @@ export const installActivityLottery = String.raw`function installActivityLottery
     el('event').textContent = selected.title; dialog.showModal(); load();
   };
   el('close').onclick = () => dialog.close();
-  dialog.addEventListener('close', () => finishVideo());
+  dialog.addEventListener('close', () => {
+    stageReady = false; stage?.close(); stage = null;
+    finishVideo();
+  });
   dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
   el('refresh').onclick = load;
   el('retry').onclick = () => send();

@@ -65,6 +65,7 @@ import { createWorkspaceActivityRuntime, handleWorkspaceAgentTurn } from "./work
 import { handleActivityFormRequest, authorizeActivityFormAdmin } from "./activity-form-service.js";
 import { handleActivityLottery } from "./activity-lottery.js";
 import { buildActivityLotteryEntryHtml } from "./activity-lottery-ui.js";
+import { lotteryStageHtml } from "./activity-lottery-stage-ui.js";
 import { handleActivityLotteryVideo, serveDefaultLotteryVideo } from "./activity-lottery-video.js";
 import { normalizeRegistrationWindow } from "./activity-registration-window.js";
 import { attachActivityKeywords, prepareActivityKeywordRule, isActivityKeywordRule, checkinByActivityKeyword } from "./activity-keyword-checkin.js";
@@ -608,6 +609,16 @@ const welfareWorker = {
         return htmlResponse(decorateActivityTutorialHtml(buildActivityLotteryEntryHtml()), env);
       }
       return htmlResponse(decorateActivityAdminHtml(buildActivityCheckinAdminHtml()), env);
+    }
+
+    if (request.method === "GET" && url.pathname === "/activity-lottery-stage") {
+      return new Response(lotteryStageHtml, { headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-store",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff",
+        "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; media-src 'self' blob:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+      } });
     }
 
     if (request.method === "GET" && url.pathname === "/activity-checkin") {

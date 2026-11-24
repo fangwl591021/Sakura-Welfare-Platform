@@ -236,13 +236,29 @@ test('the bundled clip supports video ranges and custom MP4s stay scoped to one 
   assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
 });
 
-test('mobile browser can select a mode, create a prize, and draw from the correct family count',
-  {skip: !process.env.PLAYWRIGHT_CHANNEL, timeout:30000}, async t=>{
+test('browser can configure family tickets, play projection video and display only masked winners',
+  {skip: !process.env.PLAYWRIGHT_CHANNEL, timeout:45000}, async t=>{
     const { chromium } = await import('playwright');
     const browser = await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL,headless:true});
     t.after(()=>browser.close());
     const f=fixture(t);
-    f.person('A','employee',4);
+    f.person('測試員工甲','employee',4);
+    const liffEntryPath='/?liff.state='+encodeURIComponent(lotteryChatEntryPath);
+    const servedPages=new Map();
+    if (process.env.LOTTERY_LIVE_READBACK === '1') {
+      const origin='https://sakura-welfare-platform.fangwl591021.workers.dev';
+      // Fetch public HTML only. All sessions, activity data and draw actions below stay in the fixture.
+      await Promise.all([liffEntryPath,lotteryChatEntryPath,'/activity-checkin-admin?view=lottery',
+        '/activity-checkin-admin','/activity-lottery-stage'].map(async path=>{
+        const response=await fetch(origin+path,{redirect:'error',signal:AbortSignal.timeout(15000)});
+        assert.equal(response.status,200,path);
+        assert.match(response.headers.get('content-type')||'',/text\/html/i);
+        const headers=Object.fromEntries(response.headers);
+        delete headers['content-encoding'];
+        delete headers['content-length'];
+        servedPages.set(path,{status:200,headers,body:Buffer.from(await response.arrayBuffer())});
+      }));
+    }
     const tutorial=ACTIVITY_TUTORIALS.lottery;
     const clip=await f.call('family',{token:'',path:lotteryDefaultVideoPath});
     const defaultBytes=Buffer.from(await clip.arrayBuffer());
@@ -258,9 +274,11 @@ test('mobile browser can select a mode, create a prize, and draw from the correc
     await page.addInitScript(()=>{
       window.liff={init:async()=>{},isLoggedIn:()=>true,getProfile:async()=>({userId:'synthetic'}),getIDToken:()=> 'fixture-token'};
     });
-    await page.route('**/*',async route=>{
+    await page.context().route('**/*',async route=>{
       const request=route.request(), url=new URL(request.url());
       if(url.origin!=='https://isolated.test') return route.abort();
+      const servedPage=servedPages.get(url.pathname+url.search);
+      if(request.method()==='GET' && servedPage) return route.fulfill(servedPage);
       if(url.pathname==='/api' && request.method()==='POST'){
         assert.equal(request.postDataJSON().action,'reviewerLineLogin');
         return route.fulfill({json:{success:true,data:{role:'admin',token:'admin'}}});
@@ -277,7 +295,7 @@ test('mobile browser can select a mode, create a prize, and draw from the correc
         body:request.method()==='POST'?request.postDataJSON():undefined,raw:request.method()==='PUT'?request.postDataBuffer():undefined});
       return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:Buffer.from(await response.arrayBuffer())});
     });
-    const liffEntry='https://isolated.test/?liff.state='+encodeURIComponent(lotteryChatEntryPath);
+    const liffEntry='https://isolated.test'+liffEntryPath;
     await page.goto(liffEntry);
     await page.getByRole('heading',{name:'抽獎設定',exact:true}).waitFor();
     const picker=page.getByLabel('選擇活動',{exact:true});
@@ -333,15 +351,46 @@ test('mobile browser can select a mode, create a prize, and draw from the correc
     await page.getByText('影片無法播放，已回到抽獎頁面。',{exact:true}).waitFor();
     await page.getByText(/試抽（未存檔）/).waitFor();
     await page.unroute('**/activity-lottery-media/default-v1.mp4');
+    const stagePopup = page.waitForEvent('popup');
+    await page.getByRole('button',{name:'開啟現場投影'}).click();
+    const stage = await stagePopup;
+    stage.on('pageerror',error=>errors.push(error.message));
+    stage.setDefaultTimeout(5000);
+    await stage.setViewportSize({width:1920,height:1080});
+    await stage.getByRole('heading',{name:'家庭日試驗獎',exact:true}).waitFor();
+    await stage.getByText('等待主持人開始',{exact:true}).waitFor();
+    await stage.getByRole('button',{name:'全螢幕',exact:true}).click();
+    await stage.waitForFunction(()=>document.fullscreenElement===document.documentElement);
+    assert.doesNotMatch(await stage.locator('body').innerText(), /抽獎資格|獎項管理|測試員工甲/);
+    await page.getByRole('button',{name:'試抽',exact:true}).click();
+    await stage.waitForFunction(()=>document.getElementById('video').currentTime>0);
+    assert.equal(await stage.locator('#video').getAttribute('src'),lotteryDefaultVideoPath);
+    assert.equal(await stage.locator('#winners li').count(),0);
+    await stage.locator('#video').dispatchEvent('ended');
+    await stage.getByText('試抽結果',{exact:true}).waitFor();
+    assert.equal(await stage.locator('#winners li').count(),4);
+    await page.getByRole('button',{name:'正式抽出 4 位'}).waitFor();
+    await page.locator('#lottery-video-file').setInputFiles({name:'custom.mp4',mimeType:'video/mp4',buffer:defaultBytes});
+    await page.getByRole('button',{name:'上傳影片',exact:true}).click();
+    await page.getByText('已上傳，本活動將使用自訂影片。',{exact:true}).waitFor();
     await page.getByRole('button',{name:'正式抽出 4 位'}).click();
+    await stage.waitForFunction(()=>document.getElementById('video').currentTime>0);
+    assert.match(await stage.locator('#video').getAttribute('src'),/^blob:/);
+    await stage.getByText('開獎中',{exact:true}).waitFor();
     await page.getByRole('button',{name:'略過影片，顯示結果'}).click();
-    await page.getByText('A-3〔0001-3〕',{exact:true}).waitFor();
+    await stage.getByText('恭喜中獎',{exact:true}).waitFor();
+    assert.equal(await stage.locator('#winners li').count(),4);
+    await stage.getByText('抽獎編號 0001-3',{exact:true}).waitFor();
+    assert.doesNotMatch(await stage.locator('body').innerText(), /測試員工甲|fixture-uid|確認領獎|下載 CSV/);
+    await page.getByText('測試員工甲-3〔0001-3〕',{exact:true}).waitFor();
     assert.equal(await page.getByLabel('抽獎資格').isDisabled(),true);
     assert.equal(await page.locator('#lottery-results .lottery-row').count(),4);
     const download = page.waitForEvent('download');
     await page.getByRole('button',{name:'下載 CSV'}).click();
     assert.equal((await download).suggestedFilename(),'家庭日-抽獎紀錄.csv');
+    const stageClosed = stage.waitForEvent('close');
     await page.getByRole('button',{name:'關閉／返回活動'}).click();
+    await stageClosed;
     assert.equal(await page.getByRole('dialog',{name:'抽獎與獎項'}).isVisible(),false);
     assert.deepEqual(errors,[]);
   });
