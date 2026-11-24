@@ -124,23 +124,36 @@ export const activityLotteryDialog = `<dialog id="activity-lottery" aria-labelle
 
 export const activityLotteryStyles = `<style>
 #activity-lottery-entry{margin:0 0 12px}
-#activity-lottery{color:#182333;width:min(1000px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;border:1px solid #d2dce7;border-radius:14px;padding:20px;background:#fff;box-sizing:border-box}
+#activity-lottery-entry #activity-lottery-open{min-height:48px;padding:10px 18px;font-weight:650}
+#activity-lottery{color:#182333;width:min(1000px,calc(100% - 24px));max-width:calc(100% - 24px);max-height:calc(100% - 24px);overflow:auto;border:1px solid #d2dce7;border-radius:14px;padding:20px;background:#fff;box-sizing:border-box}
 #activity-lottery::backdrop{background:#111f36a3}
 #activity-lottery [hidden]{display:none!important}
-.lottery-header,.lottery-actions,.lottery-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lottery-header,.lottery-actions,.lottery-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .lottery-header{justify-content:space-between;align-items:flex-start}
+.lottery-header>div{min-width:0;max-width:100%}
 .lottery-header h2,#lottery-event{margin:0 0 6px}
+#lottery-event{overflow-wrap:anywhere}
 #lottery-message:not(:empty),.lottery-attendance{padding:10px 12px;background:#eef4fb;border-radius:8px;line-height:1.55}
 #lottery-workspace{margin:12px 0 0;border:0;padding:0;min-width:0}
-#activity-lottery button{padding:8px 12px;border:1px solid #cbd5e1;background:#fff;border-radius:8px;color:#182333;min-height:40px;font:inherit}
-#activity-lottery button[data-primary]{background:#ab1745;color:#fff;border-color:#ab1745}
+#activity-lottery button{box-sizing:border-box;min-width:112px;max-width:100%;min-height:48px;padding:10px 16px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#182333;font:inherit;font-weight:600;line-height:1.35;overflow-wrap:anywhere;cursor:pointer}
+#activity-lottery button:enabled:hover{background:#f1f5f9;border-color:#9aacc2}
+#activity-lottery button:is([data-primary],#lottery-save-settings,#lottery-prize-save){background:#ab1745;color:#fff;border-color:#ab1745}
+#activity-lottery button:is([data-primary],#lottery-save-settings,#lottery-prize-save):enabled:hover{background:#861037;border-color:#861037}
+#activity-lottery #lottery-stage-open{background:#eef4fb;color:#20456c;border-color:#aec5dd}
+#activity-lottery #lottery-stage-open:enabled:hover{background:#e0ebf8;border-color:#809fbe}
 #activity-lottery button:disabled{opacity:.55;cursor:default}
+#activity-lottery :is(button,select,input,summary):focus-visible{outline:2px solid #245f9e;outline-offset:2px}
 #activity-lottery details,.lottery-columns>section{padding:12px;border:1px solid #dbe2ea;border-radius:10px;min-width:0}
+#activity-lottery summary{cursor:pointer;padding-block:6px}
 .lottery-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:12px;margin-top:12px}
 .lottery-columns h3{margin:0 0 8px}
-.lottery-form{display:grid;align-items:end;gap:8px;margin:8px 0}
-.lottery-form input,.lottery-form select{box-sizing:border-box;width:100%;margin:4px 0 0}
-#lottery-settings{grid-template-columns:1.4fr 1fr auto}
+.lottery-form{display:grid;align-items:end;gap:12px;margin:8px 0}
+.lottery-form>label{display:grid;gap:6px;min-width:0;font-weight:600}
+#activity-lottery :is(.lottery-form input,select){box-sizing:border-box;min-width:0;min-height:48px;max-width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#182333;font:inherit}
+#activity-lottery select{padding-inline-end:24px;cursor:pointer}
+#activity-lottery :is(.lottery-form input,.lottery-form select){width:100%;margin:0}
+#activity-lottery select:disabled,#activity-lottery .lottery-form input:disabled{background:#f1f5f9;color:#475569;cursor:default}
+#lottery-settings{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) auto}
 #lottery-lock{grid-column:1/-1;margin:0;color:#475569}
 #lottery-video-options{margin-top:12px}
 #lottery-video-file{display:block;max-width:100%;margin:6px 0 10px}
@@ -151,9 +164,17 @@ export const activityLotteryStyles = `<style>
 .lottery-row small{display:block;color:#475569}
 #lottery-trial{margin:8px 0;background:#fff5d8;border-radius:8px;padding:10px;overflow-wrap:anywhere}
 #lottery-exports,#lottery-stage-pages{margin:8px 0}
+#lottery-winner-exports label{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0;max-width:100%}
 #lottery-stage-page{font-variant-numeric:tabular-nums}
 #lottery-audit-exports{margin-top:8px}
-@media(max-width:680px){#lottery-settings,.lottery-columns{grid-template-columns:1fr}#activity-lottery{padding:12px}}
+@media(max-width:680px){
+  #activity-lottery{padding:14px}
+  #lottery-settings,.lottery-columns{grid-template-columns:minmax(0,1fr)}
+  .lottery-header>.lottery-actions,.lottery-row>.lottery-actions{width:100%}
+  #activity-lottery .lottery-actions>button{flex:1 1 124px;min-width:0}
+  #lottery-settings>button{width:100%}
+  #lottery-winner-exports label{width:100%}
+}
 </style>`;
 
 export const installActivityLottery = String.raw`function installActivityLottery(headers, selectedEvent) {

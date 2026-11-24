@@ -332,6 +332,27 @@ test('browser can configure family tickets, play projection video and display on
     await picker.selectOption('family');
     await page.getByRole('button',{name:'抽獎與獎項',exact:true}).click();
     await page.getByText(/可列入名單 1 人/).waitFor();
+    async function verifyLotteryControls(widths) {
+      const dialog=page.getByRole('dialog',{name:'抽獎與獎項'});
+      for (const width of widths) {
+        await page.setViewportSize({width,height:844});
+        const sizes=await dialog.evaluate(root=>{
+          const inside=['#lottery-stage-open','#lottery-close','#lottery-mode','#lottery-policy',
+            '#lottery-save-settings','#lottery-prize-name','#lottery-quantity','#lottery-prize-save'];
+          const panel=root.getBoundingClientRect();
+          const controls=inside.map(id => {
+            const box=root.querySelector(id).getBoundingClientRect();
+            return {id, height:box.height, width:box.width, contained:box.left>=panel.left && box.right<=panel.right};
+          });
+          return {left:panel.left,right:panel.right,horizontalScroll:root.scrollWidth-root.clientWidth,controls};
+        });
+        assert.ok(sizes.left>=0 && sizes.right<=width && sizes.horizontalScroll<=1, JSON.stringify({width,...sizes}));
+        for (const control of sizes.controls) {
+          assert.ok(control.height>=48 && control.width>=112 && control.contained, JSON.stringify({viewport:width,...control}));
+        }
+      }
+    }
+    await verifyLotteryControls([320,390]);
     await page.getByRole('button',{name:'關閉／返回活動',exact:true}).click();
     assert.equal(await picker.isVisible(),true);
     assert.equal(await page.getByRole('link',{name:'返回工作區'}).isVisible(),true);
@@ -359,6 +380,7 @@ test('browser can configure family tickets, play projection video and display on
     assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
     await page.getByRole('button',{name:'抽獎與獎項',exact:true}).click();
     await page.getByText(/可列入名單 1 人/).waitFor();
+    await verifyLotteryControls([1440,390]);
     await page.locator('#lottery-video-options summary').click();
     await page.getByText('目前使用系統預設影片。',{exact:true}).waitFor();
     await page.locator('#lottery-video-file').setInputFiles({name:'custom.mp4',mimeType:'video/mp4',buffer:defaultBytes});
