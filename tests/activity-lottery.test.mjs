@@ -250,14 +250,14 @@ test('the bundled clip supports video ranges and custom MP4s stay scoped to one 
   assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
 });
 
-test('the new tutorial and prior version remain independently available by exact path', async t => {
+test('the current and prior tutorials remain independently available by exact path', async t => {
   const f = fixture(t);
   const current = ACTIVITY_TUTORIALS.lottery;
-  const previous = {
-    path:'/activity-tutorials/activity-lottery-20261124-v2.mp4',
-    key:'tutorials/activity/activity-lottery-20261124-v2.mp4'
-  };
-  const samples = [[current, Buffer.from('version three')], [previous, Buffer.from('older tutorial')]];
+  const samples = [[current, Buffer.from('latest tutorial')]];
+  for (const version of ['v2','v3']) {
+    const file='activity-lottery-20261124-'+version+'.mp4';
+    samples.push([{path:'/activity-tutorials/'+file,key:'tutorials/activity/'+file},Buffer.from(version+' tutorial')]);
+  }
   for (const [file, bytes] of samples) await f.bucket.put(file.key, bytes);
   for (const [file, bytes] of samples) {
     const response = await f.call('family', {token:'', path:file.path, headers:{Range:'bytes=0-6'}});
