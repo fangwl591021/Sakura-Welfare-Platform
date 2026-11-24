@@ -250,6 +250,22 @@ test('the bundled clip supports video ranges and custom MP4s stay scoped to one 
   assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
 });
 
+test('the new tutorial and prior version remain independently available by exact path', async t => {
+  const f = fixture(t);
+  const current = ACTIVITY_TUTORIALS.lottery;
+  const previous = {
+    path:'/activity-tutorials/activity-lottery-20261124-v2.mp4',
+    key:'tutorials/activity/activity-lottery-20261124-v2.mp4'
+  };
+  const samples = [[current, Buffer.from('version three')], [previous, Buffer.from('older tutorial')]];
+  for (const [file, bytes] of samples) await f.bucket.put(file.key, bytes);
+  for (const [file, bytes] of samples) {
+    const response = await f.call('family', {token:'', path:file.path, headers:{Range:'bytes=0-6'}});
+    assert.equal(response.status,206);
+    assert.equal(await response.text(),bytes.subarray(0,7).toString());
+  }
+});
+
 test('browser can configure family tickets, play projection video and display only masked winners',
   {skip: !process.env.PLAYWRIGHT_CHANNEL, timeout:45000}, async t=>{
     const { chromium } = await import('playwright');
@@ -328,7 +344,14 @@ test('browser can configure family tickets, play projection video and display on
     assert.equal(await lessonDialog.isVisible(),true);
     await page.waitForFunction(()=>document.getElementById('at-video').currentTime>0);
     const lessonLength=await page.locator('#at-video').evaluate(video=>video.duration);
-    if(process.env.LOTTERY_TUTORIAL_TEST_FILE) assert.ok(lessonLength>190 && lessonLength<200, lessonLength);
+    if(process.env.LOTTERY_TUTORIAL_TEST_FILE){
+      assert.ok(lessonLength>298 && lessonLength<305, lessonLength);
+      await page.locator('#at-video').evaluate(video=>{ video.currentTime=281; });
+      await page.waitForFunction(()=>{
+        const player=document.getElementById('at-video');
+        return player.currentTime>=281 && !player.seeking && player.readyState>=2;
+      });
+    }
     assert.equal(await page.locator('#at-video').getAttribute('src'),tutorial.path);
     await lessonDialog.getByRole('button',{name:'關閉操作教學'}).click();
     assert.equal(await lessonDialog.isVisible(),false);
