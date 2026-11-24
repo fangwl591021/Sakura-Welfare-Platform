@@ -30,7 +30,7 @@ function entriesFrom(rows) {
   });
 }
 
-function csvCell(value) {
+export function csvCell(value) {
   let text = String(value ?? "");
   // Quote CSV delimiters, and neutralize spreadsheet formulas and leading-zero IDs.
   if (/^[\s\uFEFF]*[=+@-]/.test(text) || /^[\t\r\n]/.test(text) || /^0\d/.test(text)) text = "'" + text;

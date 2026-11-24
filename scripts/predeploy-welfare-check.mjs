@@ -74,7 +74,7 @@ execFileSync(process.execPath, ["--test", "tests/segment-audience.test.mjs", "te
 // Full registration exports must keep attendance, native Excel and privacy boundaries.
 execFileSync(process.execPath, ["--test", "tests/activity-roster.test.mjs"], { stdio: "inherit" });
 // Attendance counts must stay owner-verified, bounded and idempotent.
-execFileSync(process.execPath, ["--test", "tests/activity-attendance-count.test.mjs"], { stdio: "inherit" });
+execFileSync(process.execPath, ["--test", "tests/activity-attendance-count.test.mjs", "tests/activity-lottery.test.mjs"], { stdio: "inherit" });
 execFileSync(process.execPath, ["--test", "tests/vendor-store-locale-lock.test.mjs"], { stdio: "inherit" });
 // Vendor public-content controls must stay equivalent on admin and mobile entry points.
 execFileSync(process.execPath, ["--test", "tests/vendor-content.test.mjs"], { stdio: "inherit" });

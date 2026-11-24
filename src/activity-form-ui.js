@@ -5,6 +5,7 @@ import { activityCoverPanel, activityCoverStyles, installActivityCover } from ".
 import { activityKeywordPanel } from "./activity-keyword-ui.js";
 import { decorateActivityTutorialHtml } from "./activity-tutorial-ui.js";
 import { decorateActivityQrWorkspace } from "./activity-qr-checkin-ui.js";
+import { activityLotteryPanel, activityLotteryDialog, activityLotteryStyles, installActivityLottery } from "./activity-lottery-ui.js";
 
 const activityFormWidgets = String.raw`function activityFormWidgets() {
   function node(tag, text, attrs = {}) {
@@ -178,7 +179,7 @@ body[data-activity-workspace] #ae-picker{padding:16px;background:#fff;border:1px
 @media(max-width:900px){body[data-activity-workspace=manage] .grid{grid-template-columns:minmax(0,1fr)}body[data-activity-workspace] .wrap{padding:12px}body[data-activity-workspace] .stats{grid-template-columns:repeat(3,minmax(0,1fr))}body[data-activity-workspace] .stat{padding:10px}}
 </style>`;
 
-const installActivityFormEditor = String.raw`function installActivityFormEditor(widgets, installImport, installCover, installSections) {
+const installActivityFormEditor = String.raw`function installActivityFormEditor(widgets, installImport, installCover, installSections, installLottery) {
   const { node, renderForm } = widgets();
   const $af = id => document.getElementById(id);
   const section = $af("af-section"), select = $af("af-event"), form = $af("af-editor");
@@ -683,6 +684,7 @@ const installActivityFormEditor = String.raw`function installActivityFormEditor(
   };
   $af("af-dashboard-retry").onclick = () => window.load(state.selected).catch(() => {});
   installImport(headers, window.activityCover);
+  installLottery?.(headers, () => (state.events || []).find(event => event.id === state.selected));
   section.hidden = false; draw(); syncEvents();
 }`;
 
@@ -866,7 +868,7 @@ export function decorateActivityAdminHtml(html) {
     <div class="af-actions"><button id="af-generate" type="button" class="af-primary">AI 生成欄位</button><button id="af-add" type="button">新增欄位</button></div><ul id="af-warnings"></ul>
     <div class="af-columns"><div><div id="af-fields"></div><h3>人數驗證</h3><div id="af-rules"></div><button id="af-add-rule" type="button">新增驗證規則</button></div><section class="af-preview"><h3>報名表預覽</h3><div id="af-preview"></div></section></div>
     <label><input id="af-confirm" type="checkbox">我已確認欄位、年齡分組及人數驗證</label><button id="af-save" type="submit" class="af-primary" disabled>確認儲存報名欄位</button></fieldset><div id="af-status" role="status" aria-live="polite"></div></form></section>`;
-  return decorateActivityTutorialHtml(decorateActivityQrWorkspace(html.replace("</head>", styles + activityImportStyles + activityCoverStyles + activityEditorSectionStyles + '<script id="af-line-sdk" async src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script></head>')
+  return decorateActivityTutorialHtml(decorateActivityQrWorkspace(html.replace("</head>", styles + activityImportStyles + activityCoverStyles + activityEditorSectionStyles + activityLotteryStyles + '<script id="af-line-sdk" async src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script></head>')
     .replace('<section class="stats">', '<div id="af-dashboard-notice" role="status" aria-live="polite"><span id="af-dashboard-message">正在載入活動...</span><a href="/sakura-admin?reauth=1" target="_blank" rel="noopener">管理員登入</a><button id="af-dashboard-retry" class="btn" type="button">重新載入</button></div><section class="stats">')
     .replace('load().catch(e=>toast(e.message));', 'window.addEventListener("DOMContentLoaded",()=>load().catch(e=>toast(e.message)),{once:true});')
     .replace('if(!j.success)throw new Error(j.message||"讀取失敗");return j}', 'if(!r.ok||!j.success){const error=new Error(j.message||"讀取失敗");error.auth=[401,403].includes(r.status);throw error;}return j}')
@@ -875,10 +877,10 @@ export function decorateActivityAdminHtml(html) {
     .replace('<div id="qrPanel"', registrationPanel + '<div id="qrPanel"')
     .replace(/<table><thead><tr><th>活動<\/th>[\s\S]*?<tbody id="eventRows"><\/tbody><\/table>/, table => '<details id="af-event-list" class="af-event-list"><summary><span class="af-list-title">活動清單</span><span class="af-list-action"><span class="af-list-open">展開清單</span><span class="af-list-close">收合清單</span><span class="af-list-chevron" aria-hidden="true"></span></span></summary><div class="af-event-list-scroll">' + table + '</div></details>')
     .replace('<img id="qrImg"', '<h3 class="af-checkin-heading">活動簽到 QR 與網址</h3><img id="qrImg"')
-    .replace('<h2>出席名單</h2>', rosterPanel + '<h2 id="af-attendance-heading">已簽到名單 <span id="af-attendance-count"></span></h2>')
+    .replace('<h2>出席名單</h2>', activityLotteryPanel + rosterPanel + '<h2 id="af-attendance-heading">已簽到名單 <span id="af-attendance-count"></span></h2>')
     .replace("<h1>活動簽到管理</h1>", '<h1>活動簽到管理</h1><a href="#af-section">報名自填欄位</a>')
     .replace("</main>", panel + "</main>")
-    .replace("</body>", rosterDrawer + "<script>(" + installActivityFormEditor + ")(" + activityFormWidgets + "," + installActivityImport + "," + installActivityCover + "," + activityEditorSections + ");</script></body>")))
+    .replace("</body>", rosterDrawer + activityLotteryDialog + "<script>(" + installActivityFormEditor + ")(" + activityFormWidgets + "," + installActivityImport + "," + installActivityCover + "," + activityEditorSections + "," + installActivityLottery + ");</script></body>")))
     .replaceAll('<a href="/sakura-admin?reauth=1"', '<a data-activity-login hidden href="/sakura-admin?reauth=1"');
 }
 

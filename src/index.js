@@ -63,6 +63,7 @@ import { handlePrivateVendorContracts, hasUpdatedVendorContract } from "./vendor
 import { decorateVendorPrivateContractHtml } from "./vendor-private-contracts-ui.js";
 import { createWorkspaceActivityRuntime, handleWorkspaceAgentTurn } from "./workspace/workspace-agent-entry-handler.js";
 import { handleActivityFormRequest, authorizeActivityFormAdmin } from "./activity-form-service.js";
+import { handleActivityLottery } from "./activity-lottery.js";
 import { normalizeRegistrationWindow } from "./activity-registration-window.js";
 import { attachActivityKeywords, prepareActivityKeywordRule, isActivityKeywordRule, checkinByActivityKeyword } from "./activity-keyword-checkin.js";
 import { decorateActivityAdminHtml, buildActivityRegistrationHtml } from "./activity-form-ui.js";
@@ -445,13 +446,14 @@ const welfareWorker = {
     }
     const qrCheckin = await handleActivityQrCheckin(request, env, activityAuth);
     if (qrCheckin) return qrCheckin;
-    if (url.pathname === "/admin-api/activity-checkin") {
+    if (["/admin-api/activity-checkin", "/admin-api/activity-lottery"].includes(url.pathname)) {
       try {
         activityManagerActor=await authorizeActivityFormAdmin(request,DB,env,activityAuth);
         if (!activityManagerActor) {
           return Response.json({ success: false, message: "無權限，請使用已授權管理員帳號登入。" }, { status: 403, headers: { "Cache-Control": "no-store" } });
         }
       } catch { return Response.json({ success: false, message: "暫時無法驗證管理員，請稍後重試。" }, { status: 503 }); }
+      if (url.pathname === "/admin-api/activity-lottery") return handleActivityLottery(request, DB, activityManagerActor);
     }
     const activityFormResult = await handleActivityFormRequest(request, env, {
       requireAdmin,

@@ -49,7 +49,7 @@ export async function resolveAdminPrincipal(request,db,env,deps,data={},diagnost
   const row=await deps.findAdmin(db,identity.lineUserId); if(!row||Number(row.active)!==1){if(diagnostic)diagnostic.reason='LINE_ADMIN_UNCONFIRMED';return null;}
   return {id:identity.lineUserId,role:row.role,actor:editorRole(row.role)?'editor:'+row.role+':'+identity.lineUserId:'line:'+identity.lineUserId};
 }
-const activityPaths=new Set(['/admin-api/activity-checkin','/admin-api/activity-form','/admin-api/activity-import','/admin-api/activity-qr-checkin']);
+const activityPaths=new Set(['/admin-api/activity-checkin','/admin-api/activity-form','/admin-api/activity-import','/admin-api/activity-qr-checkin','/admin-api/activity-lottery']);
 const clubPaths=new Set(['/admin-api/clubs','/admin-api/club-media']);
 const commonPaths=new Set(['/admin-api/editor-context']);
 export function editorMayAccess(role,path,method='GET') {
