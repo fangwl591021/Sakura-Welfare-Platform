@@ -1,3 +1,5 @@
+import { lotteryDefaultVideoPath, lotteryVideoAdminPath, maxLotteryVideoBytes } from './activity-lottery-video.js';
+
 export const activityLotteryPanel = `<div id="activity-lottery-entry" class="ae-attendance-only">
   <button id="activity-lottery-open" class="btn" type="button">抽獎與獎項</button>
 </div>`;
@@ -6,6 +8,11 @@ export const activityLotteryDialog = `<dialog id="activity-lottery" aria-labelle
   <header class="lottery-header"><div><h2 id="lottery-heading">抽獎與獎項</h2><p id="lottery-event"></p></div><button id="lottery-close" type="button">關閉／返回活動</button></header>
   <p id="lottery-message" role="status" aria-live="polite"></p>
   <div class="lottery-actions"><button id="lottery-refresh" type="button">重新載入</button><button id="lottery-retry" type="button" hidden>重試同一次操作</button></div>
+  <section id="lottery-playback" hidden aria-labelledby="lottery-playback-heading">
+    <h3 id="lottery-playback-heading">抽獎過場</h3>
+    <video id="lottery-player" controls playsinline preload="none" aria-label="抽獎過場影片"></video>
+    <div class="lottery-actions"><button id="lottery-skip-video" type="button">略過影片，顯示結果</button></div>
+  </section>
   <fieldset id="lottery-workspace" hidden>
     <p id="lottery-attendance" class="lottery-attendance"></p>
     <details open><summary>抽獎設定</summary>
@@ -15,6 +22,18 @@ export const activityLotteryDialog = `<dialog id="activity-lottery" aria-labelle
         <button id="lottery-save-settings" type="submit">儲存設定</button>
         <p id="lottery-lock"></p>
       </form>
+      <details id="lottery-video-options">
+        <summary>抽獎過場影片</summary>
+        <p id="lottery-video-status" role="status" aria-live="polite"></p>
+        <label for="lottery-video-file">上傳本活動的 MP4（20 MB 以下）</label>
+        <input id="lottery-video-file" type="file" accept=".mp4,video/mp4">
+        <div class="lottery-actions">
+          <button id="lottery-upload-video" type="button" disabled>上傳影片</button>
+          <button id="lottery-preview-video" type="button">預覽影片</button>
+          <button id="lottery-reset-video" type="button" hidden>恢復預設影片</button>
+          <label><input id="lottery-video-sound" type="checkbox">播放音效</label>
+        </div>
+      </details>
     </details>
     <div class="lottery-columns"><section>
       <h3>獎項管理</h3>
@@ -57,6 +76,10 @@ export const activityLotteryStyles = `<style>
 .lottery-form input,.lottery-form select{box-sizing:border-box;width:100%;margin:4px 0 0}
 #lottery-settings{grid-template-columns:1.4fr 1fr auto}
 #lottery-lock{grid-column:1/-1;margin:0;color:#475569}
+#lottery-video-options{margin-top:12px}
+#lottery-video-file{display:block;max-width:100%;margin:6px 0 10px}
+#lottery-playback{margin-top:12px}
+#lottery-player{display:block;background:#111827;width:100%;max-height:60vh;margin:0 0 10px;border-radius:8px}
 .lottery-row{justify-content:space-between;border-top:1px solid #dbe2ea;padding:10px 0;overflow-wrap:anywhere}
 .lottery-row p{margin:4px 0 0;color:#475569}
 .lottery-row small{display:block;color:#475569}
@@ -71,8 +94,13 @@ export const installActivityLottery = String.raw`function installActivityLottery
   if (!dialog || !open) return;
   const workspace = el('workspace'), status = el('message');
   let data = null, activeId = '', busy = false, pending = null, editing = '', redraw = null, visiblePrize = '';
+  let customVideo = null, videoStatusRead = 0, playbackId = 0, videoRequest = null, objectUrl = '';
   const endpoint = '/admin-api/activity-lottery';
+  const videoEndpoint = '${lotteryVideoAdminPath}';
+  const defaultVideo = '${lotteryDefaultVideoPath}';
+  const maxVideoSize = ${maxLotteryVideoBytes};
   const query = () => endpoint + '?event_id=' + encodeURIComponent(activeId);
+  const videoQuery = () => videoEndpoint + '?event_id=' + encodeURIComponent(activeId);
   const date = value => new Date(value).toLocaleString('zh-TW', { timeZone:'Asia/Taipei', hourCycle:'h23' });
   const node = (tag, text) => { const n = document.createElement(tag); n.textContent = text; return n; };
   function button(label, onClick, disabled = false) {
@@ -83,7 +111,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
     workspace.disabled = value || !!pending;
     el('retry').disabled = value;
     el('retry').hidden = !pending;
-    el('refresh').disabled = value;
+    el('refresh').disabled = value || !el('playback').hidden;
     el('close').disabled = value;
   }
   async function request(url, body) {
@@ -95,6 +123,88 @@ export const installActivityLottery = String.raw`function installActivityLottery
     const result = await response.json();
     if (!response.ok || !result.success) throw Object.assign(new Error(result.message || '操作未完成。'), { definite:response.status < 500 });
     return result;
+  }
+  function renderVideoStatus(message) {
+    el('video-status').textContent = message || (customVideo === null ? '正在讀取影片設定…'
+      : customVideo ? '目前使用本活動的自訂影片。' : '目前使用系統預設影片。');
+    el('reset-video').hidden = customVideo !== true;
+    el('upload-video').disabled = !el('video-file').files.length;
+  }
+  async function videoFetch(url, method = 'GET', file, signal = AbortSignal.timeout(45000)) {
+    const auth = await headers();
+    return fetch(url, { method, cache:'no-store', signal,
+      headers:{...auth, ...(file ? {'Content-Type':'video/mp4'} : {})}, ...(file ? {body:file} : {}) });
+  }
+  async function readVideoStatus() {
+    const requestId = ++videoStatusRead;
+    try {
+      const result = await checked(await videoFetch(videoQuery() + '&view=status','GET',undefined,AbortSignal.timeout(7000)));
+      if (requestId === videoStatusRead && dialog.open) { customVideo = result.custom; renderVideoStatus(); }
+    } catch {
+      if (requestId === videoStatusRead && dialog.open && customVideo === null) renderVideoStatus('暫時無法讀取影片設定，仍可使用系統預設影片。');
+    }
+  }
+  function finishVideo(message) {
+    playbackId++;
+    if (videoRequest) videoRequest.abort();
+    videoRequest = null;
+    const video = el('player');
+    video.onended = null; video.onerror = null;
+    if (video.hasAttribute('src')) { video.pause(); video.removeAttribute('src'); video.load(); }
+    if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = ''; }
+    el('playback').hidden = true;
+    el('refresh').disabled = busy;
+    workspace.hidden = !data;
+    if (message) status.textContent = message;
+  }
+  async function playVideo(preview = false) {
+    const token = ++playbackId, video = el('player');
+    const failure = () => { if (token === playbackId) finishVideo('影片無法播放，已回到抽獎頁面。'); };
+    workspace.hidden = true; el('playback').hidden = false; el('refresh').disabled = true;
+    el('skip-video').textContent = preview ? '結束預覽' : '略過影片，顯示結果';
+    el('skip-video').focus();
+    let source = defaultVideo;
+    if (customVideo === null) await readVideoStatus();
+    if (token !== playbackId || !dialog.open) return;
+    if (customVideo === true) {
+      const controller = new AbortController();
+      videoRequest = controller;
+      try {
+        const response = await videoFetch(videoQuery(),'GET',undefined,AbortSignal.any([controller.signal,AbortSignal.timeout(15000)]));
+        if (response.ok) {
+          const blob = await response.blob();
+          if (token !== playbackId || !dialog.open) return;
+          objectUrl = URL.createObjectURL(blob); source = objectUrl;
+        }
+      } catch { /* Use the bundled default when custom media is temporarily unavailable. */ }
+    }
+    if (token !== playbackId || !dialog.open) return;
+    video.muted = !el('video-sound').checked;
+    video.onended = () => { if (token === playbackId) finishVideo(); };
+    video.onerror = failure;
+    video.src = source;
+    try { await video.play(); }
+    catch (error) {
+      if (token !== playbackId) return;
+      if (error.name !== 'NotAllowedError') { failure(); return; }
+      video.muted = true;
+      try { await video.play(); } catch { failure(); }
+    }
+  }
+  async function changeVideo(file) {
+    if (busy || !data) return;
+    if (file && (!/\.mp4$/i.test(file.name) || file.size < 12 || file.size > maxVideoSize)) {
+      renderVideoStatus('請選擇 20 MB 以下的 MP4 影片。'); return;
+    }
+    videoStatusRead++;
+    lock(true);
+    renderVideoStatus(file ? '影片上傳中…' : '正在恢復預設影片…');
+    try {
+      const result = await checked(await videoFetch(videoQuery(),file ? 'PUT' : 'DELETE',file));
+      customVideo = result.custom; el('video-file').value = '';
+      renderVideoStatus(file ? '已上傳，本活動將使用自訂影片。' : '已恢復系統預設影片。');
+    } catch (error) { renderVideoStatus(error.message || '影片操作未確認，請重新載入後核對。'); }
+    finally { lock(false); }
   }
   function resetPrize() {
     editing = ''; el('prize-form').reset(); el('prize-reset').hidden = true; el('prize-save').textContent = '新增獎項';
@@ -186,7 +296,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
     lock(true); status.textContent = '正在載入抽獎資料…';
     try { data = await checked(await request(query())); pending = null; closeRedraw(); resetPrize(); paint(); status.textContent = ''; }
     catch (error) { status.textContent = error.message; }
-    finally { lock(false); }
+    finally { lock(false); if (data) await readVideoStatus(); }
   }
   async function send(values) {
     if (busy || (!pending && !values)) return;
@@ -198,6 +308,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
       closeRedraw(); paint();
       status.textContent = data.replayed ? '已讀回前次操作結果。' : body.action === 'trial' ? '試抽完成。'
         : ({draw:'正式中獎名單已儲存。',redraw:'已保留原紀錄並補抽一位。',claim:'已確認領獎。'})[body.action] || '已儲存。';
+      if (!data.replayed && ['trial','draw','redraw'].includes(body.action)) void playVideo();
     } catch (error) {
       pending = error.definite || body.action === 'trial' ? null : body;
       status.textContent = pending ? '尚未確認操作結果。請重試同一次操作，或重新載入核對。' : error.message;
@@ -206,15 +317,22 @@ export const installActivityLottery = String.raw`function installActivityLottery
   open.onclick = () => {
     const selected = selectedEvent();
     if (!selected) { window.alert('請先選擇活動。'); return; }
-    data = null; activeId = selected.id; pending = null; visiblePrize = ''; workspace.hidden = true;
+    data = null; activeId = selected.id; pending = null; visiblePrize = ''; workspace.hidden = true; customVideo = null; videoStatusRead++;
+    el('video-file').value = ''; el('video-options').open = false; renderVideoStatus();
     el('event').textContent = selected.title; dialog.showModal(); load();
   };
   el('close').onclick = () => dialog.close();
+  dialog.addEventListener('close', () => finishVideo());
   dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
   el('refresh').onclick = load;
   el('retry').onclick = () => send();
   el('prize-reset').onclick = resetPrize;
   el('redraw-cancel').onclick = closeRedraw;
+  el('skip-video').onclick = () => finishVideo();
+  el('video-file').onchange = () => { el('upload-video').disabled = !el('video-file').files.length; };
+  el('upload-video').onclick = () => { const file = el('video-file').files[0]; if (file) void changeVideo(file); };
+  el('reset-video').onclick = () => { if (window.confirm('確定移除本活動的自訂影片並恢復預設？')) void changeVideo(); };
+  el('preview-video').onclick = () => { if (!busy) void playVideo(true); };
   el('mode').onchange = paintAttendance;
   el('settings').onsubmit = event => {
     event.preventDefault(); send({action:'save_settings',mode:el('mode').value,policy:el('policy').value});

@@ -10,7 +10,7 @@ const decode = text => Uint8Array.from(atob(text.replace(/-/g,'+').replace(/_/g,
 async function sessionCrypto(secret){if(!secret)throw fail('媒體上傳暫時無法使用。',503);const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('flex-video-upload/v1:'+secret));return crypto.subtle.importKey('raw',hash,'AES-GCM',false,['encrypt','decrypt'])}
 async function sealSession(session,secret){const iv=crypto.getRandomValues(new Uint8Array(12));const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv},await sessionCrypto(secret),new TextEncoder().encode(JSON.stringify(session)));return encode(iv)+'.'+encode(new Uint8Array(encrypted))}
 
-async function readBytes(request, max, exact) {
+export async function readBytes(request, max, exact) {
   const announced = request.headers.get('content-length');
   if (announced && (!/^\d+$/.test(announced) || Number(announced)>max || (exact != null && Number(announced)!==exact))) throw fail('檔案大小不正確。',413);
   const reader=request.body?.getReader(); if(!reader)throw fail('缺少檔案。');

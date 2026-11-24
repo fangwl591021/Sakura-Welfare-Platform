@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
 import worker from '../src/index.js';
+import { lotteryDefaultVideoPath } from '../src/activity-lottery-video.js';
 
 function fixture(t) {
   const sqlite = new DatabaseSync(':memory:');
@@ -54,12 +55,19 @@ function fixture(t) {
       return {bind,...bind()};
     }
   };
-  const call = (event = 'family', {token = 'admin', body, exportAs, origin, path} = {}) => worker.fetch(
+  const media = new Map();
+  const bucket = {
+    head: async key => media.has(key) ? {size:media.get(key).length} : null,
+    get: async key => media.has(key) ? {size:media.get(key).length,body:media.get(key)} : null,
+    put: async (key, bytes) => media.set(key, bytes),
+    delete: async key => media.delete(key)
+  };
+  const call = (event = 'family', {token = 'admin', body, raw, method, headers = {}, exportAs, origin, path} = {}) => worker.fetch(
     new Request('https://isolated.test' + (path || '/admin-api/activity-lottery?event_id=' + event + (exportAs ? '&export=' + exportAs : '')),{
-      method:body ? 'POST' : 'GET',
-      headers:{...(token ? {Authorization:'Bearer ' + token}:{}),...(origin ? {Origin:origin}:{}),...(body ? {'Content-Type':'application/json'}:{})},
-      ...(body ? {body:JSON.stringify(body)}:{})
-    }),{DB:db},{waitUntil(){}});
+      method:method || (body ? 'POST' : 'GET'),
+      headers:{...(token ? {Authorization:'Bearer ' + token}:{}),...(origin ? {Origin:origin}:{}),...(body ? {'Content-Type':'application/json'}:{}),...headers},
+      ...(body ? {body:JSON.stringify(body)}:raw ? {body:raw}:{})
+    }),{DB:db,R2_BUCKET:bucket},{waitUntil(){}});
   const send = (state, action, extra = {}, options = {}) => call(state.event.id, { ...options, body:{
     event_id:state.event.id, revision:state.revision, rosterVersion:state.rosterVersion, request_id:crypto.randomUUID(), action,...extra
   }});
@@ -165,6 +173,40 @@ test('the Worker keeps the existing admin and editor scope, and serves syntax-va
   assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
 });
 
+test('the bundled clip supports video ranges and custom MP4s stay scoped to one event',async t=>{
+  const f=fixture(t), mime={'Content-Type':'video/mp4'};
+  const head=await f.call('family',{token:'',path:lotteryDefaultVideoPath,method:'HEAD'});
+  assert.equal(head.status,200);
+  const size=Number(head.headers.get('Content-Length'));
+  assert.ok(size>100000);
+  assert.equal(head.headers.get('Content-Type'),'video/mp4');
+  const partial=await f.call('family',{token:'',path:lotteryDefaultVideoPath,headers:{Range:'bytes=0-11'}});
+  assert.equal(partial.status,206);
+  assert.equal(partial.headers.get('Content-Range'),'bytes 0-11/'+size);
+  assert.equal(Buffer.from(await partial.arrayBuffer()).subarray(4,8).toString(),'ftyp');
+  assert.equal((await f.call('family',{path:lotteryDefaultVideoPath,headers:{Range:'bytes=999999999-'}})).status,416);
+  const defaultResponse = await f.call('family',{token:'',path:lotteryDefaultVideoPath});
+  const raw = new Uint8Array(await defaultResponse.arrayBuffer());
+  const base='/admin-api/activity-lottery-video?event_id=';
+  const path=base+'family', upload={method:'PUT',headers:mime,raw,path};
+  assert.equal((await f.call('family',{...upload,token:''})).status,403);
+  assert.equal((await f.call('family',{...upload,token:'clubs'})).status,403);
+  assert.equal((await f.call('family',{...upload,token:'welfare'})).status,403);
+  assert.equal((await f.call('family',{...upload,origin:'https://external.test'})).status,403);
+  assert.equal((await f.call('family',{...upload,headers:{...mime,'Content-Length':'20000001'}})).status,413);
+  assert.equal((await f.call('family',{...upload,raw:new Uint8Array(24)})).status,415);
+  assert.equal((await ok(f.call('family',{...upload,token:'activities'}))).custom,true);
+  assert.equal((await ok(f.call('family',{path:path+'&view=status'}))).custom,true);
+  assert.equal((await ok(f.call('solo',{path:base+'solo&view=status'}))).custom,false);
+  assert.equal((await f.call('family',{token:'',path:'/file/activity_lottery_private_video_family'})).status,404);
+  const fetched=await f.call('family',{path});
+  assert.equal(fetched.headers.get('Cache-Control'),'private, no-store');
+  assert.deepEqual(new Uint8Array(await fetched.arrayBuffer()),raw);
+  assert.equal((await ok(f.call('family',{path,method:'DELETE'}))).custom,false);
+  assert.equal((await f.call('family',{path})).status,404);
+  assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
+});
+
 test('mobile browser can select a mode, create a prize, and draw from the correct family count',
   {skip: !process.env.PLAYWRIGHT_CHANNEL, timeout:30000}, async t=>{
     const { chromium } = await import('playwright');
@@ -173,6 +215,7 @@ test('mobile browser can select a mode, create a prize, and draw from the correc
     const f=fixture(t);
     f.person('A','employee',4);
     const page=await browser.newPage({viewport:{width:390,height:844},acceptDownloads:true});
+    page.setDefaultTimeout(5000);
     const errors=[];
     page.on('pageerror',error=>errors.push(error.message));
     page.on('dialog',dialog=>dialog.accept());
@@ -185,14 +228,29 @@ test('mobile browser can select a mode, create a prize, and draw from the correc
         summary:{event_total:1,active_total:1,checkin_total:1}, attendance:[]
       }});
       if(url.pathname==='/admin-api/activity-form') return route.fulfill({json:{success:true,schema:{fields:[],rules:[]},revision:0,registrations:[]}});
-      const response=await f.call('family',{path:url.pathname+url.search,
-        token:request.headers().authorization==='Bearer admin'?'admin':'',body:request.postDataJSON()||undefined});
+      const headers=request.headers();
+      const response=await f.call('family',{path:url.pathname+url.search,method:request.method(),
+        token:headers.authorization==='Bearer admin'?'admin':'',
+        headers:{...(headers.range?{Range:headers.range}:{}),...(request.method()==='PUT'?{'Content-Type':headers['content-type']||''}:{})},
+        body:request.method()==='POST'?request.postDataJSON():undefined,raw:request.method()==='PUT'?request.postDataBuffer():undefined});
       return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:Buffer.from(await response.arrayBuffer())});
     });
     await page.goto('https://isolated.test/activity-checkin-admin');
     await page.getByText('家庭日',{exact:true}).first().waitFor();
     await page.getByRole('button',{name:'抽獎與獎項'}).click();
     await page.getByText(/可列入名單 1 人/).waitFor();
+    await page.locator('#lottery-video-options summary').click();
+    await page.getByText('目前使用系統預設影片。',{exact:true}).waitFor();
+    const clip=await f.call('family',{token:'',path:lotteryDefaultVideoPath});
+    await page.locator('#lottery-video-file').setInputFiles({name:'custom.mp4',mimeType:'video/mp4',buffer:Buffer.from(await clip.arrayBuffer())});
+    await page.getByRole('button',{name:'上傳影片',exact:true}).click();
+    await page.getByText('已上傳，本活動將使用自訂影片。',{exact:true}).waitFor();
+    await page.getByRole('button',{name:'預覽影片',exact:true}).click();
+    await page.waitForFunction(()=>document.getElementById('lottery-player').currentTime>0);
+    assert.match(await page.locator('#lottery-player').getAttribute('src'),/^blob:/);
+    await page.getByRole('button',{name:'結束預覽'}).click();
+    await page.getByRole('button',{name:'恢復預設影片'}).click();
+    await page.getByText('已恢復系統預設影片。',{exact:true}).waitFor();
     await page.getByLabel('抽獎資格').selectOption('with_family');
     await page.getByText(/預覽（尚未儲存）.*可列入名單 4 人/).waitFor();
     assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
@@ -202,8 +260,17 @@ test('mobile browser can select a mode, create a prize, and draw from the correc
     await page.getByLabel('名額',{exact:true}).fill('4');
     await page.getByRole('button',{name:'新增獎項'}).click();
     await page.getByRole('button',{name:'試抽',exact:true}).click();
+    await page.waitForFunction(()=>document.getElementById('lottery-player').currentTime>0);
+    assert.equal(await page.locator('#lottery-player').getAttribute('src'),lotteryDefaultVideoPath);
+    await page.getByRole('button',{name:'略過影片，顯示結果'}).click();
     await page.getByText(/試抽（未存檔）/).waitFor();
+    await page.route('**/activity-lottery-media/default-v1.mp4',route=>route.abort());
+    await page.getByRole('button',{name:'試抽',exact:true}).click();
+    await page.getByText('影片無法播放，已回到抽獎頁面。',{exact:true}).waitFor();
+    await page.getByText(/試抽（未存檔）/).waitFor();
+    await page.unroute('**/activity-lottery-media/default-v1.mp4');
     await page.getByRole('button',{name:'正式抽出 4 位'}).click();
+    await page.getByRole('button',{name:'略過影片，顯示結果'}).click();
     await page.getByText('A-3〔0001-3〕',{exact:true}).waitFor();
     assert.equal(await page.getByLabel('抽獎資格').isDisabled(),true);
     assert.equal(await page.locator('#lottery-results .lottery-row').count(),4);

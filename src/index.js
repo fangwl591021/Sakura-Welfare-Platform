@@ -64,6 +64,7 @@ import { decorateVendorPrivateContractHtml } from "./vendor-private-contracts-ui
 import { createWorkspaceActivityRuntime, handleWorkspaceAgentTurn } from "./workspace/workspace-agent-entry-handler.js";
 import { handleActivityFormRequest, authorizeActivityFormAdmin } from "./activity-form-service.js";
 import { handleActivityLottery } from "./activity-lottery.js";
+import { handleActivityLotteryVideo, serveDefaultLotteryVideo } from "./activity-lottery-video.js";
 import { normalizeRegistrationWindow } from "./activity-registration-window.js";
 import { attachActivityKeywords, prepareActivityKeywordRule, isActivityKeywordRule, checkinByActivityKeyword } from "./activity-keyword-checkin.js";
 import { decorateActivityAdminHtml, buildActivityRegistrationHtml } from "./activity-form-ui.js";
@@ -446,7 +447,8 @@ const welfareWorker = {
     }
     const qrCheckin = await handleActivityQrCheckin(request, env, activityAuth);
     if (qrCheckin) return qrCheckin;
-    if (["/admin-api/activity-checkin", "/admin-api/activity-lottery"].includes(url.pathname)) {
+    if (url.pathname === "/activity-lottery-media/default-v1.mp4") return serveDefaultLotteryVideo(request);
+    if (["/admin-api/activity-checkin", "/admin-api/activity-lottery", "/admin-api/activity-lottery-video"].includes(url.pathname)) {
       try {
         activityManagerActor=await authorizeActivityFormAdmin(request,DB,env,activityAuth);
         if (!activityManagerActor) {
@@ -454,6 +456,13 @@ const welfareWorker = {
         }
       } catch { return Response.json({ success: false, message: "暫時無法驗證管理員，請稍後重試。" }, { status: 503 }); }
       if (url.pathname === "/admin-api/activity-lottery") return handleActivityLottery(request, DB, activityManagerActor);
+      if (url.pathname === "/admin-api/activity-lottery-video") {
+        const principal = await resolveAdminPrincipal(request, DB, env, editorDeps);
+        if (!['admin', 'activity_editor', 'club_editor'].includes(principal?.role)) {
+          return Response.json({ success: false, message: '此帳號沒有活動影片管理權限。' }, { status: 403, headers: { 'Cache-Control': 'no-store' } });
+        }
+        return handleActivityLotteryVideo(request, DB, BUCKET, activityManagerActor);
+      }
     }
     const activityFormResult = await handleActivityFormRequest(request, env, {
       requireAdmin,
@@ -543,7 +552,7 @@ const welfareWorker = {
       }
 
       const fileName = decodeURIComponent(url.pathname.split("/file/")[1] || "");
-      if (fileName.startsWith(shopPhotoPrefix) || fileName.startsWith("ai_ads_private_") || fileName.startsWith("vendor_public_document_") || fileName.startsWith("vendor_private_contract_") || fileName.startsWith("club_private_media_") || fileName.startsWith("activity_story_private_")) return new Response("Not found", { status: 404, headers: { "Cache-Control": "no-store" } });
+      if (fileName.startsWith(shopPhotoPrefix) || fileName.startsWith("ai_ads_private_") || fileName.startsWith("vendor_public_document_") || fileName.startsWith("vendor_private_contract_") || fileName.startsWith("club_private_media_") || fileName.startsWith("activity_story_private_") || fileName.startsWith("activity_lottery_private_video_")) return new Response("Not found", { status: 404, headers: { "Cache-Control": "no-store" } });
       const object = await BUCKET.get(fileName);
 
       if (object === null) {
