@@ -1,5 +1,5 @@
 import { lotteryDefaultVideoPath, lotteryVideoAdminPath, maxLotteryVideoBytes } from './activity-lottery-video.js';
-import { lotteryStagePath } from './activity-lottery-stage-ui.js';
+import { lotteryStagePath, lotteryStagePageSize } from './activity-lottery-stage-ui.js';
 
 export const activityLotteryPanel = `<div id="activity-lottery-entry" class="ae-attendance-only">
   <button id="activity-lottery-open" class="btn" type="button">抽獎與獎項</button>
@@ -96,7 +96,22 @@ export const activityLotteryDialog = `<dialog id="activity-lottery" aria-labelle
     </section><section>
       <h3 id="lottery-results-heading">中獎結果</h3>
       <div class="lottery-actions"><button id="lottery-stage-results" type="button" hidden>投影本獎項結果</button></div>
-      <div class="lottery-actions" id="lottery-exports" hidden><button type="button" data-lottery-export="xlsx">下載 Excel</button><button type="button" data-lottery-export="csv">下載 CSV</button></div>
+      <div class="lottery-actions" id="lottery-stage-pages" hidden>
+        <button id="lottery-stage-previous" type="button">投影上一頁</button>
+        <span id="lottery-stage-page" role="status"></span>
+        <button id="lottery-stage-next" type="button">投影下一頁</button>
+      </div>
+      <div id="lottery-exports" hidden>
+        <div id="lottery-winner-exports" class="lottery-actions">
+          <label>名單範圍 <select id="lottery-export-scope"><option value="prize">目前獎項</option><option value="event">全場所有獎項</option></select></label>
+          <button type="button" data-lottery-export="xlsx" data-export-winners>下載中獎名單 Excel</button>
+          <button type="button" data-lottery-export="csv" data-export-winners>下載中獎名單 CSV</button>
+        </div>
+        <details id="lottery-audit-exports">
+          <summary>完整抽獎紀錄</summary>
+          <div class="lottery-actions"><button type="button" data-lottery-export="xlsx">下載 Excel</button><button type="button" data-lottery-export="csv">下載 CSV</button></div>
+        </details>
+      </div>
       <div id="lottery-trial" hidden></div>
       <div id="lottery-results"></div>
       <form id="lottery-redraw" class="lottery-form" hidden>
@@ -135,6 +150,9 @@ export const activityLotteryStyles = `<style>
 .lottery-row p{margin:4px 0 0;color:#475569}
 .lottery-row small{display:block;color:#475569}
 #lottery-trial{margin:8px 0;background:#fff5d8;border-radius:8px;padding:10px;overflow-wrap:anywhere}
+#lottery-exports,#lottery-stage-pages{margin:8px 0}
+#lottery-stage-page{font-variant-numeric:tabular-nums}
+#lottery-audit-exports{margin-top:8px}
 @media(max-width:680px){#lottery-settings,.lottery-columns{grid-template-columns:1fr}#activity-lottery{padding:12px}}
 </style>`;
 
@@ -147,6 +165,8 @@ export const installActivityLottery = String.raw`function installActivityLottery
   let data = null, activeId = '', busy = false, pending = null, editing = '', redraw = null, visiblePrize = '';
   let customVideo = null, videoStatusRead = 0, playbackId = 0, videoRequest = null, objectUrl = '';
   let stage = null, stageReady = false, stagePlayback = null, stageWatcher;
+  let projectedResult = null, projectedPage = 0;
+  const stagePageSize = ${lotteryStagePageSize};
   const endpoint = '/admin-api/activity-lottery';
   const videoEndpoint = '${lotteryVideoAdminPath}';
   const defaultVideo = '${lotteryDefaultVideoPath}';
@@ -168,6 +188,30 @@ export const installActivityLottery = String.raw`function installActivityLottery
   function showOnStage(frame, playback = {}) {
     if (hasStage()) stage.postMessage({type:'lottery-stage-frame', frame, ...playback}, location.origin);
   }
+  const stagePageCount = () => Math.ceil((projectedResult?.winners.length || 0) / stagePageSize);
+  function updateStagePages() {
+    const count = stagePageCount();
+    el('stage-pages').hidden = !hasStage() || count < 2;
+    el('stage-previous').disabled = projectedPage < 1;
+    el('stage-next').disabled = projectedPage + 1 >= count;
+    el('stage-page').textContent = count > 1 ? (projectedPage + 1) + '／' + count + ' 頁' : '';
+  }
+  function setStageResult(frame, render = true) {
+    projectedResult = frame;
+    projectedPage = 0;
+    if (render) showOnStage(frame);
+    updateStagePages();
+  }
+  function moveStagePage(delta) {
+    const page = projectedPage + delta;
+    if (hasStage() && page >= 0 && page < stagePageCount()) {
+      projectedPage = page;
+      showOnStage(projectedResult, {page:projectedPage});
+    }
+    updateStagePages();
+  }
+  el('stage-previous').onclick = () => moveStagePage(-1);
+  el('stage-next').onclick = () => moveStagePage(1);
   el('stage-open').onclick = () => {
     if (stage && !stage.closed) { stage.focus(); return; }
     stageReady = false;
@@ -178,10 +222,11 @@ export const installActivityLottery = String.raw`function installActivityLottery
     if (!dialog.open || !stage || event.source !== stage || event.origin !== location.origin) return;
     if (event.data?.type === 'lottery-stage-ready') {
       stageReady = true;
-      showOnStage(stageFrame('waiting'));
+      setStageResult(stageFrame('waiting'));
       updateStageResultButton();
     }
     if (event.data?.type === 'lottery-stage-finished' && stagePlayback && event.data.round === stagePlayback.round) {
+      setStageResult(stagePlayback.frame, false);
       stagePlayback = null;
       finishVideo();
     }
@@ -190,7 +235,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
     el('stage-results').hidden = !hasStage() || !stageFrame('result').winners.length;
   }
   el('stage-results').onclick = () => {
-    if (hasStage()) showOnStage(stageFrame('result'));
+    if (hasStage()) setStageResult(stageFrame('result'));
     else updateStageResultButton();
   };
   function button(label, onClick, disabled = false) {
@@ -237,7 +282,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
   function finishVideo(message) {
     playbackId++;
     clearInterval(stageWatcher);
-    if (stagePlayback) showOnStage(stagePlayback.frame);
+    if (stagePlayback) setStageResult(stagePlayback.frame);
     stagePlayback = null;
     el('stage-playing').hidden = true;
     if (videoRequest) videoRequest.abort();
@@ -250,6 +295,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
     el('refresh').disabled = busy;
     workspace.hidden = !data;
     updateStageResultButton();
+    updateStagePages();
     if (message) status.textContent = message;
   }
   async function playVideo(preview = false, phase = '') {
@@ -262,7 +308,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
     if (frame) {
       stagePlayback = {round: token, frame};
       video.hidden = true; el('stage-playing').hidden = false;
-      showOnStage(stageFrame('waiting'));
+      setStageResult(stageFrame('waiting'));
     }
     let clip = null;
     if (customVideo === null) await readVideoStatus();
@@ -320,6 +366,14 @@ export const installActivityLottery = String.raw`function installActivityLottery
     editing = ''; el('prize-form').reset(); el('prize-reset').hidden = true; el('prize-save').textContent = '新增獎項';
   }
   function closeRedraw() { redraw = null; el('redraw').hidden = true; el('redraw').reset(); }
+  function updateWinnerExport() {
+    const winners = data?.winners || [];
+    const byPrize = el('export-scope').value === 'prize';
+    const eligible = winners.some(row => row.status !== 'absent' && (!byPrize || row.prizeId === visiblePrize));
+    el('winner-exports').hidden = !winners.length;
+    for (const control of el('winner-exports').querySelectorAll('button')) control.disabled = !eligible;
+  }
+  el('export-scope').onchange = updateWinnerExport;
   function paintAttendance() {
     const { attendance, attendancePreview, frozenAt, mode } = data;
     const preview = attendancePreview?.mode === el('mode').value ? attendancePreview : null;
@@ -377,6 +431,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
     const active = prizes.find(prize => prize.id === visiblePrize);
     el('results-heading').textContent = active ? active.name + '｜中獎結果' : '中獎結果';
     el('exports').hidden = !winners.length;
+    updateWinnerExport();
     el('trial').hidden = !trial;
     el('trial').textContent = trial ? '試抽（未存檔） ' + trial.map(row => row.label + '〔' + row.code + '〕').join('、') : '';
     const rows = winners.filter(row => row.prizeId === visiblePrize);
@@ -420,7 +475,7 @@ export const installActivityLottery = String.raw`function installActivityLottery
       status.textContent = data.replayed ? '已讀回前次操作結果。' : body.action === 'trial' ? '試抽完成。'
         : ({draw:'正式中獎名單已儲存。',redraw:'已保留原紀錄並補抽一位。',claim:'已確認領獎。'})[body.action] || '已儲存。';
       if (!data.replayed && ['trial','draw','redraw'].includes(body.action)) void playVideo(false, body.action === 'trial' ? 'trial' : 'result');
-      else if (data.replayed && ['draw','redraw'].includes(body.action)) showOnStage(stageFrame('result'));
+      else if (data.replayed && ['draw','redraw'].includes(body.action)) setStageResult(stageFrame('result'));
     } catch (error) {
       pending = error.definite || body.action === 'trial' ? null : body;
       status.textContent = pending ? '尚未確認操作結果。請重試同一次操作，或重新載入核對。' : error.message;
@@ -431,11 +486,13 @@ export const installActivityLottery = String.raw`function installActivityLottery
     if (!selected) { window.alert('請先選擇活動。'); return; }
     data = null; activeId = selected.id; pending = null; visiblePrize = ''; workspace.hidden = true; customVideo = null; videoStatusRead++;
     el('video-file').value = ''; el('video-options').open = false; renderVideoStatus();
+    el('export-scope').value = 'prize'; el('audit-exports').open = false;
     el('event').textContent = selected.title; dialog.showModal(); load();
   };
   el('close').onclick = () => dialog.close();
   dialog.addEventListener('close', () => {
     stageReady = false; stage?.close(); stage = null;
+    projectedResult = null;
     finishVideo();
   });
   dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
@@ -462,10 +519,14 @@ export const installActivityLottery = String.raw`function installActivityLottery
   for (const b of el('exports').querySelectorAll('button')) b.onclick = async () => {
     lock(true);
     try {
-      const format = b.dataset.lotteryExport, response = await request(query() + '&export=' + format);
+      const format = b.dataset.lotteryExport;
+      const list = b.hasAttribute('data-export-winners') ? '&list=winners' : '';
+      const prize = list && el('export-scope').value === 'prize' ? '&prize_id=' + encodeURIComponent(visiblePrize) : '';
+      const response = await request(query() + '&export=' + format + list + prize);
       if (!response.ok) await checked(response);
+      const filename = response.headers.get('Content-Disposition')?.split("filename*=UTF-8''")[1];
       const url = URL.createObjectURL(await response.blob()), link = node('a','');
-      link.href = url; link.download = data.event.title + '-抽獎紀錄.' + format;
+      link.href = url; link.download = filename ? decodeURIComponent(filename) : (list ? '中獎名單.' : '抽獎紀錄.') + format;
       document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url),60000);
     } catch (error) { status.textContent = error.message; }
     finally { lock(false); }

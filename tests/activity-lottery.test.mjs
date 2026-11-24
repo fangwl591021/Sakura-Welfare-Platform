@@ -162,6 +162,20 @@ test('each activity chooses its mode; changed or legacy attendance requires conf
   const xlsx=await f.call('family',{exportAs:'xlsx'});
   assert.equal(xlsx.status,200);
   assert.deepEqual([...new Uint8Array(await xlsx.arrayBuffer()).slice(0,4)],[80,75,3,4]);
+  data=await ok(f.send(data,'draw',{prize_id:second,confirmed:true}));
+  const winnerExport='/admin-api/activity-lottery?event_id=family&export=csv&list=winners';
+  const scopedResponse=await f.call('family',{path:winnerExport+'&prize_id='+first});
+  assert.match(decodeURIComponent(scopedResponse.headers.get('content-disposition')),/家庭日-獎品甲-中獎名單\.csv/);
+  const scopedCsv=await scopedResponse.text();
+  assert.match(scopedCsv,/獎品甲.*已領獎/);
+  assert.doesNotMatch(scopedCsv,/缺席|獎品乙/);
+  assert.equal(scopedCsv.split('\r\n').length,2);
+  const eventCsv=await (await f.call('family',{path:winnerExport})).text();
+  assert.match(eventCsv,/獎品乙.*待領獎/);
+  assert.equal(eventCsv.split('\r\n').length,3);
+  assert.equal((await f.call('family',{path:winnerExport+'&prize_id=other'})).status,404);
+  assert.equal((await f.call('family',{path:winnerExport,token:'clubs'})).status,403);
+  assert.equal((await f.call('family',{path:winnerExport,token:''})).status,403);
 });
 
 test('the Worker keeps the existing admin and editor scope, and serves syntax-valid workspace scripts',async t=>{
@@ -242,7 +256,7 @@ test('browser can configure family tickets, play projection video and display on
     const browser = await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL,headless:true});
     t.after(()=>browser.close());
     const f=fixture(t);
-    f.person('測試員工甲','employee',4);
+    f.person('測試員工甲','employee',12);
     const liffEntryPath='/?liff.state='+encodeURIComponent(lotteryChatEntryPath);
     const servedPages=new Map();
     if (process.env.LOTTERY_LIVE_READBACK === '1') {
@@ -334,12 +348,13 @@ test('browser can configure family tickets, play projection video and display on
     await page.getByRole('button',{name:'恢復預設影片'}).click();
     await page.getByText('已恢復系統預設影片。',{exact:true}).waitFor();
     await page.getByLabel('抽獎資格').selectOption('with_family');
-    await page.getByText(/預覽（尚未儲存）.*可列入名單 4 人/).waitFor();
+    await page.getByText(/預覽（尚未儲存）.*可列入名單 12 人/).waitFor();
     assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM welfare_activity_lotteries').get().n,0);
+    await page.getByLabel('中獎規則').selectOption('per_prize');
     await page.getByRole('button',{name:'儲存設定'}).click();
-    await page.getByText(/目前.*可列入名單 4 人/).waitFor();
+    await page.getByText(/目前.*可列入名單 12 人/).waitFor();
     await page.getByLabel('獎項名稱').fill('家庭日試驗獎');
-    await page.getByLabel('名額',{exact:true}).fill('4');
+    await page.getByLabel('名額',{exact:true}).fill('12');
     await page.getByRole('button',{name:'新增獎項'}).click();
     await page.getByRole('button',{name:'試抽',exact:true}).click();
     await page.waitForFunction(()=>document.getElementById('lottery-player').currentTime>0);
@@ -368,24 +383,65 @@ test('browser can configure family tickets, play projection video and display on
     assert.equal(await stage.locator('#winners li').count(),0);
     await stage.locator('#video').dispatchEvent('ended');
     await stage.getByText('試抽結果',{exact:true}).waitFor();
-    assert.equal(await stage.locator('#winners li').count(),4);
-    await page.getByRole('button',{name:'正式抽出 4 位'}).waitFor();
+    assert.equal(await stage.locator('#winners li').count(),9);
+    await page.getByRole('button',{name:'正式抽出 12 位'}).waitFor();
     await page.locator('#lottery-video-file').setInputFiles({name:'custom.mp4',mimeType:'video/mp4',buffer:defaultBytes});
     await page.getByRole('button',{name:'上傳影片',exact:true}).click();
     await page.getByText('已上傳，本活動將使用自訂影片。',{exact:true}).waitFor();
-    await page.getByRole('button',{name:'正式抽出 4 位'}).click();
+    await page.getByRole('button',{name:'正式抽出 12 位'}).click();
     await stage.waitForFunction(()=>document.getElementById('video').currentTime>0);
     assert.match(await stage.locator('#video').getAttribute('src'),/^blob:/);
     await stage.getByText('開獎中',{exact:true}).waitFor();
     await page.getByRole('button',{name:'略過影片，顯示結果'}).click();
     await stage.getByText('恭喜中獎',{exact:true}).waitFor();
-    assert.equal(await stage.locator('#winners li').count(),4);
-    await stage.getByText('抽獎編號 0001-3',{exact:true}).waitFor();
+    assert.equal(await stage.locator('#winners').getAttribute('data-layout'),'multiple');
+    assert.equal(await stage.locator('#winners li').count(),9);
+    const groupFont=await stage.locator('#winners strong').first().evaluate(name=>parseFloat(getComputedStyle(name).fontSize));
+    const before=await stage.locator('#winners li span').allTextContents();
+    await stage.getByText(/共 12 位.*第 1／2 頁/).waitFor();
+    await page.getByRole('button',{name:'投影下一頁'}).click();
+    await stage.getByText(/共 12 位.*第 2／2 頁/).waitFor();
+    const after=await stage.locator('#winners li span').allTextContents();
+    assert.equal(new Set([...before,...after]).size,12);
+    assert.equal(after.length,3);
+    await page.getByRole('button',{name:'投影上一頁'}).click();
+    await stage.getByText(/第 1／2 頁/).waitFor();
     assert.doesNotMatch(await stage.locator('body').innerText(), /測試員工甲|fixture-uid|確認領獎|下載 CSV/);
     await page.getByText('測試員工甲-3〔0001-3〕',{exact:true}).waitFor();
     assert.equal(await page.getByLabel('抽獎資格').isDisabled(),true);
-    assert.equal(await page.locator('#lottery-results .lottery-row').count(),4);
-    const download = page.waitForEvent('download');
+    assert.equal(await page.locator('#lottery-results .lottery-row').count(),12);
+    await page.getByLabel('獎項名稱').fill('單人試驗獎');
+    await page.getByRole('button',{name:'新增獎項'}).click();
+    await page.getByRole('button',{name:'正式抽出 1 位'}).click();
+    await page.getByRole('button',{name:'略過影片，顯示結果'}).click();
+    await stage.getByRole('heading',{name:'單人試驗獎',exact:true}).waitFor();
+    await stage.getByText('恭喜中獎',{exact:true}).waitFor();
+    assert.equal(await stage.locator('#winners').getAttribute('data-layout'),'single');
+    assert.equal(await stage.locator('#winners li').count(),1);
+    const soloFont=await stage.locator('#winners strong').evaluate(name=>parseFloat(getComputedStyle(name).fontSize));
+    assert.ok(soloFont > groupFont * 1.5);
+    assert.doesNotMatch(await stage.locator('#winners').innerText(),/測試員工甲/);
+    assert.equal(await stage.locator('#result-meta').isVisible(),false);
+    assert.equal(await page.getByRole('button',{name:'投影下一頁'}).isVisible(),false);
+    for (const [scope,stem,rows] of [['prize','家庭日-單人試驗獎-中獎名單',1],['event','家庭日-中獎名單',13]]) {
+      await page.getByLabel('名單範圍').selectOption(scope);
+      for (const [format,extension] of [['Excel','xlsx'],['CSV','csv']]) {
+        const pendingFile=page.waitForEvent('download');
+        await page.getByRole('button',{name:'下載中獎名單 '+format}).click();
+        const file=await pendingFile;
+        assert.equal(file.suggestedFilename(),stem+'.'+extension);
+        const bytes=readFileSync(await file.path()), content=bytes.toString('utf8');
+        if (extension==='xlsx') {
+          assert.equal(bytes.readUInt32LE(0),0x04034b50);
+          assert.ok(content.includes('<dimension ref="A1:E'+(rows+1)+'"/>'));
+        } else assert.equal(content.split('\r\n').length,rows+1);
+        assert.match(content,/單人試驗獎/);
+        if (scope==='event') assert.match(content,/家庭日試驗獎/);
+        else assert.doesNotMatch(content,/家庭日試驗獎/);
+      }
+    }
+    await page.getByText('完整抽獎紀錄',{exact:true}).click();
+    const download=page.waitForEvent('download');
     await page.getByRole('button',{name:'下載 CSV'}).click();
     assert.equal((await download).suggestedFilename(),'家庭日-抽獎紀錄.csv');
     const stageClosed = stage.waitForEvent('close');

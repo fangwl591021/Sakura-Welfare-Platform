@@ -86,21 +86,31 @@ function present(state, roster, event, revision, extras = {}) {
     winners: state.winners.map(({ ticket, ...row }) => ({ ...row, ...ticketInfo(roster, ends, ticket) })), ...extras };
 }
 
-function resultsDownload(event, data, format) {
+function resultsDownload(event, data, format, { winnersOnly, prizeId }) {
   const headers = ['獎項', '抽獎編號', '得獎者', '身分', '結果', '抽出時間（台北）', '確認／缺席時間（台北）', '缺席原因', '補抽對應編號'];
   const prizes = new Map(data.prizes.map(prize => [prize.id, prize.name]));
+  if (winnersOnly && prizeId && !prizes.has(prizeId)) return fail('找不到此獎項。', 404);
   const codes = new Map(data.winners.map(row => [row.id, row.code]));
   const time = value => value ? new Date(value).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hourCycle: 'h23' }) : '';
-  const rows = data.winners.map(row => [prizes.get(row.prizeId), row.code, row.label, row.ordinal ? '眷屬' : '員工',
-    { drawn: '待領獎', claimed: '已領獎', absent: '缺席' }[row.status], time(row.drawnAt), time(row.changedAt),
-    row.reason || '', codes.get(row.replaces) || '']);
+  const records = winnersOnly
+    ? data.winners.filter(row => row.status !== 'absent' && (!prizeId || row.prizeId === prizeId))
+    : data.winners;
+  const rows = records.map(row => {
+    const cells = [prizes.get(row.prizeId), row.code, row.label, row.ordinal ? '眷屬' : '員工',
+      { drawn: '待領獎', claimed: '已領獎', absent: '缺席' }[row.status]];
+    if (!winnersOnly) cells.push(time(row.drawnAt), time(row.changedAt), row.reason || '', codes.get(row.replaces) || '');
+    return cells;
+  });
+  const columns = winnersOnly ? [...headers.slice(0,4), '領獎狀態'] : headers;
+  const prizeName = winnersOnly && prizeId ? '-' + prizes.get(prizeId) : '';
+  const label = winnersOnly ? '中獎名單' : '抽獎紀錄';
   const xlsx = format === 'xlsx';
-  return new Response(xlsx ? buildRosterWorkbook(headers, rows, { sheetName: '活動抽獎結果' })
-    : '\ufeff' + [headers, ...rows].map(row => row.map(csvCell).join(',')).join('\r\n'), {
+  return new Response(xlsx ? buildRosterWorkbook(columns, rows, { sheetName: winnersOnly ? label : '活動抽獎結果' })
+    : '\ufeff' + [columns, ...rows].map(row => row.map(csvCell).join(',')).join('\r\n'), {
     headers: {
       'Content-Type': xlsx ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv;charset=UTF-8',
       'Cache-Control': 'private, no-store',
-      'Content-Disposition': "attachment; filename*=UTF-8''" + encodeURIComponent(event.title + '-抽獎紀錄.' + format)
+      'Content-Disposition': "attachment; filename*=UTF-8''" + encodeURIComponent(event.title + prizeName + '-' + label + '.' + format)
     }
   });
 }
@@ -130,7 +140,10 @@ export async function handleActivityLottery(request, db, actor) {
     const extra = state.roster === null ? { rosterVersion: await digest(snapshot) } : {};
     if (!isPost) {
       const data = present(state, roster, event, revision, extra), format = url.searchParams.get('export');
-      return ['xlsx', 'csv'].includes(format) ? resultsDownload(event, data, format) : json(data);
+      return ['xlsx', 'csv'].includes(format) ? resultsDownload(event, data, format, {
+        winnersOnly: url.searchParams.get('list') === 'winners',
+        prizeId: url.searchParams.get('prize_id')
+      }) : json(data);
     }
     const { action, request_id: requestId, prize_id: prizeId, winner_id: winnerId } = body;
     if (typeof requestId !== 'string' || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(requestId)) return fail('操作識別有誤，請重新載入。', 400);

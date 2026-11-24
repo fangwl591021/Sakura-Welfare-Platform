@@ -1,6 +1,7 @@
 import { lotteryDefaultVideoPath } from './activity-lottery-video.js';
 
 export const lotteryStagePath = '/activity-lottery-stage';
+export const lotteryStagePageSize = 9;
 
 export const lotteryStageHtml = `<!doctype html><html lang="zh-Hant"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -14,14 +15,22 @@ main{width:min(1280px,100%);margin:auto;text-align:center;padding:clamp(20px,5vh
 h1{font-size:clamp(38px,7vw,104px);line-height:1.12;letter-spacing:.025em;margin:0 0 12px;overflow-wrap:anywhere}
 #phase{font-size:clamp(19px,2.8vw,44px);color:#ffdbaf;margin:0 0 24px}
 video{display:block;width:100%;max-height:65dvh;background:#0c0b11;border-radius:12px}
-ol{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px}
-li{display:grid;gap:4px;padding:16px 10px;background:#252237;border:1px solid #ffffff38;border-radius:12px;font-size:clamp(25px,3.2vw,52px);overflow-wrap:anywhere}
-li span{color:#ffdbaf;font-size:.65em;font-variant-numeric:tabular-nums} [hidden]{display:none!important}
+ol{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(8px,1.5vh,16px)}
+li{display:grid;gap:4px;padding:clamp(6px,1.5vh,16px) 10px;background:#252237;border:1px solid #ffffff38;border-radius:12px;font-size:clamp(22px,3.2vw,5vh);overflow-wrap:anywhere}
+li span{color:#ffdbaf;font-size:.65em;font-variant-numeric:tabular-nums}
+ol[data-layout="multiple"][data-columns="1"]{max-width:440px;margin-inline:auto;grid-template-columns:1fr}
+ol[data-layout="multiple"][data-columns="2"]{max-width:860px;margin-inline:auto;grid-template-columns:repeat(2,minmax(0,1fr))}
+ol[data-layout="single"]{max-width:940px;margin:auto;grid-template-columns:1fr}
+ol[data-layout="single"] li{padding:clamp(22px,6vh,70px) 16px;font-size:clamp(54px,10vw,150px);line-height:1.08;border-color:#d19f69;background:radial-gradient(ellipse at top,#4c3450,#252237 75%)}
+ol[data-layout="single"] li span{margin-top:14px;font-size:clamp(22px,3vw,48px)}
+#result-meta{margin:16px 0 0;color:#ffdbaf;font-size:clamp(16px,2.4vw,30px);font-variant-numeric:tabular-nums}
+@media(max-width:640px){ol{grid-template-columns:repeat(2,minmax(0,1fr))}}
+[hidden]{display:none!important}
 </style></head><body>
 <header><p id="event">活動抽獎</p><nav aria-label="投影視窗"><button id="full" type="button">全螢幕</button><button id="close" type="button">關閉投影</button></nav></header>
 <main><h1 id="prize">現場抽獎</h1><p id="phase" role="status">等待主持人開始</p>
 <video id="video" playsinline preload="none" aria-label="抽獎過場影片" hidden></video>
-<ol id="winners" aria-label="中獎結果"></ol></main>
+<ol id="winners" aria-label="中獎結果"></ol><p id="result-meta" role="status" hidden></p></main>
 <script>
 const el = id => document.getElementById(id);
 const openerWindow = window.opener;
@@ -35,13 +44,22 @@ function stopVideo() {
   video.pause(); video.removeAttribute('src'); video.load(); video.hidden = true;
   if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = ''; }
 }
-function showResult(frame) {
+const pageSize = ${lotteryStagePageSize};
+function showResult(frame, page = 0) {
   el('phase').textContent = frame.phase === 'trial' ? '試抽結果' : frame.phase === 'result' ? '恭喜中獎' : '等待主持人開始';
-  el('winners').replaceChildren();
-  for (const winner of frame.winners || []) {
+  const rows = frame.winners || [], results = el('winners'), meta = el('result-meta');
+  const pages = Math.ceil(rows.length / pageSize);
+  const index = Math.max(0, Math.min(Number.isInteger(page) ? page : 0, pages - 1));
+  const visible = rows.slice(index * pageSize, (index + 1) * pageSize);
+  results.dataset.layout = rows.length === 1 ? 'single' : 'multiple';
+  results.dataset.columns = String(Math.min(3, visible.length));
+  results.replaceChildren();
+  meta.hidden = rows.length < 2;
+  meta.textContent = '共 ' + rows.length + ' 位' + (pages > 1 ? '　｜　第 ' + (index + 1) + '／' + pages + ' 頁' : '');
+  for (const winner of visible) {
     const item = document.createElement('li'), name = document.createElement('strong'), code = document.createElement('span');
     name.textContent = winner.name; code.textContent = '抽獎編號 ' + winner.code;
-    item.append(name, code); el('winners').append(item);
+    item.append(name, code); results.append(item);
   }
 }
 async function play(frame, clip, sound, round) {
@@ -73,8 +91,9 @@ window.addEventListener('message', event => {
   el('event').textContent = frame.event || '活動抽獎';
   el('prize').textContent = frame.prize || '現場抽獎';
   el('winners').replaceChildren();
+  el('result-meta').hidden = true;
   if (typeof data.round === 'number') void play(frame, data.clip, data.sound, data.round);
-  else showResult(frame);
+  else showResult(frame,data.page);
 });
 el('full').onclick = async () => {
   try {
