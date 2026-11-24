@@ -1,3 +1,5 @@
+import { activeBenefitEmployee } from './vendor-benefit-access.js';
+
 export const LIFE_INFO_STATION_COMMANDS = Object.freeze({
   zh: '員工生活情報站',
   id: 'Pusat Informasi Karyawan',
@@ -10,6 +12,11 @@ export const LIFE_INFO_STATION_LABELS = Object.freeze({
   th: ['โปรโมชัน', 'ร้านค้าพันธมิตร', 'กิจกรรม', 'ชมรม', 'ภาพกิจกรรม'],
 });
 const QUERIES = ['', '?view=directory', '?view=activities', '?view=clubs', '?view=activities&stories=1'];
+const WELFARE_SHOP_LABELS = {
+  zh: '員工福利專區',
+  id: 'Toko Karyawan',
+  th: 'ร้านค้าพนักงาน',
+};
 
 export function lifeInfoStationLanguage(text) {
   const value = String(text || '').trim();
@@ -31,17 +38,30 @@ function lifeInfoStationEventLanguage(event) {
   });
 }
 
-export function buildLifeInfoStationMessage(language, publicOrigin, buildLiff) {
+export async function lifeInfoEmployeeEligible(db, lineUserId) {
+  if (!db || !/^U[0-9a-f]{32}$/i.test(lineUserId)) return false;
+  try {
+    const member = await db.prepare('SELECT member_type,status,bind_status FROM welfare_members WHERE line_user_id=?')
+      .bind(lineUserId).first();
+    return activeBenefitEmployee(member);
+  } catch {
+    return false;
+  }
+}
+
+export function buildLifeInfoStationMessage(language, publicOrigin, buildLiff, { employee = false } = {}) {
   if (!Object.hasOwn(LIFE_INFO_STATION_LABELS, language) || typeof buildLiff !== 'function') throw new Error('Invalid life information station configuration');
   const origin = new URL(String(publicOrigin || ''));
   if (origin.protocol !== 'https:' || origin.username || origin.password) throw new Error('Life information image requires an HTTPS origin');
   const base = '/featured-partner-stores' + (language === 'zh' ? '' : '-' + language);
-  const items = LIFE_INFO_STATION_LABELS[language].map((label, index) => {
-    const uri = String(buildLiff(base + QUERIES[index]));
+  const quickReply = (label, path) => {
+    const uri = String(buildLiff(path));
     const target = new URL(uri);
     if (target.protocol !== 'https:' || target.hostname !== 'liff.line.me' || target.username || target.password) throw new Error('Life information action requires LIFF');
     return { type: 'action', action: { type: 'uri', label, uri } };
-  });
+  };
+  const items = LIFE_INFO_STATION_LABELS[language].map((label, index) => quickReply(label, base + QUERIES[index]));
+  if (employee === true) items.push(quickReply(WELFARE_SHOP_LABELS[language], '/welfare-shop'));
   return {
     type: 'image',
     originalContentUrl: new URL('/file/line-life-info/20261030/share.png', origin).toString(),

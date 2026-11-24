@@ -1,6 +1,6 @@
 import {sakuraAdminLogoData} from "./admin-brand-logo.js";
 import { requestEnvironment, requestWork, ensureKnownSchema } from "./request-work.js";
-import { lifeInfoStationItemLanguage, buildLifeInfoStationMessage, partitionLifeInfoForwardPayload, signLifeInfoForwardPayload } from "./life-info-station.js";
+import { lifeInfoStationItemLanguage, lifeInfoEmployeeEligible, buildLifeInfoStationMessage, partitionLifeInfoForwardPayload, signLifeInfoForwardPayload } from "./life-info-station.js";
 import { isVendorBindingCommand, hasVendorBindingPayload, redactVendorBindingBody, redactVendorBindingPayload, partitionVendorBindingPayload, issueVendorLineCode, disableVendorLineCode, claimVendorLineEvent, consumeVendorLineCode, listVendorLineBindings, revokeVendorLineBinding, restoreVendorLineBinding } from "./vendor-line-binding.js";
 import { isVendorRecipientAllowed } from "./vendor-push-audience.js";
 import { isVendorContractCurrent, vendorContractCurrentSql } from "./vendor-contract-policy.js";
@@ -4076,9 +4076,10 @@ async function processLineChildPayload(rawBody, env, options = {}) {
       } else if (options.signatureVerified === true && env.LINE_CHANNEL_ACCESS_TOKEN) {
         try {
           const liffLink = path => buildLiffUrl(env, path);
+          const employee = await lifeInfoEmployeeEligible(env.DB, item.LINE_user_id);
           const message = shopCommand
-            ? buildWelfareShopMessage(liffLink)
-            : buildLifeInfoStationMessage(lifeInfoLanguage, getPublicOrigin(env), liffLink);
+            ? employee ? buildWelfareShopMessage(liffLink) : { type: "text", text: "員工福利專區限已綁定的在職員工使用。" }
+            : buildLifeInfoStationMessage(lifeInfoLanguage, getPublicOrigin(env), liffLink, { employee });
           const lineResult = await replyLineMessages(env, item.replyToken, [message]);
           autoReplies.push({ type, language: lifeInfoLanguage, ok: Boolean(lineResult?.ok), status: lineResult?.status || 0 });
         } catch {

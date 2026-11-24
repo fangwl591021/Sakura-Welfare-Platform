@@ -8,14 +8,16 @@ import {isVendorBranchQrChatCandidate, partitionVendorQrForwardPayload} from '..
 import {isVendorBrandChatCandidate, partitionVendorBrandForwardPayload} from '../src/vendor-brand-chat.js';
 import {buildWelfareShopMessage, isWelfareShopCommand, isWelfareShopEvent} from '../src/welfare-shop-chat.js';
 import {
-  LIFE_INFO_STATION_COMMANDS, lifeInfoStationLanguage, lifeInfoStationItemLanguage,
+  LIFE_INFO_STATION_COMMANDS, lifeInfoStationLanguage, lifeInfoStationItemLanguage, lifeInfoEmployeeEligible,
   buildLifeInfoStationMessage, partitionLifeInfoForwardPayload, signLifeInfoForwardPayload,
 } from '../src/life-info-station.js';
 
 const source = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
 const secret = 'synthetic-life-station-secret';
+const lineUserId = 'U' + '0'.repeat(32);
+const employee = { member_type: 'employee', status: 'active', bind_status: 'bound' };
 const event = (text = LIFE_INFO_STATION_COMMANDS.zh, id = 'one', sourceType = 'user') => ({
-  type: 'message', source: { type: sourceType, userId: 'synthetic-user' },
+  type: 'message', source: { type: sourceType, userId: lineUserId },
   message: { type: 'text', id, text }, webhookEventId: id, replyToken: 'synthetic-reply-' + id, timestamp: 123456,
 });
 const sign = body => createHmac('sha256', secret).update(body).digest('base64');
@@ -29,12 +31,23 @@ function realFunction(name, context) {
   return vm.runInNewContext('(' + source.slice(match.index, end).trim() + ')', context);
 }
 
-function harness({ replyFailure = '', db = false, bindingGate = null, replyGate = null, bindingFailure = false, claimFailure = false, claimGate = null } = {}) {
+function harness({ replyFailure = '', db = false, member = null, memberReadFailure = false, bindingGate = null, replyGate = null, bindingFailure = false, claimFailure = false, claimGate = null } = {}) {
   const replies = [], forwards = [], stored = [], storedPayloads = [], bindings = [], waits = [], detections = [], repairs = [], claims = new Set();
+  const memberReads = [];
+  const database = {
+    prepare: sql => {
+      assert.equal(sql, 'SELECT member_type,status,bind_status FROM welfare_members WHERE line_user_id=?');
+      return { bind: uid => ({ first: async () => {
+        memberReads.push(uid);
+        if (memberReadFailure) throw new Error('synthetic binding read failure');
+        return uid === lineUserId ? member : null;
+      } }) };
+    }
+  };
   const noop = async () => null;
   const context = {
     crypto, TextEncoder, Uint8Array, btoa, URL, Request, Response,
-    lifeInfoStationItemLanguage, buildLifeInfoStationMessage, partitionLifeInfoForwardPayload, signLifeInfoForwardPayload,
+    lifeInfoStationItemLanguage, lifeInfoEmployeeEligible, buildLifeInfoStationMessage, partitionLifeInfoForwardPayload, signLifeInfoForwardPayload,
     buildWelfareShopMessage, isWelfareShopCommand, isWelfareShopEvent,
     isVendorBindingCommand,hasVendorBindingPayload,redactVendorBindingBody,redactVendorBindingPayload,partitionVendorBindingPayload,
     isVendorBranchQrChatCandidate, partitionVendorQrForwardPayload, isVendorBrandChatCandidate, partitionVendorBrandForwardPayload,
@@ -67,14 +80,14 @@ function harness({ replyFailure = '', db = false, bindingGate = null, replyGate 
         method: 'POST', body, headers: { 'x-line-signature': signed ? sign(body) : 'forged' },
       }),
       { LINE_CHANNEL_SECRET: secretConfigured ? secret : '', LINE_CHANNEL_ACCESS_TOKEN: 'synthetic-token',
-        ...(db ? { DB: {} } : {}), ...(secondary ? { CHILD_WEBHOOK_URL: 'https://secondary.test/child', MONITOR_WEBHOOK_URL: 'https://monitor.test/intake' } : {}) },
+        ...(db ? { DB: database } : {}), ...(secondary ? { CHILD_WEBHOOK_URL: 'https://secondary.test/child', MONITOR_WEBHOOK_URL: 'https://monitor.test/intake' } : {}) },
       { waitUntil: task => waits.push(task) },
     );
     while (waits.length) await Promise.all(waits.splice(0));
     const responseText = await response.text();
     return { response, body, json: responseText.startsWith('{') ? JSON.parse(responseText) : null };
   };
-  return { send, replies, forwards, stored, storedPayloads, bindings, detections, repairs };
+  return { send, replies, forwards, stored, storedPayloads, bindings, detections, repairs, memberReads };
 }
 
 test('signed mixed binding and life-info batch owns reply once and never stores code',async()=>{
@@ -85,11 +98,12 @@ test('signed mixed binding and life-info batch owns reply once and never stores 
   assert.ok(!JSON.stringify(f.stored).includes(secretCode));assert.ok(!JSON.stringify(f.storedPayloads).includes(secretCode));
 });
 test('signed private shop keyword replies with one LIFF button and leaves other events to their owners',async()=>{
-  const f=harness({db:true});
+  const f=harness({db:true,member:employee});
   const shop=event('員工福利品','shop');
   const result=await f.send([shop,structuredClone(shop),event('會員分享','normal')],{secondary:true});
   assert.equal(result.response.status,200);
   assert.equal(f.replies.length,1);
+  assert.deepEqual(f.memberReads,[lineUserId]);
   assert.deepEqual(f.replies[0].messages[0].contents.footer.contents[0].action,{
     type:'uri',label:'開啟福利品商城',uri:'https://liff.line.me/test-liff/welfare-shop'
   });
@@ -97,6 +111,15 @@ test('signed private shop keyword replies with one LIFF button and leaves other 
   for(const forward of f.forwards){
     assert.deepEqual(JSON.parse(forward.body).events,[event('會員分享','normal')]);
     assert.equal(forward.signature,sign(forward.body));
+  }
+});
+test('the existing shop keyword also hides its LIFF action from visitors and vendor accounts',async()=>{
+  for (const member of [null,{ ...employee, member_type:'visitor' },{ ...employee, member_type:'vendor' }]) {
+    const f=harness({db:true,member});
+    await f.send([event('員工福利品','shop')]);
+    assert.equal(f.replies.length,1);
+    assert.deepEqual(f.replies[0].messages,[{type:'text',text:'員工福利專區限已綁定的在職員工使用。'}]);
+    assert.deepEqual(f.forwards,[]);
   }
 });
 test('shop keyword is exact, private, and requires a signed delivery',async()=>{
@@ -184,7 +207,50 @@ for (const [language, command] of Object.entries(LIFE_INFO_STATION_COMMANDS)) {
     assert.equal(f.stored.length, 1); assert.equal(f.stored[0].action, 'life_info_station');
     assert.equal(f.detections.length, 0); assert.equal(f.repairs.length, 0);
   });
+
+  test(language + ': bound employees get the welfare quick reply immediately after activity highlights', async () => {
+    const f = harness({ db:true, member:employee });
+    const {response} = await f.send([event(command),event(command)], {secondary:true});
+    assert.equal(response.status,200);
+    assert.deepEqual(f.memberReads,[lineUserId]);
+    assert.equal(f.replies.length,1);
+    const actions=f.replies[0].messages[0].quickReply.items.map(item=>item.action);
+    assert.equal(actions.length,6);
+    assert.equal(new URL(actions[4].uri).search,'?view=activities&stories=1');
+    assert.equal(actions[5].uri,'https://liff.line.me/test-liff/welfare-shop');
+    assert.ok(actions[5].label.length<=20);
+    if(language==='zh')assert.deepEqual(actions.slice(-2).map(item=>item.label),['活動花絮','員工福利專區']);
+    assert.deepEqual(f.forwards,[]);
+  });
 }
+
+test('only active bound employee roles receive the welfare quick reply and unsafe lookups fall back to public labels', async () => {
+  const candidates=[
+    [{...employee,member_type:'foreign_employee'},true],
+    [{...employee,member_type:'manager'},true],
+    [{...employee,member_type:'visitor'},false],
+    [{...employee,member_type:'vendor_approved'},false],
+    [{...employee,bind_status:'unbound'},false],
+    [{...employee,status:'inactive'},false],
+    [null,false],
+  ];
+  for(const [member,allowed] of candidates){
+    const f=harness({db:true,member});
+    await f.send([event()],{route:'child'});
+    assert.equal(f.replies[0].messages[0].quickReply.items.length,allowed?6:5);
+  }
+  const failed=harness({db:true,member:employee,memberReadFailure:true});
+  await failed.send([event()]);
+  assert.equal(failed.replies[0].messages[0].quickReply.items.length,5);
+  const untrusted=harness({db:true,member:employee});
+  await untrusted.send([event()],{signed:false});
+  assert.deepEqual(untrusted.memberReads,[]);
+  const missingSource=event();
+  missingSource.source.userId='';
+  await untrusted.send([missingSource]);
+  assert.deepEqual(untrusted.memberReads,[]);
+  assert.equal(untrusted.replies[0].messages[0].quickReply.items.length,5);
+});
 
 test('lookalikes, group/room, postback, non-text and tokenless events are not owned', () => {
   const variants = [event('員工生活情報站說明'), event(LIFE_INFO_STATION_COMMANDS.zh, 'g', 'group'), event(LIFE_INFO_STATION_COMMANDS.zh, 'r', 'room'),
