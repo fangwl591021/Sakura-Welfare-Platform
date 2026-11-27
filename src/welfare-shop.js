@@ -10,6 +10,7 @@ const headers = {
 };
 const uuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 const employee = "status='active' AND bind_status='bound' AND member_type IN ('employee','foreign_employee','manager')";
+const rosterMatch = "EXISTS (SELECT 1 FROM employee_roster r WHERE r.employee_no=trim(welfare_members.employee_no) AND r.employee_no<>'')";
 const used = "(SELECT COALESCE(SUM(quantity),0) FROM welfare_shop_requests WHERE product_id=p.id AND status<>'cancelled')";
 const json = (value, status = 200) => Response.json(value, { status, headers });
 const fail = (message, status = 400) => { throw Object.assign(new Error(message), { shopStatus: status }); };
@@ -81,8 +82,10 @@ async function memberView(request, env, url, path, onNewRequest) {
   const db = env.DB;
   const uid = await verifiedBenefitCookieUid(request, env);
   if (!uid) fail('請先登入 LINE。', 401);
-  const identity = await db.prepare('SELECT member_type,status,bind_status,display_name FROM welfare_members WHERE line_user_id=?').bind(uid).first();
+  const identity = await db.prepare('SELECT member_type,status,bind_status,display_name,' + rosterMatch +
+    ' AS roster_match FROM welfare_members WHERE line_user_id=?').bind(uid).first();
   if (!activeBenefitEmployee(identity)) fail('福利品商城限已綁定的在職員工使用。', 403);
+  if (!identity.roster_match) fail('員工名冊查無對應工號，請洽福委會確認。', 403);
 
   if (path === '/api/welfare-shop/photo' && request.method === 'GET') {
     const row = await db.prepare("SELECT p.photo_key FROM welfare_shop_products p WHERE p.id=? AND p.status='published' AND " + publishedInWindow)
@@ -122,7 +125,7 @@ async function memberView(request, env, url, path, onNewRequest) {
       " AND " + publishedInWindow +
       // An older open form carries no quote. It can submit only if rounding would not change its price.
       " AND " + roundedPrice + "=COALESCE(?,p.price_cents)" +
-      " AND EXISTS (SELECT 1 FROM welfare_members WHERE line_user_id=? AND " + employee + ") ON CONFLICT DO NOTHING")
+      " AND EXISTS (SELECT 1 FROM welfare_members WHERE line_user_id=? AND " + employee + " AND " + rosterMatch + ") ON CONFLICT DO NOTHING")
       .bind(data.id, uid, quantity, contact, phone, comment, now, now, data.product_id, revision, quantity, quantity, quotedPrice, uid),
     db.prepare('INSERT INTO welfare_shop_telegram(request_id,next_at,updated_at) SELECT ?,?,? WHERE changes()=1')
       .bind(data.id,Date.parse(now),Date.parse(now)),

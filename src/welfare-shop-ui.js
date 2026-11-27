@@ -313,7 +313,9 @@ function managementPage(fromLine) {
   <label><span id="productBatchLabel">上架批次</span><select name="batch_id" aria-labelledby="productBatchLabel"></select></label>
   <div class="row"><label>員工價（元）<input name="price" type="number" min="0" max="1000000" step="1" required></label><label>總庫存（含已申請）<input name="stock" type="number" min="0" max="9999" required></label></div>
   <div class="row"><label>每人可申請上限<input name="employee_limit" type="number" min="1" max="9999" required></label><label>商品狀態<select name="status"><option value="draft">草稿</option><option value="published">上架</option><option value="hidden">下架</option></select></label></div>
-  <label>更換商品照片<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label><p id="editNotice" role="status"></p><button class="primary" id="save">儲存商品</button></form></dialog>`,
+  <label>商品照片<input name="image" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="productPhotoHint"></label>
+  <small id="productPhotoHint" class="muted">建議 1200 × 800 px（橫式 3:2），支援 JPEG、PNG、WebP，單張上限 2 MB。</small>
+  <p id="editNotice" role="status"></p><button class="primary" id="save">儲存商品</button></form></dialog>`,
   `
 const fromLine = ${fromLine};
 let editItem, imported, offset=0, inFlight=false, loadRevision=0, displayedPhotos=[], venues=[], venueEdit, catalog=[], batches=[], batchEdit;

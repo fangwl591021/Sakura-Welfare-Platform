@@ -224,6 +224,8 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
     await card.getByText('尚未開放申請',{exact:true}).waitFor();
     await card.getByText(/隔離台北品牌館/).waitFor();
     await card.getByRole('button',{name:'編輯商品'}).click();
+    await page.locator('#productDialog').getByText(/建議 1200 × 800 px.*單張上限 2 MB/).waitFor();
+    assert.equal(await page.getByLabel('商品照片',{exact:true}).getAttribute('aria-describedby'),'productPhotoHint');
     assert.equal(await page.getByLabel('員工價（元）').inputValue(),'23597');
     assert.equal(await page.getByLabel('出貨館別',{exact:true}).inputValue(),'taipei');
     assert.equal(await page.getByLabel('上架批次',{exact:true}).inputValue(),'batch-one');

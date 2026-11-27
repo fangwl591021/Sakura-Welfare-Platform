@@ -18,7 +18,7 @@ test('mall pages have complete browser scripts and expose the expected entry act
 test('welfare shop protects employee media and reserves stock through the real Worker and D1', {timeout:60000}, async t => {
   const require = createRequire(process.env.WELFARE_DEPENDENCIES || import.meta.url);
   const {build}=require('esbuild'),{Miniflare}=require('miniflare');
-  const first='U'+'1'.repeat(32),second='U'+'2'.repeat(32),visitor='U'+'3'.repeat(32);
+  const first='U'+'1'.repeat(32),second='U'+'2'.repeat(32),visitor='U'+'3'.repeat(32),missing='U'+'4'.repeat(32);
   const entry=String.raw`
     import {handleWelfareShop} from './src/welfare-shop.js';
     import {handleVendorBenefitAccess} from './src/vendor-benefit-access.js';
@@ -50,10 +50,20 @@ test('welfare shop protects employee media and reserves stock through the real W
     export default {fetch(request,env,ctx){
       if(new URL(request.url).pathname==='/fixture/flush')return Promise.all([...tasks]).then(()=>flush(env.DB)).then(()=>Response.json(messages));
       if(new URL(request.url).pathname==='/fixture/mail')return flushWelfareShopDirectorEmail(env,undefined,sendMail).then(()=>Response.json(emails));
+      const scoped=request.headers.has('x-fixture-remove-roster') ? {
+        ...env,DB:{
+          prepare:sql=>env.DB.prepare(sql),
+          batch:async statements=>{
+            await env.DB.prepare("DELETE FROM employee_roster WHERE employee_no='002'").run();
+            return env.DB.batch(statements);
+          }
+        }
+      } : env;
       return handleVendorBenefitAccess(request,env,{
-        verifyLine:async(_env,token)=>({one:{lineUserId:'${first}'},two:{lineUserId:'${second}'},visitor:{lineUserId:'${visitor}'}}[token]),
+        verifyLine:async(_env,token)=>({one:{lineUserId:'${first}'},two:{lineUserId:'${second}'},
+          visitor:{lineUserId:'${visitor}'},missing:{lineUserId:'${missing}'}}[token]),
         ensureBinding:async()=>{}
-      },current=>handleWelfareShop(current,env,()=>resolveAdminPrincipal(current,env.DB,env,adminDeps),id=>{
+      },current=>handleWelfareShop(current,scoped,()=>resolveAdminPrincipal(current,env.DB,env,adminDeps),id=>{
           const task=flush(env.DB,id).finally(()=>tasks.delete(task));
           tasks.add(task);
           ctx.waitUntil(task);
@@ -65,16 +75,17 @@ test('welfare shop protects employee media and reserves stock through the real W
       WELFARE_SHOP_EMAIL_FROM:'from@example.test',RESEND_API_KEY:'synthetic'}});
   t.after(()=>mf.dispose());
   const db=await mf.getD1Database('DB');
-  await db.prepare('CREATE TABLE welfare_members(line_user_id TEXT PRIMARY KEY,member_type TEXT,status TEXT,bind_status TEXT,display_name TEXT)').run();
-  for(const file of ['0049_employee_welfare_shop.sql','0050_welfare_shop_telegram.sql','0053_welfare_shop_contact_phone.sql','0054_welfare_shop_venues.sql','0055_welfare_shop_batches.sql']){
+  await db.prepare('CREATE TABLE welfare_members(line_user_id TEXT PRIMARY KEY,member_type TEXT,status TEXT,bind_status TEXT,display_name TEXT,employee_no TEXT)').run();
+  for(const file of ['0035_employee_roster.sql','0049_employee_welfare_shop.sql','0050_welfare_shop_telegram.sql','0053_welfare_shop_contact_phone.sql','0054_welfare_shop_venues.sql','0055_welfare_shop_batches.sql']){
     for(const sql of readFileSync(new URL('../migrations/'+file,import.meta.url),'utf8').split(';').filter(s=>s.trim()))await db.prepare(sql).run();
   }
   const oldBatchId=randomUUID();
   await db.prepare("INSERT INTO welfare_shop_batches(id,name,ends_at,updated_by,updated_at) VALUES(?,'既有批次','2099-12-31T10:00:00.000Z','fixture','fixture')").bind(oldBatchId).run();
   await db.prepare(readFileSync(new URL('../migrations/0057_welfare_shop_batch_start.sql',import.meta.url),'utf8')).run();
   assert.equal((await db.prepare('SELECT starts_at FROM welfare_shop_batches WHERE id=?').bind(oldBatchId).first()).starts_at,null);
-  for(const [uid,type] of [[first,'employee'],[second,'employee'],[visitor,'visitor']]){
-    await db.prepare("INSERT INTO welfare_members VALUES(?,?,'active','bound',?)").bind(uid,type,'測試人員').run();
+  for(const [uid,type,number] of [[first,'employee','001'],[second,'employee','002'],[visitor,'visitor','003'],[missing,'employee','004']]){
+    await db.prepare("INSERT INTO welfare_members VALUES(?,?,'active','bound',?,?)").bind(uid,type,'測試人員',number).run();
+    if(uid!==missing)await db.prepare('INSERT INTO employee_roster(employee_no) VALUES(?)').bind(number).run();
   }
   const call=(path,{cookie='',admin=false,token,body,method=body?'POST':'GET',headers={}}={})=>mf.dispatchFetch('https://isolated.test'+path,{
     method,headers:{...headers,...(cookie?{Cookie:cookie}:{}),...(admin?{Authorization:'Bearer admin'}:{}),...(token?{'X-Line-Id-Token':token}:{}),...(body?{'Content-Type':'application/json'}:{})},
@@ -84,11 +95,14 @@ test('welfare shop protects employee media and reserves stock through the real W
     assert.equal(r.status,200,await r.clone().text());
     return r.headers.get('Set-Cookie').split(';')[0];
   };
-  const [one,two,guest]=await Promise.all(['one','two','visitor'].map(login));
+  const [one,two,guest,notOnRoster]=await Promise.all(['one','two','visitor','missing'].map(login));
   const api='/api/welfare-shop',admin='/admin-api/welfare-shop';
   const settings=admin+'/settings';
   assert.equal((await call(api)).status,401);
   assert.equal((await call(api,{cookie:guest})).status,403);
+  const unmatched=await call(api,{cookie:notOnRoster});
+  assert.equal(unmatched.status,403);
+  assert.match((await unmatched.json()).error,/員工名冊查無對應/);
   assert.equal((await call(admin,{cookie:one})).status,403);
   assert.equal((await call(settings)).status,403);
   assert.equal((await call(settings,{token:'line-editor'})).status,403);
@@ -127,8 +141,17 @@ test('welfare shop protects employee media and reserves stock through the real W
   assert.equal(product.price_cents,12300); assert.equal(product.available,1);
   assert.equal((await call(photo,{cookie:one})).headers.get('Content-Type'),'image/jpeg');
   assert.equal((await call(photo,{cookie:guest})).status,403);
+  assert.equal((await call(photo,{cookie:notOnRoster})).status,403);
   assert.equal((await call(photo,{cookie:one,headers:{'Sec-Fetch-Site':'cross-site'}})).status,403);
   const request=()=>({id:randomUUID(),product_id:draft.id,revision:product.revision,unit_price_cents:product.price_cents,quantity:1,contact:'private-fixture-contact',comment:'private-fixture-note'});
+  assert.equal((await call(api,{cookie:notOnRoster,body:{...request(),employee_no:'001'}})).status,403);
+  const interruptedRequest=request();
+  assert.equal((await call(api,{cookie:two,body:interruptedRequest,headers:{'X-Fixture-Remove-Roster':'1'}})).status,409);
+  assert.equal(await db.prepare('SELECT id FROM welfare_shop_requests WHERE id=?').bind(interruptedRequest.id).first(),null);
+  assert.equal(await db.prepare('SELECT request_id FROM welfare_shop_telegram WHERE request_id=?').bind(interruptedRequest.id).first(),null);
+  assert.equal((await call(api,{cookie:two})).status,403);
+  assert.equal((await call(photo,{cookie:two})).status,403);
+  await db.prepare("INSERT INTO employee_roster(employee_no) VALUES('002')").run();
   const {unit_price_cents: unusedQuote,...oldForm}=request();
   assert.equal((await call(api,{cookie:one,body:oldForm})).status,409);
   assert.equal((await call(api,{cookie:one,body:{...request(),unit_price_cents:12345}})).status,409);
