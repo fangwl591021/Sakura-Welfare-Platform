@@ -218,3 +218,69 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
     await page.close();
   });
 });
+test('shop prompts first-time LINE login, renews rejected browser tokens and keeps visitor access closed',
+  {timeout:35000},async t=>{
+    const entry='/welfare-shop';
+    const pageResponse=process.env.WELFARE_SHOP_LIVE_UI==='1'
+      ?await fetch(liveOrigin+entry,{redirect:'error',signal:AbortSignal.timeout(10000)})
+      :await worker.fetch(new Request(origin+entry),{},{});
+    assert.equal(pageResponse.status,200);
+    const html=await pageResponse.text();
+    const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL});
+    t.after(()=>browser.close());
+    for(const scenario of ['first','expired','line-client','visitor'])await t.test(scenario,async()=>{
+      const page=await browser.newPage();
+      try{
+        const tokens=[];
+        let accepted=false;
+        await page.route('**/*',async route=>{
+          const req=route.request(),url=new URL(req.url());
+          if(url.hostname==='static.line-scdn.net')return route.fulfill({contentType:'application/javascript',body:
+            'const mode='+JSON.stringify(scenario)+';'+
+            'const returning=new URLSearchParams(location.search).has("fixture_callback");'+
+            'window.liff={init:async()=>{},isInClient:()=>mode==="line-client",'+
+            'isLoggedIn:()=>returning||mode!=="first",getIDToken:()=>returning||mode==="visitor"?"fixture-fresh":"fixture-expired",'+
+            'logout:()=>sessionStorage.setItem("fixtureLogout",String(Number(sessionStorage.getItem("fixtureLogout")||0)+1)),'+
+            'closeWindow:()=>{window.fixtureClosed=true;},'+
+            'login:({redirectUri})=>{sessionStorage.setItem("fixtureRedirect",redirectUri);location.assign(redirectUri+"?fixture_callback=1");}};'
+          });
+          if(url.origin!==origin)return route.abort();
+          if(url.pathname===entry)return route.fulfill({contentType:'text/html;charset=UTF-8',body:html});
+          if(url.pathname==='/api/vendor-benefits/session'){
+            const token=req.headers()['x-line-id-token'];
+            tokens.push(token);
+            if(token!=='fixture-fresh')return route.fulfill({status:403,json:{message:'LINE 登入已失效，請重新登入。'}});
+            accepted=true;
+            return route.fulfill({json:{success:true,employee:scenario!=='visitor',identified:true}});
+          }
+          if(url.pathname==='/api/welfare-shop'){
+            if(!accepted)return route.fulfill({status:401,json:{error:'請先登入 LINE。'}});
+            if(scenario==='visitor')return route.fulfill({status:403,json:{error:'福利品商城限已綁定的在職員工使用。'}});
+            return route.fulfill({json:{products:fixtures,requests:[],viewer:'測試員工'}});
+          }
+          return route.fulfill({status:204,body:''});
+        });
+        await page.goto(origin+entry);
+        if(scenario==='visitor'){
+          await page.getByText('福利品商城限已綁定的在職員工使用。',{exact:true}).waitFor();
+          assert.equal(await page.locator('#shop').isVisible(),false);
+          assert.equal(await page.locator('#login').isVisible(),false);
+          assert.deepEqual(tokens,['fixture-fresh']);
+          return;
+        }
+        if(scenario==='line-client'){
+          await page.getByRole('button',{name:'返回 LINE 聊天室',exact:true}).click();
+          assert.equal(await page.evaluate(()=>window.fixtureClosed),true);
+          assert.deepEqual(tokens,['fixture-expired']);
+          return;
+        }
+        if(scenario==='first')await page.getByText('請登入 LINE，系統會確認員工資格。',{exact:true}).waitFor();
+        await page.getByRole('button',{name:scenario==='first'?'登入 LINE':'重新登入 LINE',exact:true}).click();
+        await page.waitForURL('**/welfare-shop?fixture_callback=1');
+        await page.getByRole('searchbox',{name:'搜尋商品'}).waitFor();
+        assert.equal(await page.evaluate(()=>sessionStorage.getItem('fixtureRedirect')),origin+entry);
+        assert.equal(await page.evaluate(()=>sessionStorage.getItem('fixtureLogout')),scenario==='first'?null:'1');
+        assert.deepEqual(tokens,scenario==='first'?['fixture-fresh']:['fixture-expired','fixture-fresh']);
+      }finally{await page.close();}
+    });
+  });

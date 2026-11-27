@@ -75,8 +75,12 @@ export const welfareShopHtml = page('福利品商城',
   <button class="primary" id="submit">送出購買申請</button></form><p id="detailNotice" role="status"></p></dialog>`,
   `
 let products=[], requests=[], selected, submission, pending=false, sdkReady, availabilityTimer, loadGeneration=0;
+let signInPending=false, needsNewLineLogin=false;
 function sdk() {
-  return sdkReady ||= (async()=>{ await liff.init({liffId:'__SAKURA_LIFF_ID__'}); return liff; })();
+  return sdkReady ||= (async()=>{
+    await liff.init({liffId:'__SAKURA_LIFF_ID__'});
+    return liff;
+  })().catch(error=>{sdkReady=undefined;throw error;});
 }
 q('close').onclick = () => { if (window.liff?.isInClient()) liff.closeWindow(); else location.assign('/'); };
 q('closeDetail').onclick = () => { if (!pending) q('detail').close(); };
@@ -171,23 +175,66 @@ async function load() {
     q('shop').hidden=false; q('login').hidden=true; q('notice').textContent=''; render();
   } catch(error) {
     if(generation!==loadGeneration)return;
-    q('shop').hidden=true; q('notice').textContent=error.message; q('login').hidden=error.status!==401;
+    q('shop').hidden=true;
+    q('notice').textContent=error.status===401?'正在確認 LINE 登入…':error.message;
+    q('login').hidden=true;
     q('catalog').replaceChildren();q('requests').replaceChildren();
     if(error.status===401)throw error;
   }
 }
+function loginNotice(message, label='登入 LINE') {
+  q('notice').textContent=message;
+  q('login').textContent=label;
+  q('login').hidden=false;
+}
+function renewLoginNotice(inLine) {
+  needsNewLineLogin=true;
+  if(inLine)loginNotice('請返回櫻花福委會聊天室，重新開啟「員工福利品」。','返回 LINE 聊天室');
+  else loginNotice('LINE 登入已失效，請重新登入。','重新登入 LINE');
+}
+function openLineLogin(line) {
+  q('notice').textContent='正在前往 LINE 登入…';
+  line.login({redirectUri:new URL('/welfare-shop',location.origin).href});
+}
 async function signIn(interactive) {
+  if(signInPending)return;
+  signInPending=true;
+  q('login').disabled=true;
   try {
     const line=await sdk();
-    if(!line.isLoggedIn()){
-      if(interactive)line.login({redirectUri:location.origin+'/?liff.state='+encodeURIComponent('/welfare-shop')});
+    const inLine=line.isInClient();
+    if(interactive&&needsNewLineLogin){
+      if(inLine){line.closeWindow();return;}
+      if(line.isLoggedIn())line.logout();
+      openLineLogin(line);
+      return;
+    }
+    if(!line.isLoggedIn()) {
+      if(inLine)renewLoginNotice(true);
+      else if(interactive)openLineLogin(line);
+      else loginNotice('請登入 LINE，系統會確認員工資格。');
       return;
     }
     const token=line.getIDToken();
-    if(!token) throw new Error('LINE 登入未取得身分，請從官方帳號重新開啟。');
-    await call('/api/vendor-benefits/session',{method:'POST',headers:{'X-Line-Id-Token':token}});
-    await load();
-  }catch(error){q('notice').textContent=error.message;}
+    if(!token){renewLoginNotice(inLine);return;}
+    try {
+      await call('/api/vendor-benefits/session',{method:'POST',headers:{'X-Line-Id-Token':token}});
+    } catch(error) {
+      if(error.status===403){renewLoginNotice(inLine);return;}
+      throw error;
+    }
+    needsNewLineLogin=false;
+    try{await load();}
+    catch(error){
+      if(error.status!==401)throw error;
+      loginNotice('瀏覽器未能保留登入狀態。請從 LINE 聊天室開啟商城，或允許此網站使用 Cookie 後重試。','重試登入');
+    }
+  }catch(error){
+    loginNotice(error.status?error.message:'暫時無法開啟 LINE 登入，請稍後重試。','重試登入');
+  }finally{
+    signInPending=false;
+    q('login').disabled=false;
+  }
 }
 q('login').onclick=()=>signIn(true);
 q('refresh').onclick=()=>load().catch(()=>signIn(false));
