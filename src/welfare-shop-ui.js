@@ -62,23 +62,70 @@ const post = body => ({method:'POST',headers:{'Content-Type':'application/json'}
 function page(title, header, body, script, sdk=false) {
   return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer"><title>${title}｜SAKURA Welfare</title><style>${style}</style></head><body><header>${header}</header><main><h1>${title}</h1>${body}</main>${sdk ? '<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>' : ''}<script>${browserHelpers}${script}</script></body></html>`;
 }
+const catalogHtml = `<section id="products" style="margin-top:14px"><div class="catalog-filters">
+  <label>館別<select id="venueFilter"><option value="">全部館別</option></select></label>
+  <label>搜尋商品<input id="filter" type="search" placeholder="品名、系列或分類"></label></div>
+  <div id="catalog" class="grid" style="margin-top:12px"></div></section>`;
+const productDetail = `<dialog id="detail" aria-labelledby="itemName"><div class="bar"><button id="closeDetail" type="button">返回商品</button></div><h2 id="itemName"></h2><div id="itemInfo"></div>`;
+const catalogRendering = `
+function updateVenueFilter(products) {
+  const field=q('venueFilter'), current=field.value;
+  const names=[...new Set(products.map(product=>product.venue_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'zh-Hant'));
+  field.replaceChildren(new Option('全部館別',''),...names.map(name=>new Option(name,name)));
+  if(names.includes(current))field.value=current;
+}
+function productImage(product, placePhoto, lazy) {
+  const img=node('img');
+  img.alt=product.name;
+  placePhoto(img,product.id,lazy);
+  return img;
+}
+function renderCatalog(products, openProduct, placePhoto) {
+  const filter=q('filter').value.toLocaleLowerCase().trim(), venue=q('venueFilter').value;
+  const cards=products.filter(p=>(!venue||p.venue_name===venue) &&
+    [p.name,p.series,p.category,p.venue_name].join(' ').toLocaleLowerCase().includes(filter)).map(p=>{
+    const card=node('article',undefined,'card');
+    if(p.has_photo)card.append(productImage(p,placePhoto,true));
+    if(p.venue_name)card.append(node('p',p.venue_name,'product-venue'));
+    card.append(node('div',[p.series,p.category].filter(Boolean).join(' · '),'muted'),node('h3',p.name,warningClass(p)),node('p',money(p.price_cents),'price'),
+      node('p',p.available > 0 ? '剩餘 '+p.available+' 件' : '暫無可申請庫存'),button('查看商品',()=>openProduct(p)));
+    return card;
+  });
+  q('catalog').replaceChildren(...(cards.length?cards:[node('p','目前沒有符合的商品。')]));
+}
+function renderProductDetail(p, placePhoto) {
+  q('itemName').textContent=p.name;
+  q('itemName').className=warningClass(p);
+  const info=q('itemInfo');
+  info.replaceChildren(node('p',money(p.price_cents),'price'),node('p','商品狀況｜'+p.condition_note,warningClass(p)),node('p','取貨｜'+p.pickup_note));
+  if(p.venue_name)info.prepend(node('p','出貨館別｜'+p.venue_name,'product-venue'));
+  if(p.has_photo)info.prepend(productImage(p,placePhoto,false));
+}
+function scheduleCatalogRefresh(data,refresh) {
+  const serverTime=Date.parse(data.server_time);
+  const changes=[data.next_starts_at,...data.products.map(item=>item.ends_at)].map(Date.parse);
+  const nextChange=Math.min(...changes.filter(instant=>instant>serverTime));
+  if(Number.isFinite(nextChange)){
+    const delay=Math.max(1000,nextChange-serverTime+250);
+    return setTimeout(refresh,Math.min(delay,2147483647));
+  }
+}
+`;
 
 export const welfareShopHtml = page('福利品商城',
   '<strong>櫻花福委會</strong><button type="button" id="close">返回／關閉</button>',
   `<p id="notice" class="notice" role="status"></p><button id="login" type="button" class="primary" hidden>登入 LINE</button>
   <div id="shop" hidden><nav class="bar" aria-label="商城分頁"><button id="productsTab">商品</button><button id="requestsTab">我的申請</button><button id="refresh">重新整理</button></nav>
-  <section id="products" style="margin-top:14px"><div class="catalog-filters">
-  <label>館別<select id="venueFilter"><option value="">全部館別</option></select></label>
-  <label>搜尋商品<input id="filter" type="search" placeholder="品名、系列或分類"></label></div><div id="catalog" class="grid" style="margin-top:12px"></div></section>
+  ${catalogHtml}
   <section id="requests" style="margin-top:14px" hidden></section><span id="watermark" class="watermark" aria-hidden="true"></span></div>
-  <dialog id="detail" aria-labelledby="itemName"><div class="bar"><button id="closeDetail" type="button">返回商品</button></div><h2 id="itemName"></h2><div id="itemInfo"></div>
+  ${productDetail}
   <button id="buy" type="button" class="primary" aria-controls="apply" hidden>我要購買</button>
   <form id="apply" aria-labelledby="applyHeading" hidden><h3 id="applyHeading" tabindex="-1">購買申請</h3><label>數量<input id="quantity" type="number" min="1" required></label><p id="applyAmount" aria-live="polite"></p>
   <label>聯絡電話<input id="contactPhone" type="tel" inputmode="tel" required maxlength="32" autocomplete="tel" aria-describedby="contactPhoneHint"></label>
   <small id="contactPhoneHint" class="muted">請填寫可聯絡的電話，供安排取貨使用。</small>
   <label>備註<textarea id="comment" maxlength="500"></textarea></label>
   <button class="primary" id="submit">送出購買申請</button></form><p id="detailNotice" role="status"></p></dialog>`,
-  `
+  `${catalogRendering}
 let products=[], requests=[], selected, submission, pending=false, sdkReady, availabilityTimer, loadGeneration=0;
 let signInPending=false, needsNewLineLogin=false;
 function sdk() {
@@ -98,27 +145,12 @@ function section(showProducts) {
 q('productsTab').onclick=()=>section(true);
 q('requestsTab').onclick=()=>section(false);
 section(true);
-function updateVenueFilter() {
-  const field=q('venueFilter'), current=field.value;
-  const names=[...new Set(products.map(product=>product.venue_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'zh-Hant'));
-  field.replaceChildren(new Option('全部館別',''),...names.map(name=>new Option(name,name)));
-  if(names.includes(current))field.value=current;
+function placeMemberPhoto(img,id,lazy) {
+  if(lazy)img.loading='lazy';
+  img.src='/api/welfare-shop/photo?id='+encodeURIComponent(id);
 }
 function render() {
-  const filter = q('filter').value.toLocaleLowerCase().trim();
-  const venue=q('venueFilter').value;
-  const cards = products.filter(p => (!venue||p.venue_name===venue) &&
-    [p.name,p.series,p.category,p.venue_name].join(' ').toLocaleLowerCase().includes(filter)).map(p=>{
-    const card=node('article',undefined,'card');
-    if(p.has_photo) {
-      const img=node('img'); img.src='/api/welfare-shop/photo?id='+encodeURIComponent(p.id); img.alt=p.name; img.loading='lazy'; card.append(img);
-    }
-    if(p.venue_name)card.append(node('p',p.venue_name,'product-venue'));
-    card.append(node('div',[p.series,p.category].filter(Boolean).join(' · '),'muted'),node('h3',p.name,warningClass(p)),node('p',money(p.price_cents),'price'),
-      node('p',p.available > 0 ? '剩餘 '+p.available+' 件' : '暫無可申請庫存'),button('查看商品',()=>openProduct(p)));
-    return card;
-  });
-  q('catalog').replaceChildren(...(cards.length?cards:[node('p','目前沒有符合的商品。')]));
+  renderCatalog(products,openProduct,placeMemberPhoto);
   q('requests').replaceChildren(...(requests.length?requests.map(r=>{
     const card=node('article',undefined,'card');
     card.append(node('h3',r.product_name),node('p',labels[r.status]+' · '+r.quantity+' 件 · '+money(r.price_cents*r.quantity)),node('p',time(r.created_at),'muted'));
@@ -129,14 +161,8 @@ q('filter').oninput=render;
 q('venueFilter').onchange=render;
 function openProduct(p) {
   selected=p; submission=crypto.randomUUID();
-  q('itemName').textContent=p.name;
-  q('itemName').className=warningClass(p);
-  q('itemInfo').replaceChildren(node('p',money(p.price_cents),'price'),node('p','商品狀況｜'+p.condition_note,warningClass(p)),node('p','取貨｜'+p.pickup_note),node('small',q('watermark').textContent,'muted'));
-  if(p.venue_name)q('itemInfo').prepend(node('p','出貨館別｜'+p.venue_name,'product-venue'));
-  if(p.has_photo){
-    const img=node('img');img.src='/api/welfare-shop/photo?id='+encodeURIComponent(p.id);img.alt=p.name;
-    q('itemInfo').prepend(img);
-  }
+  renderProductDetail(p,placeMemberPhoto);
+  q('itemInfo').append(node('small',q('watermark').textContent,'muted'));
   q('apply').reset(); q('quantity').max=Math.min(p.available,p.employee_limit); q('quantity').value=1;
   const already=requests.some(r=>r.product_id===p.id&&r.status!=='cancelled');
   q('apply').hidden=true;
@@ -174,20 +200,14 @@ async function load() {
     const data=await call('/api/welfare-shop');
     if(generation!==loadGeneration)return;
     products=data.products; requests=data.requests;
-    updateVenueFilter();
+    updateVenueFilter(products);
     if(q('detail').open&&selected?.ends_at&&!products.some(item=>item.id===selected.id)){
       q('buy').hidden=true;q('apply').hidden=true;
       q('itemInfo').querySelector('img')?.remove();
       const expired=Date.parse(selected.ends_at)<=Date.parse(data.server_time);
       q('detailNotice').textContent=(expired?'商品已下架':'商品目前未開放申請')+'，已送出的申請可在「我的申請」查看。';
     }
-    const serverTime=Date.parse(data.server_time);
-    const changes=[data.next_starts_at,...products.map(item=>item.ends_at)].map(Date.parse);
-    const nextChange=Math.min(...changes.filter(instant=>instant>serverTime));
-    if(Number.isFinite(nextChange)){
-      const delay=Math.max(1000,nextChange-serverTime+250);
-      availabilityTimer=setTimeout(()=>load().catch(()=>signIn(false)),Math.min(delay,2147483647));
-    }
+    availabilityTimer=scheduleCatalogRefresh(data,()=>load().catch(()=>signIn(false)));
     q('watermark').textContent=data.viewer+' · '+time(new Date());
     q('shop').hidden=false; q('login').hidden=true; q('notice').textContent=''; render();
   } catch(error) {
@@ -258,6 +278,99 @@ q('refresh').onclick=()=>load().catch(()=>signIn(false));
 load().catch(()=>signIn(false));
 `,true);
 
+const shopAdminAuth = `
+function auth(options={}) {
+  if(fromLine){
+    const identity=liff.getIDToken?.(), access=liff.getAccessToken?.();
+    if(!identity&&!access)throw new Error('無法取得 LINE 身分，請回聊天室重新開啟。');
+    return {...options,headers:{...options.headers,...(identity?{'X-Line-Id-Token':identity}:{}),...(access?{'X-Line-Access-Token':access}:{})}};
+  }
+  let token='';
+  try{token=JSON.parse(localStorage.getItem('sakura_admin_session')||'null')?.token||'';}catch{}
+  return {...options,headers:{...(options.headers||{}),...(token?{Authorization:'Bearer '+token}:{})}};
+}
+const request = (path, options) => call(path,auth(options));
+`;
+
+export function welfareShopPreviewHtml(fromLine) {
+  const back=fromLine?'/welfare-shop-settings':'/welfare-shop-admin';
+  return page('員工畫面預覽',
+    '<strong>櫻花福委會</strong><a class="button" href="'+back+'">返回商城管理</a>',
+    `<p id="notice" role="status">正在讀取員工畫面…</p>
+    <div id="shop" hidden><div class="bar"><p class="muted">管理員唯讀預覽</p><button id="refresh" type="button">重新整理</button></div>
+    ${catalogHtml}</div>${productDetail}</dialog>`,
+    `${catalogRendering}${shopAdminAuth}
+const fromLine=${fromLine}, api='/admin-api/welfare-shop/preview';
+let products=[], selectedId='', timer, generation=0;
+async function loadPhoto(img,id) {
+  try{
+    const response=await fetch(api+'/photo?id='+encodeURIComponent(id),auth({cache:'no-store'}));
+    if(!response.ok)return;
+    const blob=await response.blob();
+    if(!img.isConnected)return;
+    const url=URL.createObjectURL(blob);
+    const release=()=>URL.revokeObjectURL(url);
+    img.addEventListener('load',release,{once:true});
+    img.addEventListener('error',release,{once:true});
+    img.src=url;
+  }catch{}
+}
+const photos=new IntersectionObserver(entries=>{
+  for(const {target,isIntersecting} of entries){
+    if(!isIntersecting)continue;
+    photos.unobserve(target);
+    void loadPhoto(target,target.dataset.product);
+  }
+},{rootMargin:'200px'});
+function placePhoto(img,id,lazy) {
+  if(lazy){img.dataset.product=id;photos.observe(img);}
+  else void loadPhoto(img,id);
+}
+function openProduct(product) {
+  selectedId=product.id;
+  renderProductDetail(product,placePhoto);
+  q('detail').showModal();
+}
+function render() {
+  photos.disconnect();
+  renderCatalog(products,openProduct,placePhoto);
+}
+async function load() {
+  const seq=++generation;
+  clearTimeout(timer);
+  try{
+    const data=await request(api);
+    if(seq!==generation)return;
+    products=data.products;
+    updateVenueFilter(products);
+    if(q('detail').open&&!products.some(p=>p.id===selectedId))q('detail').close();
+    q('shop').hidden=false; q('notice').textContent='';
+    render();
+    timer=scheduleCatalogRefresh(data,load);
+  }catch(error){
+    if(seq!==generation)return;
+    photos.disconnect();
+    q('shop').hidden=true; q('catalog').replaceChildren();
+    if(q('detail').open)q('detail').close();
+    q('notice').textContent=error.status===403?'請先使用福委會管理員帳號開啟商城管理。':error.message;
+  }
+}
+q('closeDetail').onclick=()=>q('detail').close();
+q('detail').onclose=()=>{selectedId='';q('itemInfo').replaceChildren();};
+q('filter').oninput=render;
+q('venueFilter').onchange=render;
+q('refresh').onclick=load;
+async function start() {
+  if(fromLine){
+    await liff.init({liffId:'__SAKURA_LIFF_ID__'});
+    if(!liff.isLoggedIn())throw new Error('請回到 LINE 聊天室重新開啟商城管理。');
+  }
+  await load();
+}
+start().catch(error=>{q('notice').textContent=error.message;});
+`,fromLine);
+}
+
 function managementPage(fromLine) {
   return page('福利品商城管理',
     fromLine ? '<strong>櫻花福委會</strong><button id="close" type="button">返回／關閉</button>'
@@ -269,6 +382,7 @@ function managementPage(fromLine) {
     <button type="button" data-panel="batchPanel" aria-controls="batchPanel">批次與上下架時間</button>
     <button type="button" data-panel="venues" aria-controls="venues">館長與通知信箱</button>
     <button type="button" data-panel="orderPanel" aria-controls="orderPanel">購買申請</button>
+    <a class="button" href="?view=preview">員工畫面預覽</a>
     <a id="entry" class="button">LINE 商城入口</a>
   </nav>
   <div class="shop-content"><section id="productPanel" aria-labelledby="productsHeading">
@@ -320,17 +434,7 @@ function managementPage(fromLine) {
 const fromLine = ${fromLine};
 let editItem, imported, offset=0, inFlight=false, loadRevision=0, displayedPhotos=[], venues=[], venueEdit, catalog=[], batches=[], batchEdit;
 const api='/admin-api/welfare-shop';
-function auth(options={}) {
-  if(fromLine){
-    const identity=liff.getIDToken?.(), access=liff.getAccessToken?.();
-    if(!identity&&!access)throw new Error('無法取得 LINE 身分，請回聊天室重新開啟。');
-    return {...options,headers:{...options.headers,...(identity?{'X-Line-Id-Token':identity}:{}),...(access?{'X-Line-Access-Token':access}:{})}};
-  }
-  let token='';
-  try{token=JSON.parse(localStorage.getItem('sakura_admin_session')||'null')?.token||'';}catch{}
-  return {...options,headers:{...(options.headers||{}),...(token?{Authorization:'Bearer '+token}:{})}};
-}
-const request = (path, options) => call(path,auth(options));
+${shopAdminAuth}
 q('entry').href='https://liff.line.me/'+encodeURIComponent('__SAKURA_LIFF_ID__')+'/welfare-shop';
 q('editClose').onclick=()=>{if(!inFlight)q('productDialog').close();};
 q('productDialog').oncancel=event=>{if(inFlight)event.preventDefault();};

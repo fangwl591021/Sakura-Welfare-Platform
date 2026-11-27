@@ -37,7 +37,7 @@ export async function resolveAdminPrincipal(request,db,env,deps,data={},diagnost
   const accessRoute=sameOrigin&&((path==='/admin-api/line-segment-push'&&['GET','POST'].includes(method))||(path==='/admin-api/activity-stories'&&['GET','POST'].includes(method))||(path==='/admin-api/activity-story-media'&&method==='POST')||(path==='/admin-api/segment-push-image'&&method==='POST')||(path==='/admin-api/ai-ads-push-assets'&&method==='GET')||(method==='GET'&&/^\/admin-api\/ai-ads\/assets\/aia_[a-f0-9]{32}\/content$/.test(path))||(method==='GET'&&/^\/activity-story-media\/[^/]+$/.test(path)&&url.searchParams.get('manage')==='1'));
   const welfareShopAccess=sameOrigin&&(
     (['/admin-api/welfare-shop','/admin-api/welfare-shop/settings'].includes(path)&&['GET','POST'].includes(method))||
-    (path==='/admin-api/welfare-shop/photo'&&method==='GET')
+    (['/admin-api/welfare-shop/photo','/admin-api/welfare-shop/preview','/admin-api/welfare-shop/preview/photo'].includes(path)&&method==='GET')
   );
   const accessToken=accessRoute||welfareShopAccess?request.headers.get('X-Line-Access-Token'):null;
   if (!lineToken&&!accessToken) return null;

@@ -78,7 +78,7 @@ import { handleActivityStoryRequest } from "./activity-stories-service.js";
 import { handleWelfareShop, shopPhotoPrefix } from "./welfare-shop.js";
 import { flushWelfareShopTelegram } from "./welfare-shop-telegram.js";
 import { flushWelfareShopDirectorEmail } from "./welfare-shop-director-email.js";
-import { welfareShopHtml, welfareShopAdminHtml, welfareShopSettingsHtml } from "./welfare-shop-ui.js";
+import { welfareShopHtml, welfareShopAdminHtml, welfareShopSettingsHtml, welfareShopPreviewHtml } from "./welfare-shop-ui.js";
 import { buildWelfareShopMessage, isWelfareShopCommand, isWelfareShopEvent } from "./welfare-shop-chat.js";
 import { activityStoriesAdminHtml } from "./activity-stories-admin-ui.js";
 import { buildClubPageHtml } from "./club-ui.js";
@@ -434,8 +434,8 @@ const welfareWorker = {
     }
     const activityAuth = { ...editorDeps, extractLineUserIdFromQr, ensureEmployeeBinding: ensureBinding };
     if (request.method === "GET" && url.pathname === "/welfare-shop") return htmlResponse(welfareShopHtml, env);
-    if (request.method === "GET" && url.pathname === "/welfare-shop-admin") return htmlResponse(welfareShopAdminHtml, env);
-    if (request.method === "GET" && url.pathname === "/welfare-shop-settings") return htmlResponse(welfareShopSettingsHtml, env);
+    if (request.method === "GET" && url.pathname === "/welfare-shop-admin") return htmlResponse(url.searchParams.get("view") === "preview" ? welfareShopPreviewHtml(false) : welfareShopAdminHtml, env);
+    if (request.method === "GET" && url.pathname === "/welfare-shop-settings") return htmlResponse(url.searchParams.get("view") === "preview" ? welfareShopPreviewHtml(true) : welfareShopSettingsHtml, env);
     if (/^\/(?:api|admin-api)\/welfare-shop(?:\/|$)/.test(url.pathname)) {
       return handleWelfareShop(request, env, () => resolveAdminPrincipal(request, DB, env, editorDeps),
         id => queueWelfareShopNotifications(env,ctx,id));

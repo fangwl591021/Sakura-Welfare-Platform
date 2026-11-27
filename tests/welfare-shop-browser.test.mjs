@@ -8,7 +8,8 @@ const bundle=process.env.STORE_APP_BUNDLE;
 const {default:worker}=await import(bundle?pathToFileURL(bundle).href:'../src/index.js');
 const origin='https://welfare-shop-price.test';
 const liveOrigin='https://sakura-welfare-platform.fangwl591021.workers.dev';
-const livePaths=['/welfare-shop','/welfare-shop-admin','/welfare-shop-settings'];
+const livePaths=['/welfare-shop','/welfare-shop-admin','/welfare-shop-settings','/welfare-shop-admin?view=preview','/welfare-shop-settings?view=preview'];
+const testImage=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jntkAAAAASUVORK5CYII=','base64');
 const fixtures=[
   {id:'down',name:'隔離伸縮龍頭',venue_name:'台北館',price_cents:2359610,total:'$23,596'},
   {id:'half',name:'隔離進位驗證',venue_name:'台中館',price_cents:2359650,total:'$23,597'},
@@ -46,7 +47,8 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
       `});
       if(url.origin!==origin)return route.abort();
       if(['/','/sakura-admin','/welfare-shop','/welfare-shop-admin','/welfare-shop-settings'].includes(url.pathname)){
-        const response=livePages.has(url.pathname)?new Response(livePages.get(url.pathname)):
+        const surface=url.pathname+(url.searchParams.get('view')==='preview'?'?view=preview':'');
+        const response=livePages.has(surface)?new Response(livePages.get(surface)):
           await worker.fetch(new Request(req.url()),{},{});
         const html=await response.text();
         for(const [,script] of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))if(script.trim())new vm.Script(script);
@@ -72,6 +74,12 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
             server_time:new Date(now).toISOString(),next_starts_at:timedReads===1?new Date(timedStart).toISOString():null}});
         }
         return route.fulfill({json:{products:fixtures,requests:orders,viewer:'隔離員工'}});
+      }
+      if(['/admin-api/welfare-shop/preview','/admin-api/welfare-shop/preview/photo'].includes(url.pathname)){
+        assert.equal(req.method(),'GET');
+        assert.ok(req.headers()['x-line-id-token']==='isolated-line-admin'||req.headers().authorization==='Bearer isolated-admin');
+        if(url.pathname.endsWith('/photo'))return route.fulfill({contentType:'image/png',body:testImage});
+        return route.fulfill({json:{products:fixtures.map(item=>({...item,has_photo:1}))}});
       }
       if(url.pathname==='/admin-api/welfare-shop/settings'){
         assert.equal(req.headers()['x-line-id-token'],'isolated-line-admin');
@@ -205,6 +213,30 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
     page.once('dialog',dialog=>dialog.accept());
     await batchPanel.getByRole('button',{name:'套用批次與上下架時間'}).click();
     await batchPanel.getByText('已套用到 1 件商品。',{exact:true}).waitFor();
+    const checkEmployeePreview=async base=>{
+      await menu.getByRole('link',{name:'員工畫面預覽',exact:true}).click();
+      await page.waitForURL('**/'+base+'?view=preview');
+      await page.getByRole('heading',{name:'員工畫面預覽',exact:true}).waitFor();
+      const previewFilter=page.getByRole('combobox',{name:'館別',exact:true});
+      await previewFilter.waitFor();
+      assert.equal(await page.locator('#catalog article').count(),3);
+      for(const fixture of fixtures){
+        await previewFilter.selectOption(fixture.venue_name);
+        const card=page.locator('#catalog article');
+        assert.equal(await card.getByRole('heading').textContent(),fixture.name);
+        await card.getByText(fixture.total,{exact:true}).waitFor();
+      }
+      await page.getByRole('button',{name:'查看商品'}).click();
+      const detail=page.getByRole('dialog');
+      await detail.getByText('出貨館別｜高雄館',{exact:true}).waitFor();
+      await page.waitForFunction(()=>document.querySelector('#detail img')?.naturalWidth>0);
+      assert.equal(await page.locator('#buy,#apply,#submit').count(),0);
+      assert.equal(submissions.length,1);
+      await detail.getByRole('button',{name:'返回商品'}).click();
+      await page.getByRole('link',{name:'返回商城管理'}).click();
+      await page.waitForURL('**/'+base);
+    };
+    await checkEmployeePreview('welfare-shop-settings');
     await page.getByRole('button',{name:'返回／關閉'}).click();
     assert.equal(await page.evaluate(()=>window.closedByLiff),true);
     denySettings=true;
@@ -229,6 +261,8 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
     assert.equal(await page.getByLabel('員工價（元）').inputValue(),'23597');
     assert.equal(await page.getByLabel('出貨館別',{exact:true}).inputValue(),'taipei');
     assert.equal(await page.getByLabel('上架批次',{exact:true}).inputValue(),'batch-one');
+    await page.getByRole('button',{name:'返回商品列表'}).click();
+    await checkEmployeePreview('welfare-shop-admin');
     assert.deepEqual(errors,[]);
     await page.close();
   });

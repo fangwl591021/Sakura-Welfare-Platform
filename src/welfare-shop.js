@@ -77,6 +77,19 @@ const insertProduct = 'INSERT INTO welfare_shop_products (id,source_key,category
 const productColumns = 'p.id,p.category,p.series,p.name,p.condition_note,p.pickup_note,p.employee_limit,p.revision';
 const roundedPrice = '(CAST((p.price_cents+50)/100 AS INTEGER)*100)';
 const orderColumns = 'id,product_id,product_name,price_cents,quantity,status,created_at,updated_at';
+const visibleProducts = "SELECT " + productColumns + "," + roundedPrice + " AS price_cents,(photo_key<>'') AS has_photo,stock-" + used +
+  " AS available,b.ends_at,v.name AS venue_name FROM welfare_shop_products p LEFT JOIN welfare_shop_batches b ON b.id=p.batch_id" +
+  " LEFT JOIN welfare_shop_venues v ON v.id=p.venue_id" +
+  " WHERE p.status='published' AND (p.batch_id IS NULL OR (" + batchIsOpen + ")) ORDER BY p.series,p.category,p.name,p.id LIMIT 200";
+const catalogClock = 'SELECT ' + dbNow + ' AS server_time, (SELECT MIN(b.starts_at) FROM welfare_shop_batches b' +
+  ' WHERE b.starts_at>' + dbNow + ' AND b.starts_at<b.ends_at AND EXISTS' +
+  " (SELECT 1 FROM welfare_shop_products p WHERE p.batch_id=b.id AND p.status='published')) AS next_starts_at";
+
+async function visiblePhoto(env, id) {
+  const row = await env.DB.prepare("SELECT p.photo_key FROM welfare_shop_products p WHERE p.id=? AND p.status='published' AND " + publishedInWindow)
+    .bind(id || '').first();
+  return servePhoto(env.R2_BUCKET,row?.photo_key);
+}
 
 async function memberView(request, env, url, path, onNewRequest) {
   const db = env.DB;
@@ -88,21 +101,14 @@ async function memberView(request, env, url, path, onNewRequest) {
   if (!identity.roster_match) fail('員工名冊查無對應工號，請洽福委會確認。', 403);
 
   if (path === '/api/welfare-shop/photo' && request.method === 'GET') {
-    const row = await db.prepare("SELECT p.photo_key FROM welfare_shop_products p WHERE p.id=? AND p.status='published' AND " + publishedInWindow)
-      .bind(url.searchParams.get('id') || '').first();
-    return servePhoto(env.R2_BUCKET, row?.photo_key);
+    return visiblePhoto(env,url.searchParams.get('id'));
   }
   if (path !== '/api/welfare-shop') fail('找不到資料。', 404);
   if (request.method === 'GET') {
     const [catalog, orders, clock] = await db.batch([
-      db.prepare("SELECT " + productColumns + "," + roundedPrice + " AS price_cents,(photo_key<>'') AS has_photo,stock-" + used +
-        " AS available,b.ends_at,v.name AS venue_name FROM welfare_shop_products p LEFT JOIN welfare_shop_batches b ON b.id=p.batch_id" +
-        " LEFT JOIN welfare_shop_venues v ON v.id=p.venue_id" +
-        " WHERE p.status='published' AND (p.batch_id IS NULL OR (" + batchIsOpen + ")) ORDER BY p.series,p.category,p.name,p.id LIMIT 200"),
+      db.prepare(visibleProducts),
       db.prepare('SELECT ' + orderColumns + ' FROM welfare_shop_requests WHERE employee_uid=? ORDER BY created_at DESC,id DESC LIMIT 100').bind(uid),
-      db.prepare('SELECT ' + dbNow + ' AS server_time, (SELECT MIN(b.starts_at) FROM welfare_shop_batches b' +
-        ' WHERE b.starts_at>' + dbNow + ' AND b.starts_at<b.ends_at AND EXISTS' +
-        " (SELECT 1 FROM welfare_shop_products p WHERE p.batch_id=b.id AND p.status='published')) AS next_starts_at")
+      db.prepare(catalogClock)
     ]);
     return json({ products: catalog.results, requests: orders.results, viewer: identity.display_name || '員工',
       ...clock.results[0] });
@@ -243,6 +249,12 @@ async function assignProducts(db, data, actor, now) {
 async function adminView(request, env, url, path, admin) {
   if (admin?.role !== 'admin' || !admin.actor) fail('請使用福委會管理員帳號。', 403);
   const db = env.DB, bucket = env.R2_BUCKET;
+  if (path === '/admin-api/welfare-shop/preview' || path === '/admin-api/welfare-shop/preview/photo') {
+    if (request.method !== 'GET') fail('預覽僅提供讀取。', 405);
+    if (path.endsWith('/photo')) return visiblePhoto(env,url.searchParams.get('id'));
+    const [catalog,clock] = await db.batch([db.prepare(visibleProducts),db.prepare(catalogClock)]);
+    return json({ products:catalog.results,...clock.results[0] });
+  }
   if (path === '/admin-api/welfare-shop/settings') {
     if (request.method === 'GET') {
       const [venues, products] = await db.batch([
