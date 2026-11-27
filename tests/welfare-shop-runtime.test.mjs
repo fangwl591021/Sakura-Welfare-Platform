@@ -230,6 +230,9 @@ test('welfare shop protects employee media and reserves stock through the real W
   const [halfProduct]=(await (await call(api,{cookie:one})).json()).products;
   assert.equal(halfProduct.id,halfId);
   assert.equal(Object.hasOwn(halfProduct,'venue_id'),false);
+  assert.equal(halfProduct.venue_name,taipeiData.name);
+  assert.equal(Object.hasOwn(halfProduct,'director_name'),false);
+  assert.equal(Object.hasOwn(halfProduct,'email'),false);
   assert.equal(halfProduct.price_cents,2359700);
   const phoneOrder={id:randomUUID(),product_id:halfProduct.id,revision:halfProduct.revision,
     unit_price_cents:halfProduct.price_cents,quantity:2};
@@ -298,6 +301,7 @@ test('welfare shop protects employee media and reserves stock through the real W
   const afterDeadline=await (await call(api,{cookie:one})).json();
   assert.equal(afterDeadline.products.some(item=>item.id===expiringId),false);
   assert.equal(afterDeadline.products.some(item=>item.id===legacyId),true);
+  assert.equal(afterDeadline.products.find(item=>item.id===legacyId).venue_name,null);
   assert.equal(afterDeadline.products.some(item=>item.id===halfId),true);
   assert.equal(afterDeadline.requests.some(item=>item.id===expiringOrder.id),true);
   assert.equal((await call(expiringPhoto,{cookie:one})).status,404);

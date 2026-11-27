@@ -10,9 +10,9 @@ const origin='https://welfare-shop-price.test';
 const liveOrigin='https://sakura-welfare-platform.fangwl591021.workers.dev';
 const livePaths=['/welfare-shop','/welfare-shop-admin','/welfare-shop-settings'];
 const fixtures=[
-  {id:'down',name:'隔離伸縮龍頭',price_cents:2359610,total:'$23,596'},
-  {id:'half',name:'隔離進位驗證',price_cents:2359650,total:'$23,597'},
-  {id:'up',name:'【通電異常】隔離烤箱',price_cents:1903660,total:'$19,037'}
+  {id:'down',name:'隔離伸縮龍頭',venue_name:'台北館',price_cents:2359610,total:'$23,596'},
+  {id:'half',name:'隔離進位驗證',venue_name:'台中館',price_cents:2359650,total:'$23,597'},
+  {id:'up',name:'【通電異常】隔離烤箱',venue_name:'高雄館',price_cents:1903660,total:'$19,037'}
 ].map(item=>({...item,revision:1,status:'published',stock:3,available:3,committed:0,employee_limit:3,series:'隔離測試',
   category:'廚電',condition_note:item.id==='up'?'通電異常，原因未排除。':'展示品',pickup_note:'隔離取貨',has_photo:0}));
 test('mall cards, purchase totals and admin records agree at phone and desktop widths',{timeout:60000},async t=>{
@@ -117,13 +117,26 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
     });
     await page.goto(origin+'/welfare-shop');
     for(const fixture of fixtures){
-      await page.locator('#catalog article').filter({hasText:fixture.name}).getByText(fixture.total,{exact:true}).waitFor();
+      const card=page.locator('#catalog article').filter({hasText:fixture.name});
+      await card.getByText(fixture.total,{exact:true}).waitFor();
+      await card.getByText(fixture.venue_name,{exact:true}).waitFor();
     }
+    const venueFilter=page.getByRole('combobox',{name:'館別',exact:true});
+    for(const fixture of fixtures){
+      await venueFilter.selectOption(fixture.venue_name);
+      assert.deepEqual(await page.locator('#catalog h3').allTextContents(),[fixture.name]);
+    }
+    const search=page.getByRole('searchbox',{name:'搜尋商品'});
+    await search.fill('伸縮龍頭');
+    await page.getByText('目前沒有符合的商品。',{exact:true}).waitFor();
+    await search.fill('');
+    await venueFilter.selectOption('');
     const warningTitle=page.locator('#catalog h3.condition-warning');
     assert.equal(await warningTitle.textContent(),'【通電異常】隔離烤箱');
     assert.equal(await warningTitle.evaluate(el=>getComputedStyle(el).color),'rgb(178, 28, 52)');
     await page.locator('#catalog article').filter({hasText:'隔離進位驗證'}).getByRole('button',{name:'查看商品'}).click();
     await page.locator('#itemInfo').getByText('$23,597',{exact:true}).waitFor();
+    await page.locator('#itemInfo').getByText('出貨館別｜台中館',{exact:true}).waitFor();
     await page.getByRole('button',{name:'我要購買'}).click();
     assert.equal(await page.locator('#applyAmount').textContent(),'單價 $23,597 · 申請總額 $23,597');
     await page.getByLabel('數量').fill('2');

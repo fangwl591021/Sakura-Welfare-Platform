@@ -9,6 +9,9 @@ dialog{width:min(540px,calc(100% - 26px));max-height:85dvh;border:1px solid #bfc
 #products .card{display:flex;flex-direction:column;min-width:0;overflow-wrap:anywhere}
 #products .card img{flex-shrink:0}
 #products .card button{margin-top:auto;align-self:flex-start}
+.catalog-filters{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:12px}
+.product-venue{align-self:flex-start;border-radius:6px;padding:2px 8px;margin:0 0 6px;background:#edf1f6;color:#273e58;font-weight:650}
+@media(max-width:520px){.catalog-filters{grid-template-columns:minmax(0,1fr);gap:0}}
 #shop button,#detail button,#close,#login{height:44px;padding-block:0}
 #detail #itemInfo img{display:block;width:100%;max-height:40vh;object-fit:contain;margin:8px 0 12px}
 .condition-warning{color:#b21c34;font-weight:700}
@@ -64,7 +67,9 @@ export const welfareShopHtml = page('福利品商城',
   '<strong>櫻花福委會</strong><button type="button" id="close">返回／關閉</button>',
   `<p id="notice" class="notice" role="status"></p><button id="login" type="button" class="primary" hidden>登入 LINE</button>
   <div id="shop" hidden><nav class="bar" aria-label="商城分頁"><button id="productsTab">商品</button><button id="requestsTab">我的申請</button><button id="refresh">重新整理</button></nav>
-  <section id="products" style="margin-top:14px"><label for="filter">搜尋商品</label><input id="filter" type="search" placeholder="品名、系列或分類"><div id="catalog" class="grid" style="margin-top:12px"></div></section>
+  <section id="products" style="margin-top:14px"><div class="catalog-filters">
+  <label>館別<select id="venueFilter"><option value="">全部館別</option></select></label>
+  <label>搜尋商品<input id="filter" type="search" placeholder="品名、系列或分類"></label></div><div id="catalog" class="grid" style="margin-top:12px"></div></section>
   <section id="requests" style="margin-top:14px" hidden></section><span id="watermark" class="watermark" aria-hidden="true"></span></div>
   <dialog id="detail" aria-labelledby="itemName"><div class="bar"><button id="closeDetail" type="button">返回商品</button></div><h2 id="itemName"></h2><div id="itemInfo"></div>
   <button id="buy" type="button" class="primary" aria-controls="apply" hidden>我要購買</button>
@@ -93,13 +98,22 @@ function section(showProducts) {
 q('productsTab').onclick=()=>section(true);
 q('requestsTab').onclick=()=>section(false);
 section(true);
+function updateVenueFilter() {
+  const field=q('venueFilter'), current=field.value;
+  const names=[...new Set(products.map(product=>product.venue_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'zh-Hant'));
+  field.replaceChildren(new Option('全部館別',''),...names.map(name=>new Option(name,name)));
+  if(names.includes(current))field.value=current;
+}
 function render() {
   const filter = q('filter').value.toLocaleLowerCase().trim();
-  const cards = products.filter(p => [p.name,p.series,p.category].join(' ').toLocaleLowerCase().includes(filter)).map(p=>{
+  const venue=q('venueFilter').value;
+  const cards = products.filter(p => (!venue||p.venue_name===venue) &&
+    [p.name,p.series,p.category,p.venue_name].join(' ').toLocaleLowerCase().includes(filter)).map(p=>{
     const card=node('article',undefined,'card');
     if(p.has_photo) {
       const img=node('img'); img.src='/api/welfare-shop/photo?id='+encodeURIComponent(p.id); img.alt=p.name; img.loading='lazy'; card.append(img);
     }
+    if(p.venue_name)card.append(node('p',p.venue_name,'product-venue'));
     card.append(node('div',[p.series,p.category].filter(Boolean).join(' · '),'muted'),node('h3',p.name,warningClass(p)),node('p',money(p.price_cents),'price'),
       node('p',p.available > 0 ? '剩餘 '+p.available+' 件' : '暫無可申請庫存'),button('查看商品',()=>openProduct(p)));
     return card;
@@ -112,11 +126,13 @@ function render() {
   }):[node('p','目前沒有購買申請。')]));
 }
 q('filter').oninput=render;
+q('venueFilter').onchange=render;
 function openProduct(p) {
   selected=p; submission=crypto.randomUUID();
   q('itemName').textContent=p.name;
   q('itemName').className=warningClass(p);
   q('itemInfo').replaceChildren(node('p',money(p.price_cents),'price'),node('p','商品狀況｜'+p.condition_note,warningClass(p)),node('p','取貨｜'+p.pickup_note),node('small',q('watermark').textContent,'muted'));
+  if(p.venue_name)q('itemInfo').prepend(node('p','出貨館別｜'+p.venue_name,'product-venue'));
   if(p.has_photo){
     const img=node('img');img.src='/api/welfare-shop/photo?id='+encodeURIComponent(p.id);img.alt=p.name;
     q('itemInfo').prepend(img);
@@ -158,6 +174,7 @@ async function load() {
     const data=await call('/api/welfare-shop');
     if(generation!==loadGeneration)return;
     products=data.products; requests=data.requests;
+    updateVenueFilter();
     if(q('detail').open&&selected?.ends_at&&!products.some(item=>item.id===selected.id)){
       q('buy').hidden=true;q('apply').hidden=true;
       q('itemInfo').querySelector('img')?.remove();

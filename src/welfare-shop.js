@@ -93,7 +93,8 @@ async function memberView(request, env, url, path, onNewRequest) {
   if (request.method === 'GET') {
     const [catalog, orders, clock] = await db.batch([
       db.prepare("SELECT " + productColumns + "," + roundedPrice + " AS price_cents,(photo_key<>'') AS has_photo,stock-" + used +
-        " AS available,b.ends_at FROM welfare_shop_products p LEFT JOIN welfare_shop_batches b ON b.id=p.batch_id" +
+        " AS available,b.ends_at,v.name AS venue_name FROM welfare_shop_products p LEFT JOIN welfare_shop_batches b ON b.id=p.batch_id" +
+        " LEFT JOIN welfare_shop_venues v ON v.id=p.venue_id" +
         " WHERE p.status='published' AND (p.batch_id IS NULL OR (" + batchIsOpen + ")) ORDER BY p.series,p.category,p.name,p.id LIMIT 200"),
       db.prepare('SELECT ' + orderColumns + ' FROM welfare_shop_requests WHERE employee_uid=? ORDER BY created_at DESC,id DESC LIMIT 100').bind(uid),
       db.prepare('SELECT ' + dbNow + ' AS server_time, (SELECT MIN(b.starts_at) FROM welfare_shop_batches b' +
