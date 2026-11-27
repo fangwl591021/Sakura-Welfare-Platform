@@ -20,6 +20,7 @@ environment.CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV = 'false';
 const suites = [
   'tests/welfare-shop-runtime.test.mjs',
   'tests/welfare-shop-browser.test.mjs',
+  'tests/activity-history.test.mjs',
   'tests/segment-push-browser.test.mjs',
   'tests/segment-push-schedule-workerd.test.mjs',
   'tests/segment-domestic-independent.test.mjs',
