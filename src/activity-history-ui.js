@@ -13,7 +13,7 @@ button,a.button{font-weight:600;cursor:pointer}button:disabled{opacity:.55;curso
 a.button{display:inline-flex;align-items:center;text-decoration:none}.primary{background:#a71944;color:#fff;border-color:#a71944}
 .scroll{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{padding:12px 16px;text-align:left;border-bottom:1px solid #e4eaf0;vertical-align:top}
 th{background:#f1f4f8;font-weight:600;font-size:14px;white-space:nowrap}
-td:first-child{min-width:160px;font-weight:650;overflow-wrap:anywhere}td:last-child{min-width:205px}td .actions{gap:6px}
+td:first-child{min-width:160px;font-weight:650;overflow-wrap:anywhere}td:last-child{min-width:225px}td .actions{gap:6px}
 .meta,.paging,output{padding:10px 16px;color:#435970}output:empty{display:none}output{display:block}output a{margin-inline-start:8px;color:#9c1742}td span{white-space:nowrap}
 @media(max-width:640px){
   main{padding:12px}form{align-items:stretch}label.search{flex-basis:100%}.scroll{overflow:visible}
@@ -25,7 +25,7 @@ td:first-child{min-width:160px;font-weight:650;overflow-wrap:anywhere}td:last-ch
 </style></head><body><main>
 <div class="top"><h1>活動列表總覽</h1><a class="button" id="calendar" href="/activity-checkin-admin">返回活動行事曆</a></div>
 <section aria-label="活動清單"><form id="filters">
-  <label>顯示範圍<select id="filter"><option value="past">過往活動</option><option value="all">全部活動</option><option value="draft">草稿</option></select></label>
+  <label>顯示範圍<select id="filter"><option value="past">過往活動</option><option value="all">未隱藏活動</option><option value="draft">草稿</option><option value="hidden">已隱藏</option></select></label>
   <label class="search">活動名稱或地點<input id="term" type="search" maxlength="100"></label>
   <button type="submit" class="primary">搜尋</button>
 </form><p class="meta" id="status" role="status" aria-live="polite"></p><output id="notice" aria-live="polite"></output>
@@ -38,10 +38,11 @@ const q=id=>document.getElementById(id);
 const embedded=new URLSearchParams(location.search).get('embedded')==='1';
 const calendar='/activity-checkin-admin';
 const api='/admin-api/activity-checkin?view=history';
-const titles={active:'啟用',draft:'草稿',closed:'關閉',archived:'封存'};
+const titles={active:'啟用',draft:'草稿',closed:'關閉',archived:'已隱藏'};
 const date=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',dateStyle:'medium',timeStyle:'short',hourCycle:'h23'});
 let page=1, version=0, pending=false;
 const copyIds=new Map();
+const visibilityIds=new Map();
 q('calendar').href=calendar+(embedded?'?embedded=1':'');
 function node(tag,label){
   const element=document.createElement(tag);
@@ -50,7 +51,7 @@ function node(tag,label){
 }
 function link(label,id){
   const anchor=node('a',label);
-  anchor.href=calendar+'?event_id='+encodeURIComponent(id)+(embedded?'&embedded=1':'');
+  anchor.href=calendar+'?event_id='+encodeURIComponent(id)+(embedded?'&embedded=1':'')+'#eventForm';
   anchor.className='button';return anchor;
 }
 function taipeiTime(value){
@@ -82,7 +83,31 @@ async function copy(event,button){
   }catch(error){
     const confirmed=error.status>=400&&error.status<500;
     if(confirmed)copyIds.delete(event.id);
-    q('notice').textContent=confirmed?error.message:'目前無法確認複製結果，請按同一活動的「複製為草稿」重試。';
+    q('notice').textContent=confirmed?error.message:'目前無法確認複製結果，請按同一活動的「複製」重試。';
+  }finally{pending=false;button.disabled=false;}
+}
+async function changeVisibility(event,button){
+  if(pending)return;
+  const hide=event.status!=='archived';
+  const label=hide?'隱藏':'恢復顯示';
+  const detail=hide?'隱藏期間會停止員工報名與簽到，既有紀錄會保留。':'活動會回到隱藏前的狀態。舊封存活動會恢復為關閉。';
+  if(!window.confirm(label+'「'+event.title+'」？'+detail))return;
+  const action=hide?'hide_event':'restore_event';
+  const key=action+':'+event.id;
+  const requestId=visibilityIds.get(key)||crypto.randomUUID();
+  visibilityIds.set(key,requestId);
+  pending=true;button.disabled=true;
+  q('notice').textContent='正在'+label+'活動…';
+  try{
+    const data=await call(api,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action,data:{id:event.id,request_id:requestId}})});
+    visibilityIds.delete(key);
+    q('notice').textContent='「'+event.title+'」'+(data.status==='archived'?'已隱藏，可在「已隱藏」找到。':'已恢復，狀態為'+(titles[data.status]||data.status)+'。');
+    await load(1);
+  }catch(error){
+    const confirmed=error.status>=400&&error.status<500;
+    if(confirmed)visibilityIds.delete(key);
+    q('notice').textContent=confirmed?error.message:'目前無法確認結果，請按同一活動的「'+label+'」重試。';
   }finally{pending=false;button.disabled=false;}
 }
 function render(events){
@@ -92,9 +117,12 @@ function render(events){
     for(const [label,value] of values){
       const cell=node('td',value);cell.dataset.label=label;row.append(cell);
     }
-    const operations=node('td'),buttons=node('div'),button=node('button','複製為草稿');
-    buttons.className='actions';button.type='button';button.onclick=()=>copy(event,button);
-    buttons.append(link('查看活動',event.id),button);operations.append(buttons);row.append(operations);
+    const operations=node('td'),buttons=node('div'),copyButton=node('button','複製');
+    const visibilityButton=node('button',event.status==='archived'?'恢復顯示':'隱藏');
+    buttons.className='actions';copyButton.type='button';visibilityButton.type='button';
+    copyButton.onclick=()=>copy(event,copyButton);
+    visibilityButton.onclick=()=>changeVisibility(event,visibilityButton);
+    buttons.append(link('編輯',event.id),copyButton,visibilityButton);operations.append(buttons);row.append(operations);
     return row;
   }));
 }

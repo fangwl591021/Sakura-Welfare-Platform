@@ -53,21 +53,22 @@ function fixture(t) {
     }catch(error){sqlite.exec('ROLLBACK');throw error;}
   }};
   const path='/admin-api/activity-checkin?view=history';
+  const post=(action,id,request_id,actor='admin:fixture')=>handleActivityHistory(new Request('https://isolated.test'+path,{
+    method:'POST',body:JSON.stringify({action,data:{id,request_id}})
+  }),db,actor);
   return {sqlite,
     list:(query='',actor='admin:fixture')=>handleActivityHistory(new Request('https://isolated.test'+path+query),db,actor),
-    copy:(id,request_id,actor='admin:fixture')=>handleActivityHistory(new Request('https://isolated.test'+path,{
-      method:'POST',body:JSON.stringify({action:'copy_event',data:{id,request_id}})
-    }),db,actor)};
+    post,copy:(...args)=>post('copy_event',...args)};
 }
 
 test('history shows past events, searches, filters and pages within existing roles',async t=>{
   const f=fixture(t);
   const ids=async response=>(await (await response).json()).events.map(row=>row.id);
-  assert.deepEqual(await ids(f.list()),['club','old']);
+  assert.deepEqual(await ids(f.list()),['old']);
   assert.deepEqual(await ids(f.list('', 'editor:activity_editor:one')),['old']);
-  assert.deepEqual(await ids(f.list('', 'editor:club_editor:one')),['club']);
+  assert.deepEqual(await ids(f.list('&filter=hidden', 'editor:club_editor:one')),['club']);
   assert.deepEqual(await ids(f.list('&filter=draft')),['draft']);
-  assert.deepEqual(await ids(f.list('&filter=all&q='+encodeURIComponent('台北'))),['club','draft']);
+  assert.deepEqual(await ids(f.list('&filter=all&q='+encodeURIComponent('台北'))),['draft']);
   assert.equal((await f.list('&page=0')).status,400);
   for(let i=0;i<26;i++){
     f.sqlite.prepare("INSERT INTO welfare_activity_events(id,title,status,start_at,qr_token) VALUES (?,?,'closed','2000-01-01',?)")
@@ -76,7 +77,7 @@ test('history shows past events, searches, filters and pages within existing rol
   const first=await (await f.list()).json(),second=await (await f.list('&page=2')).json();
   assert.equal(first.events.length,25);
   assert.equal(first.has_next,true);
-  assert.equal(second.events.length,3);
+  assert.equal(second.events.length,2);
   assert.equal(second.has_next,false);
 });
 
@@ -114,6 +115,38 @@ test('copies content and latest form once into a separate draft with blank dates
   assert.deepEqual(JSON.parse(link.content_json),{club_id:'club-one',kind:'club',mode:'free'});
 });
 
+test('hiding is scoped and reversible with no changes to activity data or history',async t=>{
+  const f=fixture(t);
+  const event=id=>({...f.sqlite.prepare('SELECT * FROM welfare_activity_events WHERE id=?').get(id)});
+  const original=event('old');
+  const historyTables=['welfare_activity_registrations','welfare_activity_checkins','welfare_activity_lotteries','welfare_activity_forms'];
+  const readHistory=()=>historyTables.map(table=>f.sqlite.prepare('SELECT * FROM '+table).all());
+  const history=readHistory();
+  const hideId=crypto.randomUUID(),restoreId=crypto.randomUUID();
+  assert.equal((await f.post('hide_event','old',hideId,'editor:club_editor:one')).status,409);
+  assert.deepEqual(event('old'),original);
+  const hide=await f.post('hide_event','old',hideId);
+  assert.deepEqual(await hide.json(),{success:true,status:'archived'});
+  assert.deepEqual({...event('old'),updated_at:original.updated_at},{...original,status:'archived'});
+  assert.equal((await f.post('hide_event','old',hideId)).status,200);
+  assert.equal((await f.post('restore_event','old',restoreId,'editor:club_editor:one')).status,409);
+  assert.deepEqual(await (await f.post('restore_event','old',restoreId)).json(),{success:true,status:'active'});
+  assert.equal((await f.post('hide_event','old',hideId)).status,200);
+  assert.equal(event('old').status,'active');
+  assert.deepEqual({...event('old'),updated_at:original.updated_at},original);
+  assert.deepEqual(readHistory(),history);
+  const audit=f.sqlite.prepare('SELECT event_type,raw_json FROM welfare_audit_events ORDER BY rowid').all();
+  assert.deepEqual(audit.map(row=>{
+    const detail=JSON.parse(row.raw_json);
+    return [row.event_type,detail.before,detail.after];
+  }),[['activity_hidden','active','archived'],['activity_restored','archived','active']]);
+  assert.deepEqual(await (await f.post('restore_event','club',crypto.randomUUID(),'editor:club_editor:one')).json(),
+    {success:true,status:'closed'});
+  assert.equal((await f.post('hide_event','draft',crypto.randomUUID())).status,200);
+  assert.equal((await f.post('restore_event','draft',crypto.randomUUID())).status,200);
+  assert.equal(event('draft').status,'draft');
+});
+
 test('the admin navigation places history immediately below the calendar and serves the standalone view',async()=>{
   const [adminPage,historyPage]=await Promise.all([
     readAdminPage('/sakura-admin'),
@@ -129,12 +162,13 @@ test('the admin navigation places history immediately below the calendar and ser
   for(const [,script] of history.matchAll(/<script>([\s\S]*?)<\/script>/g))new Script(script);
 });
 
-test('a browser can copy a past event and open the independent draft for editing',
+test('a browser can edit a past event, hide and restore it, and open a copied draft',
   {skip:!process.env.PLAYWRIGHT_CHANNEL&&!bundle,timeout:25000},async t=>{
   const {chromium}=await import('playwright');
   const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL});
   t.after(()=>browser.close());
   const f=fixture(t), origin='https://isolated.test';
+  f.sqlite.prepare("UPDATE welfare_activity_events SET status='closed' WHERE id='club'").run();
   // The live check replays only the HTML. Every interaction uses the in-memory fixture.
   const renderPaths=['/activity-checkin-admin','/activity-checkin-admin?view=history&embedded=1'];
   const renderedPages=new Map(await Promise.all(renderPaths.map(async path=>{
@@ -153,8 +187,8 @@ test('a browser can copy a past event and open the independent draft for editing
       return route.fulfill({contentType:'text/html;charset=UTF-8',body:renderedPages.get(path)});
     }
     if(url.pathname==='/admin-api/activity-checkin'&&url.searchParams.get('view')==='history'){
-      const body=req.method()==='POST'?req.postDataJSON().data:null;
-      const response=body?await f.copy(body.id,body.request_id):await f.list(url.search.replace('?view=history',''));
+      const body=req.method()==='POST'?req.postDataJSON():null;
+      const response=body?await f.post(body.action,body.data.id,body.data.request_id):await f.list(url.search.replace('?view=history',''));
       return route.fulfill({status:response.status,json:await response.json()});
     }
     if(url.pathname==='/admin-api/activity-checkin'){
@@ -167,20 +201,37 @@ test('a browser can copy a past event and open the independent draft for editing
     return route.fulfill({json:{success:true}});
   });
   await page.addInitScript(()=>localStorage.setItem('sakura_admin_session',JSON.stringify({token:'fixture'})));
-  await page.goto(origin+'/activity-checkin-admin?view=history&embedded=1');
+  const historyUrl=origin+renderPaths[1];
+  await page.goto(historyUrl);
   await page.getByText('過往家庭日',{exact:true}).waitFor();
+  await page.getByRole('row',{name:/過往家庭日/}).getByRole('link',{name:'編輯',exact:true}).click();
+  await page.waitForURL('**/activity-checkin-admin?event_id=old&embedded=1#eventForm');
+  await page.waitForFunction(()=>document.querySelector('#eventForm [name="title"]').value==='過往家庭日');
+  await page.goto(historyUrl);
   await page.getByText('社團旅行',{exact:true}).waitFor();
   await page.getByRole('searchbox').fill('家庭日');
   await page.getByRole('button',{name:'搜尋',exact:true}).click();
   await page.getByText('社團旅行',{exact:true}).waitFor({state:'hidden'});
   await page.getByText('過往家庭日',{exact:true}).waitFor();
   const row=page.getByRole('row').filter({hasText:'過往家庭日'});
-  await row.getByRole('button',{name:'複製為草稿'}).click();
+  page.once('dialog',dialog=>dialog.dismiss());
+  await row.getByRole('button',{name:'隱藏',exact:true}).click();
+  assert.equal(f.sqlite.prepare("SELECT status FROM welfare_activity_events WHERE id='old'").get().status,'active');
+  page.once('dialog',dialog=>dialog.accept());
+  await row.getByRole('button',{name:'隱藏',exact:true}).click();
+  await row.waitFor({state:'hidden'});
+  const filter=page.getByRole('combobox',{name:'顯示範圍'});
+  await filter.selectOption('hidden');
+  page.once('dialog',dialog=>dialog.accept());
+  await row.getByRole('button',{name:'恢復顯示',exact:true}).click();
+  await row.waitFor({state:'hidden'});
+  await filter.selectOption('past');
+  await row.getByRole('button',{name:'複製',exact:true}).click();
   await page.getByText('已建立草稿「過往家庭日（複製）」。',{exact:false}).waitFor();
   await page.getByRole('combobox',{name:'顯示範圍'}).selectOption('draft');
   await page.getByText('過往家庭日（複製）',{exact:true}).waitFor();
   await page.getByRole('link',{name:'編輯新草稿'}).click();
-  await page.waitForURL('**/activity-checkin-admin?event_id=*&embedded=1');
+  await page.waitForURL('**/activity-checkin-admin?event_id=*&embedded=1#eventForm');
   await page.waitForFunction(()=>document.querySelector('#eventForm [name="title"]').value==='過往家庭日（複製）');
   assert.equal(await page.locator('#eventForm [name="status"]').inputValue(),'draft');
   assert.equal(await page.locator('#eventForm [name="start_at"]').inputValue(),'');
