@@ -7,6 +7,8 @@ import {buildWorkspaceDashboardFlex} from '../src/workspace/dashboard-flex.js';
 const bundle=process.env.STORE_APP_BUNDLE;
 const {default:worker}=await import(bundle?pathToFileURL(bundle).href:'../src/index.js');
 const origin='https://welfare-shop-price.test';
+const liveOrigin='https://sakura-welfare-platform.fangwl591021.workers.dev';
+const livePaths=['/welfare-shop','/welfare-shop-admin','/welfare-shop-settings'];
 const fixtures=[
   {id:'down',name:'隔離伸縮龍頭',price_cents:2359610,total:'$23,596'},
   {id:'half',name:'隔離進位驗證',price_cents:2359650,total:'$23,597'},
@@ -14,6 +16,15 @@ const fixtures=[
 ].map(item=>({...item,revision:1,status:'published',stock:3,available:3,committed:0,employee_limit:3,series:'隔離測試',
   category:'廚電',condition_note:'展示品',pickup_note:'隔離取貨',has_photo:0}));
 test('mall cards, purchase totals and admin records agree at phone and desktop widths',{timeout:60000},async t=>{
+  const livePages=new Map();
+  // Replay production HTML only. The browser origin and all APIs still use the isolated fixtures.
+  if(process.env.WELFARE_SHOP_LIVE_UI==='1'){
+    await Promise.all(livePaths.map(async path=>{
+      const response=await fetch(liveOrigin+path,{redirect:'error',signal:AbortSignal.timeout(10000)});
+      assert.equal(response.status,200);
+      livePages.set(path,await response.text());
+    }));
+  }
   const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL});
   t.after(()=>browser.close());
   for(const width of [390,1366])await t.test(String(width),async()=>{
@@ -21,7 +32,7 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
     const submissions=[],orders=[],errors=[];
     const products=fixtures.map(item=>({...item}));
     const venues=[],batches=[];
-    let denySettings=false,timedReads=0,timedCatalog=false;
+    let denySettings=false,timedReads=0,timedCatalog=false,timedStart;
     await page.addInitScript(()=>localStorage.setItem('sakura_admin_session',JSON.stringify({token:'isolated-admin'})));
     page.on('pageerror',error=>errors.push(error.message));
     await page.route('**/*',async route=>{
@@ -35,7 +46,8 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
       `});
       if(url.origin!==origin)return route.abort();
       if(['/','/sakura-admin','/welfare-shop','/welfare-shop-admin','/welfare-shop-settings'].includes(url.pathname)){
-        const response=await worker.fetch(new Request(req.url()),{},{});
+        const response=livePages.has(url.pathname)?new Response(livePages.get(url.pathname)):
+          await worker.fetch(new Request(req.url()),{},{});
         const html=await response.text();
         for(const [,script] of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))if(script.trim())new vm.Script(script);
         return route.fulfill({status:response.status,contentType:'text/html;charset=UTF-8',body:html});
@@ -49,11 +61,15 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
           return route.fulfill({json:{request:record}});
         }
         if(timedCatalog){
-          const now=Date.now();
-          const timedProducts=++timedReads===1
-            ? fixtures.map(item=>item.id==='up'?{...item,ends_at:new Date(now+5000).toISOString()}:item)
+          timedReads++;
+          timedStart??=Date.now()+3000;
+          const endsAt=timedStart+5000;
+          const now=timedReads===1?timedStart-3000:timedReads===2?timedStart:endsAt;
+          const timedProducts=timedReads===2
+            ? fixtures.map(item=>item.id==='up'?{...item,ends_at:new Date(endsAt).toISOString()}:item)
             : fixtures.filter(item=>item.id!=='up');
-          return route.fulfill({json:{products:timedProducts,requests:orders,viewer:'隔離員工',server_time:new Date(now).toISOString()}});
+          return route.fulfill({json:{products:timedProducts,requests:orders,viewer:'隔離員工',
+            server_time:new Date(now).toISOString(),next_starts_at:timedReads===1?new Date(timedStart).toISOString():null}});
         }
         return route.fulfill({json:{products:fixtures,requests:orders,viewer:'隔離員工'}});
       }
@@ -72,8 +88,10 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
             return route.fulfill({json:{assigned:body.products.length}});
           }
           if(body.action==='batch.save'){
+            assert.equal(body.starts_at,'2099-12-31T17:00');
             assert.equal(body.ends_at,'2099-12-31T18:00');
-            batches.push({...body,id:'batch-one',ends_at:'2099-12-31T10:00:00.000Z',revision:1,expired:0,product_count:0});
+            batches.push({...body,id:'batch-one',starts_at:'2099-12-31T09:00:00.000Z',ends_at:'2099-12-31T10:00:00.000Z',
+              revision:1,scheduled:1,expired:0,product_count:0});
             return route.fulfill({json:{id:'batch-one'}});
           }
           if(body.action==='batch.assign'){
@@ -120,6 +138,9 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
     await page.clock.install();
     timedCatalog=true;
     await page.reload();
+    await page.locator('#catalog').getByText('隔離伸縮龍頭',{exact:true}).waitFor();
+    assert.equal(await page.locator('#catalog').getByText('隔離烤箱',{exact:true}).count(),0);
+    await page.clock.runFor(3300);
     await page.locator('#catalog article').filter({hasText:'隔離烤箱'}).getByRole('button',{name:'查看商品'}).click();
     await page.getByRole('button',{name:'我要購買'}).click();
     await page.clock.runFor(5300);
@@ -150,16 +171,21 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
     page.once('dialog',dialog=>dialog.accept());
     await settings.getByRole('button',{name:'套用到勾選的商品'}).click();
     await settings.getByText('已指定 1 件商品。',{exact:true}).waitFor();
-    await menu.getByRole('button',{name:'批次與下架時間'}).click();
+    await menu.getByRole('button',{name:'批次與上下架時間'}).click();
     const batchPanel=page.locator('#batchPanel');
     await batchPanel.getByLabel('批次名稱').fill('台北樣品第一批');
+    await batchPanel.getByLabel('上架時間（台北時間）').fill('2099-12-31T17:00');
     await batchPanel.getByLabel('下架時間（台北時間）').fill('2099-12-31T18:00');
     await batchPanel.getByRole('button',{name:'儲存批次'}).click();
     await batchPanel.getByRole('heading',{name:'台北樣品第一批'}).waitFor();
-    await batchPanel.getByRole('combobox',{name:'指定批次',exact:true}).selectOption({label:'台北樣品第一批'});
+    await batchPanel.getByText('預約上架',{exact:true}).waitFor();
+    await batchPanel.getByRole('button',{name:'編輯 台北樣品第一批'}).click();
+    assert.equal(await batchPanel.getByLabel('上架時間（台北時間）').inputValue(),'2099-12-31T17:00');
+    await batchPanel.getByRole('button',{name:'取消編輯'}).click();
+    await batchPanel.getByRole('combobox',{name:'指定批次',exact:true}).selectOption('batch-one');
     await batchPanel.getByRole('checkbox',{name:/隔離進位驗證/}).check();
     page.once('dialog',dialog=>dialog.accept());
-    await batchPanel.getByRole('button',{name:'套用批次與下架時間'}).click();
+    await batchPanel.getByRole('button',{name:'套用批次與上下架時間'}).click();
     await batchPanel.getByText('已套用到 1 件商品。',{exact:true}).waitFor();
     await page.getByRole('button',{name:'返回／關閉'}).click();
     assert.equal(await page.evaluate(()=>window.closedByLiff),true);
@@ -177,6 +203,7 @@ test('mall cards, purchase totals and admin records agree at phone and desktop w
     await menu.getByRole('button',{name:'商品管理'}).click();
     const card=page.locator('#catalog article').filter({hasText:'隔離進位驗證'});
     await card.getByText('$23,597',{exact:true}).waitFor();
+    await card.getByText('尚未開放申請',{exact:true}).waitFor();
     await card.getByText(/隔離台北品牌館/).waitFor();
     await card.getByRole('button',{name:'編輯商品'}).click();
     assert.equal(await page.getByLabel('員工價（元）').inputValue(),'23597');

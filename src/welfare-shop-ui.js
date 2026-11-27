@@ -20,6 +20,7 @@ dialog{width:min(540px,calc(100% - 26px));max-height:85dvh;border:1px solid #bfc
 .shop-menu button,.shop-menu a{text-align:left}
 .shop-menu button[aria-pressed=true]{background:#aa1541;border-color:#aa1541;color:white;font-weight:650}
 .shop-content{min-width:0}.shop-content .card{overflow-wrap:anywhere}.shop-content form{margin-top:14px}
+#batchForm .batch-name{grid-column:1/-1}
 .shop-content fieldset{border:0;padding:0;margin:12px 0}.shop-content legend{font-weight:650}
 @media(max-width:720px){
   .shop-management{grid-template-columns:minmax(0,1fr);gap:14px}
@@ -71,7 +72,7 @@ export const welfareShopHtml = page('福利品商城',
   <label>備註<textarea id="comment" maxlength="500"></textarea></label>
   <button class="primary" id="submit">送出購買申請</button></form><p id="detailNotice" role="status"></p></dialog>`,
   `
-let products=[], requests=[], selected, submission, pending=false, sdkReady, deadlineTimer, loadGeneration=0;
+let products=[], requests=[], selected, submission, pending=false, sdkReady, availabilityTimer, loadGeneration=0;
 function sdk() {
   return sdkReady ||= (async()=>{ await liff.init({liffId:'__SAKURA_LIFF_ID__'}); return liff; })();
 }
@@ -145,7 +146,7 @@ q('apply').onsubmit=async event=>{
 };
 async function load() {
   const generation=++loadGeneration;
-  clearTimeout(deadlineTimer);
+  clearTimeout(availabilityTimer);
   try {
     const data=await call('/api/welfare-shop');
     if(generation!==loadGeneration)return;
@@ -153,12 +154,15 @@ async function load() {
     if(q('detail').open&&selected?.ends_at&&!products.some(item=>item.id===selected.id)){
       q('buy').hidden=true;q('apply').hidden=true;
       q('itemInfo').querySelector('img')?.remove();
-      q('detailNotice').textContent='商品已下架，已送出的申請可在「我的申請」查看。';
+      const expired=Date.parse(selected.ends_at)<=Date.parse(data.server_time);
+      q('detailNotice').textContent=(expired?'商品已下架':'商品目前未開放申請')+'，已送出的申請可在「我的申請」查看。';
     }
-    const nextDeadline=Math.min(...products.filter(item=>item.ends_at).map(item=>Date.parse(item.ends_at)));
-    if(Number.isFinite(nextDeadline)&&data.server_time){
-      const delay=Math.max(1000,nextDeadline-Date.parse(data.server_time)+250);
-      deadlineTimer=setTimeout(()=>load().catch(()=>signIn(false)),Math.min(delay,2147483647));
+    const serverTime=Date.parse(data.server_time);
+    const changes=[data.next_starts_at,...products.map(item=>item.ends_at)].map(Date.parse);
+    const nextChange=Math.min(...changes.filter(instant=>instant>serverTime));
+    if(Number.isFinite(nextChange)){
+      const delay=Math.max(1000,nextChange-serverTime+250);
+      availabilityTimer=setTimeout(()=>load().catch(()=>signIn(false)),Math.min(delay,2147483647));
     }
     q('watermark').textContent=data.viewer+' · '+time(new Date());
     q('shop').hidden=false; q('login').hidden=true; q('notice').textContent=''; render();
@@ -195,7 +199,7 @@ function managementPage(fromLine) {
   <div id="admin" class="shop-management" hidden>
   <nav id="managementMenu" class="shop-menu" aria-label="福利品商城功能">
     <button type="button" data-panel="productPanel" aria-controls="productPanel">商品管理</button>
-    <button type="button" data-panel="batchPanel" aria-controls="batchPanel">批次與下架時間</button>
+    <button type="button" data-panel="batchPanel" aria-controls="batchPanel">批次與上下架時間</button>
     <button type="button" data-panel="venues" aria-controls="venues">館長與通知信箱</button>
     <button type="button" data-panel="orderPanel" aria-controls="orderPanel">購買申請</button>
     <a id="entry" class="button">LINE 商城入口</a>
@@ -205,11 +209,12 @@ function managementPage(fromLine) {
   <details><summary>匯入 Excel 商品草稿</summary><label>選擇由 Excel 轉出的商城匯入檔<input id="importFile" type="file" accept=".json,application/json"></label><label>匯入批次<select id="importBatch"></select></label><div id="preview"></div><button id="importConfirm" type="button" class="primary" hidden>確認匯入草稿</button></details>
   <h2 id="productsHeading">商品</h2><div id="catalog" class="grid"></div></section>
   <section id="batchPanel" hidden aria-labelledby="batchesHeading">
-  <h2 id="batchesHeading">批次與下架時間</h2>
+  <h2 id="batchesHeading">批次與上下架時間</h2>
   <div class="card"><form id="batchForm"><h3 id="batchFormHeading">新增批次</h3>
-  <div class="row"><label>批次名稱<input name="name" maxlength="80" required></label>
+  <div class="row"><label class="batch-name">批次名稱<input name="name" maxlength="80" required></label>
+  <label>上架時間（台北時間）<input name="starts_at" type="datetime-local" aria-describedby="batchTimingHint"></label>
   <label>下架時間（台北時間）<input name="ends_at" type="datetime-local" required></label></div>
-  <p class="muted">時間一到，該批商品會從員工商城下架，已送出的申請可繼續處理。</p>
+  <p class="muted" id="batchTimingHint">上架時間留空時，已設為上架的商品會立即顯示。草稿須先設為上架。到期自動下架，已送出的申請可繼續處理。</p>
   <div class="bar"><button class="primary" id="saveBatch">儲存批次</button><button id="resetBatch" type="button" hidden>取消編輯</button></div>
   <p id="batchNotice" role="status"></p></form></div>
   <div id="batchList" class="grid"></div>
@@ -217,7 +222,7 @@ function managementPage(fromLine) {
   <label><span id="assignmentBatchLabel">指定批次</span><select id="assignmentBatch" aria-labelledby="assignmentBatchLabel" required></select></label>
   <fieldset><legend>選擇商品</legend><div class="bar"><button type="button" id="toggleBatchProducts">全選</button></div>
   <div id="batchProducts" class="venue-checklist"></div></fieldset>
-  <button class="primary" id="saveBatchAssignment" disabled>套用批次與下架時間</button>
+  <button class="primary" id="saveBatchAssignment" disabled>套用批次與上下架時間</button>
   <p id="batchAssignmentNotice" role="status"></p></form></section>
   <section id="orderPanel" hidden aria-labelledby="ordersHeading"><h2 id="ordersHeading">購買申請</h2><label>申請狀態<select id="status"><option value="pending">等待確認</option><option value="confirmed">已確認</option><option value="completed">已完成</option><option value="cancelled">已取消</option></select></label>
   <div id="requests"></div><div class="bar"><button id="prev">上一頁</button><button id="next">下一頁</button></div></section>
@@ -353,9 +358,10 @@ function showVenues(data) {
 }
 function populateBatches(select, label, selected=select.value) {
   select.replaceChildren(new Option(label,''),...batches.filter(batch=>!batch.expired||batch.id===selected)
-    .map(batch=>new Option(batch.name+(batch.expired?'（已到期）':''),batch.id)));
+    .map(batch=>new Option(batch.name+(batch.expired?'（已到期）':batch.scheduled?'（預約上架）':''),batch.id)));
   select.value=batches.some(batch=>batch.id===selected)?selected:'';
 }
+const taipeiInput = value => value ? new Date(Date.parse(value)+8*60*60*1000).toISOString().slice(0,16) : '';
 function editBatch(batch) {
   batchEdit=batch;
   const form=q('batchForm');
@@ -364,7 +370,8 @@ function editBatch(batch) {
   q('resetBatch').hidden=!batch;
   if(batch){
     form.elements.name.value=batch.name;
-    form.elements.ends_at.value=new Date(Date.parse(batch.ends_at)+8*60*60*1000).toISOString().slice(0,16);
+    form.elements.starts_at.value=taipeiInput(batch.starts_at);
+    form.elements.ends_at.value=taipeiInput(batch.ends_at);
     form.elements.name.focus();
   }
 }
@@ -379,7 +386,7 @@ q('batchForm').onsubmit=async event=>{
     await request(api+'/settings',post({action:'batch.save',id:batchEdit?.id,revision:batchEdit?.revision,...fields}));
     editBatch();
     await load();
-    q('batchNotice').textContent='批次與下架時間已儲存。';
+    q('batchNotice').textContent='批次與上下架時間已儲存。';
   }catch(error){showError(error,q('batchNotice'));}
   finally{inFlight=false;q('saveBatch').disabled=false;}
 };
@@ -403,8 +410,9 @@ q('batchAssignment').onsubmit=async event=>{
   const selected=catalog.filter(item=>checked.has(item.id));
   if(inFlight||!batch||!selected.length)return;
   const willReopen=selected.some(item=>item.status==='published'&&batches.some(previous=>previous.id===item.batch_id&&previous.expired));
-  const confirmation='將 '+selected.length+' 件商品加入「'+batch.name+'」，統一於 '+time(batch.ends_at)+'（台北時間）下架？';
-  if(!confirm(confirmation+(willReopen?'已到期的上架商品將重新開放申請。':'')))return;
+  const start=batch.scheduled?'，已上架的商品將於 '+time(batch.starts_at)+' 開放申請':'';
+  const confirmation='將 '+selected.length+' 件商品加入「'+batch.name+'」'+start+'，統一於 '+time(batch.ends_at)+'（台北時間）下架？';
+  if(!confirm(confirmation+(willReopen&&!batch.scheduled?'已到期的上架商品將重新開放申請。':'')))return;
   const products=selected.map(({id,revision})=>({id,revision}));
   inFlight=true;updateBatchAssignment();
   try{
@@ -418,7 +426,9 @@ function showBatches(data) {
   batches=data.batches||[];
   q('batchList').replaceChildren(...batches.map(batch=>{
     const card=node('article',undefined,'card');
-    card.append(node('h3',batch.name),node('p',(batch.expired?'已到期':'下架時間')+'｜'+time(batch.ends_at)+'（台北時間）','muted'),
+    card.append(node('h3',batch.name),node('p',batch.expired?'已到期':batch.scheduled?'預約上架':'開放中','muted'),
+      node('p','上架時間｜'+(batch.starts_at?time(batch.starts_at)+'（台北時間）':'即時'),'muted'),
+      node('p','下架時間｜'+time(batch.ends_at)+'（台北時間）','muted'),
       node('p',batch.product_count+' 件商品'),button('編輯 '+batch.name,()=>{if(!inFlight)editBatch(batch);}));
     return card;
   }));
@@ -476,9 +486,11 @@ async function load() {
       const batch=batches.find(item=>item.id===p.batch_id);
       if(p.status==='published')actions.append(button('下架',()=>hideProduct(p)));
       const expired=p.status==='published'&&batch?.expired;
+      const scheduled=p.status==='published'&&batch?.scheduled&&!expired;
       card.append(node('p',[p.series,p.category,venues.find(venue=>venue.id===p.venue_id)?.name,
-        expired?'已到期下架':labels[p.status]].filter(Boolean).join(' · '),'muted'),
-        node('h3',p.name),node('p',money(p.price_cents),'price'),node('p',expired?'已停止申請':'可申請 '+(p.stock-p.committed)+' 件'));
+        expired?'已到期下架':scheduled?'預約上架':labels[p.status]].filter(Boolean).join(' · '),'muted'),
+        node('h3',p.name),node('p',money(p.price_cents),'price'),node('p',expired?'已停止申請':scheduled?'尚未開放申請':'可申請 '+(p.stock-p.committed)+' 件'));
+      if(scheduled)card.append(node('p','上架 '+time(batch.starts_at),'muted'));
       card.append(node('p',batch?batch.name+' · 下架 '+time(batch.ends_at):'未設定下架時間','muted'),actions);
       return card;
     }):[node('p','目前沒有商品。')]));

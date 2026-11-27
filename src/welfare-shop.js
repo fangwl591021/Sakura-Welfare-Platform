@@ -70,7 +70,8 @@ async function savePhoto(bucket, photo) {
 }
 
 const dbNow = "strftime('%Y-%m-%dT%H:%M:%fZ','now')";
-const unexpired = "(p.batch_id IS NULL OR EXISTS (SELECT 1 FROM welfare_shop_batches b WHERE b.id=p.batch_id AND b.ends_at>" + dbNow + "))";
+const batchIsOpen = "(b.starts_at IS NULL OR b.starts_at<=" + dbNow + ") AND b.ends_at>" + dbNow;
+const publishedInWindow = "(p.batch_id IS NULL OR EXISTS (SELECT 1 FROM welfare_shop_batches b WHERE b.id=p.batch_id AND " + batchIsOpen + "))";
 const insertProduct = 'INSERT INTO welfare_shop_products (id,source_key,category,series,name,condition_note,pickup_note,price_cents,stock,employee_limit,status,photo_key,updated_at,venue_id,venue_assigned_by,batch_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 const productColumns = 'p.id,p.category,p.series,p.name,p.condition_note,p.pickup_note,p.employee_limit,p.revision';
 const roundedPrice = '(CAST((p.price_cents+50)/100 AS INTEGER)*100)';
@@ -84,7 +85,7 @@ async function memberView(request, env, url, path, onNewRequest) {
   if (!activeBenefitEmployee(identity)) fail('福利品商城限已綁定的在職員工使用。', 403);
 
   if (path === '/api/welfare-shop/photo' && request.method === 'GET') {
-    const row = await db.prepare("SELECT p.photo_key FROM welfare_shop_products p WHERE p.id=? AND p.status='published' AND " + unexpired)
+    const row = await db.prepare("SELECT p.photo_key FROM welfare_shop_products p WHERE p.id=? AND p.status='published' AND " + publishedInWindow)
       .bind(url.searchParams.get('id') || '').first();
     return servePhoto(env.R2_BUCKET, row?.photo_key);
   }
@@ -93,12 +94,14 @@ async function memberView(request, env, url, path, onNewRequest) {
     const [catalog, orders, clock] = await db.batch([
       db.prepare("SELECT " + productColumns + "," + roundedPrice + " AS price_cents,(photo_key<>'') AS has_photo,stock-" + used +
         " AS available,b.ends_at FROM welfare_shop_products p LEFT JOIN welfare_shop_batches b ON b.id=p.batch_id" +
-        " WHERE p.status='published' AND (p.batch_id IS NULL OR b.ends_at>" + dbNow + ") ORDER BY p.series,p.category,p.name,p.id LIMIT 200"),
+        " WHERE p.status='published' AND (p.batch_id IS NULL OR (" + batchIsOpen + ")) ORDER BY p.series,p.category,p.name,p.id LIMIT 200"),
       db.prepare('SELECT ' + orderColumns + ' FROM welfare_shop_requests WHERE employee_uid=? ORDER BY created_at DESC,id DESC LIMIT 100').bind(uid),
-      db.prepare('SELECT '+dbNow+' AS server_time')
+      db.prepare('SELECT ' + dbNow + ' AS server_time, (SELECT MIN(b.starts_at) FROM welfare_shop_batches b' +
+        ' WHERE b.starts_at>' + dbNow + ' AND b.starts_at<b.ends_at AND EXISTS' +
+        " (SELECT 1 FROM welfare_shop_products p WHERE p.batch_id=b.id AND p.status='published')) AS next_starts_at")
     ]);
     return json({ products: catalog.results, requests: orders.results, viewer: identity.display_name || '員工',
-      server_time: clock.results[0].server_time });
+      ...clock.results[0] });
   }
   if (request.method !== 'POST') fail('不支援此操作。', 405);
 
@@ -115,7 +118,7 @@ async function memberView(request, env, url, path, onNewRequest) {
     db.prepare("INSERT INTO welfare_shop_requests (id,product_id,employee_uid,product_name,price_cents,quantity,contact,contact_phone,comment,status,created_at,updated_at)" +
       " SELECT ?,p.id,?,p.name," + roundedPrice + ",?,?,?,?,'pending',?,? FROM welfare_shop_products p" +
       " WHERE p.id=? AND p.status='published' AND p.revision=? AND p.employee_limit>=? AND p.stock-" + used + ">=?" +
-      " AND " + unexpired +
+      " AND " + publishedInWindow +
       // An older open form carries no quote. It can submit only if rounding would not change its price.
       " AND " + roundedPrice + "=COALESCE(?,p.price_cents)" +
       " AND EXISTS (SELECT 1 FROM welfare_members WHERE line_user_id=? AND " + employee + ") ON CONFLICT DO NOTHING")
@@ -129,7 +132,7 @@ async function memberView(request, env, url, path, onNewRequest) {
     db.prepare('SELECT ' + orderColumns + ' FROM welfare_shop_requests WHERE id=? AND employee_uid=? AND product_id=?')
       .bind(data.id, uid, data.product_id)
   ]);
-  if (!result.results.length) fail('商品可能已下架、價格或庫存已變更，或您已有此商品的申請。請重新整理。', 409);
+  if (!result.results.length) fail('商品可能尚未上架或已下架、價格或庫存已變更，或您已有此商品的申請。請重新整理。', 409);
   if (notification.meta.changes === 1) onNewRequest?.(data.id);
   return json({ request: result.results[0] });
 }
@@ -163,29 +166,37 @@ async function saveVenue(db, data, actor, now) {
   return json({ id });
 }
 
-function batchDeadline(value, now) {
+function batchDate(value, label) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) {
-    fail('請填寫下架日期與時間（台北時間）。');
+    fail('請填寫'+label+'日期與時間（台北時間）。');
   }
   const epoch = Date.parse(value + ':00+08:00');
   if (!Number.isFinite(epoch) || new Date(epoch + 8 * 60 * 60 * 1000).toISOString().slice(0,16) !== value) {
-    fail('請填寫有效的下架日期與時間。');
+    fail('請填寫有效的'+label+'日期與時間。');
   }
-  const deadline = new Date(epoch).toISOString();
-  if (deadline <= now) fail('下架時間須晚於現在。');
-  return deadline;
+  return new Date(epoch).toISOString();
 }
 
 async function saveBatch(db, data, actor, now) {
   const name = field(data.name, 80, true);
-  const deadline = batchDeadline(data.ends_at, now);
+  const deadline = batchDate(data.ends_at, '下架');
+  if (deadline <= now) fail('下架時間須晚於現在。');
   const id = data.id ?? crypto.randomUUID();
   if (typeof id !== 'string' || !uuid.test(id)) fail('批次編號不正確。');
+  const revision = data.id ? integer(data.revision,1,Number.MAX_SAFE_INTEGER) : null;
+  let startsAt = null;
+  if (Object.hasOwn(data,'starts_at')) {
+    if (data.starts_at !== '' && data.starts_at !== null) startsAt = batchDate(data.starts_at, '上架');
+  } else if (data.id) {
+    const previous = await db.prepare('SELECT starts_at FROM welfare_shop_batches WHERE id=? AND revision=?').bind(id,revision).first();
+    startsAt = previous?.starts_at ?? null;
+  }
+  if (startsAt && startsAt >= deadline) fail('上架時間須早於下架時間。');
   const result = data.id
-    ? await db.prepare("UPDATE OR IGNORE welfare_shop_batches SET name=?,ends_at=?,updated_by=?,updated_at=?,revision=revision+1 WHERE id=? AND revision=?")
-      .bind(name,deadline,actor,now,id,integer(data.revision,1,Number.MAX_SAFE_INTEGER)).run()
-    : await db.prepare("INSERT INTO welfare_shop_batches(id,name,ends_at,updated_by,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(name) DO NOTHING")
-      .bind(id,name,deadline,actor,now).run();
+    ? await db.prepare("UPDATE OR IGNORE welfare_shop_batches SET name=?,starts_at=?,ends_at=?,updated_by=?,updated_at=?,revision=revision+1 WHERE id=? AND revision=?")
+      .bind(name,startsAt,deadline,actor,now,id,revision).run()
+    : await db.prepare("INSERT INTO welfare_shop_batches(id,name,starts_at,ends_at,updated_by,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(name) DO NOTHING")
+      .bind(id,name,startsAt,deadline,actor,now).run();
   if (!result.meta.changes) fail('批次名稱已存在，或批次已更新。請重新整理後確認。', 409);
   return json({ id });
 }
@@ -261,8 +272,9 @@ async function adminView(request, env, url, path, admin) {
         ' LEFT JOIN welfare_members m ON m.line_user_id=r.employee_uid LEFT JOIN welfare_shop_director_email e ON e.request_id=r.id' +
         ' WHERE r.status=? ORDER BY r.created_at,r.id LIMIT 51 OFFSET ?').bind(state, offset),
       db.prepare('SELECT id,name,director_name,email,revision FROM welfare_shop_venues ORDER BY name,id'),
-      db.prepare('SELECT b.id,b.name,b.ends_at,b.revision,b.ends_at<='+dbNow+
-        ' AS expired,(SELECT COUNT(*) FROM welfare_shop_products p WHERE p.batch_id=b.id) AS product_count' +
+      db.prepare('SELECT b.id,b.name,b.starts_at,b.ends_at,b.revision,b.ends_at<='+dbNow+
+        ' AS expired,COALESCE(b.starts_at>'+dbNow+',0) AS scheduled,' +
+        ' (SELECT COUNT(*) FROM welfare_shop_products p WHERE p.batch_id=b.id) AS product_count' +
         ' FROM welfare_shop_batches b ORDER BY b.ends_at DESC,b.id')
     ]);
     return json({ products: catalog.results, requests: orders.results.slice(0, 50), next: orders.results.length > 50,

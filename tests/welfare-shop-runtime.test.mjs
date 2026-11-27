@@ -69,6 +69,10 @@ test('welfare shop protects employee media and reserves stock through the real W
   for(const file of ['0049_employee_welfare_shop.sql','0050_welfare_shop_telegram.sql','0053_welfare_shop_contact_phone.sql','0054_welfare_shop_venues.sql','0055_welfare_shop_batches.sql']){
     for(const sql of readFileSync(new URL('../migrations/'+file,import.meta.url),'utf8').split(';').filter(s=>s.trim()))await db.prepare(sql).run();
   }
+  const oldBatchId=randomUUID();
+  await db.prepare("INSERT INTO welfare_shop_batches(id,name,ends_at,updated_by,updated_at) VALUES(?,'既有批次','2099-12-31T10:00:00.000Z','fixture','fixture')").bind(oldBatchId).run();
+  await db.prepare(readFileSync(new URL('../migrations/0057_welfare_shop_batch_start.sql',import.meta.url),'utf8')).run();
+  assert.equal((await db.prepare('SELECT starts_at FROM welfare_shop_batches WHERE id=?').bind(oldBatchId).first()).starts_at,null);
   for(const [uid,type] of [[first,'employee'],[second,'employee'],[visitor,'visitor']]){
     await db.prepare("INSERT INTO welfare_members VALUES(?,?,'active','bound',?)").bind(uid,type,'測試人員').run();
   }
@@ -312,6 +316,43 @@ test('welfare shop protects employee media and reserves stock through the real W
   const afterExtension=(await (await call(api,{cookie:one})).json()).products;
   assert.equal(afterExtension.some(item=>item.id===expiringId),true);
   assert.equal(afterExtension.some(item=>item.id===draft.id),false);
+  const scheduledBatch={...batchRequest,name:'預約上架測試',starts_at:'2099-12-31T17:00'};
+  for(const starts_at of ['2099-02-30T17:00','2099-12-31T18:00','2099-12-31T19:00','2099-12-31T17:00Z']){
+    assert.equal((await saveVenue({...scheduledBatch,starts_at})).status,400);
+  }
+  const scheduleResponse=await saveVenue(scheduledBatch);
+  assert.equal(scheduleResponse.status,200,await scheduleResponse.clone().text());
+  const {id:scheduledBatchId}=await scheduleResponse.json();
+  const scheduleTime='2099-12-31T09:00:00.000Z';
+  assert.equal((await saveVenue({...batchRequest,id:scheduledBatchId,revision:1,name:scheduledBatch.name})).status,200);
+  assert.equal((await db.prepare('SELECT starts_at FROM welfare_shop_batches WHERE id=?').bind(scheduledBatchId).first()).starts_at,scheduleTime);
+  const scheduledItem={...branchProduct,batch_id:scheduledBatchId,name:'預約商品',photo:'/9j/2Q=='};
+  const productResponse=await saveProduct(scheduledItem);
+  assert.equal(productResponse.status,200,await productResponse.clone().text());
+  const {id:scheduledId}=await productResponse.json();
+  const {id:scheduledDraftId}=await (await saveProduct({...scheduledItem,name:'預約批次內的草稿',status:'draft'})).json();
+  const scheduledPhoto=api+'/photo?id='+scheduledId;
+  const scheduledOrder={...taichungOrder,id:randomUUID(),product_id:scheduledId,revision:1};
+  const beforeStart=await (await call(api,{cookie:one})).json();
+  assert.equal(beforeStart.next_starts_at,scheduleTime);
+  assert.equal(beforeStart.products.some(item=>item.id===scheduledId),false);
+  assert.equal(beforeStart.products.some(item=>item.id===halfId),true);
+  assert.equal((await call(scheduledPhoto,{cookie:one})).status,404);
+  assert.equal((await call(admin+'/photo?id='+scheduledId,{admin:true})).status,200);
+  assert.equal((await call(api,{cookie:one,body:scheduledOrder})).status,409);
+  assert.equal(await journal(scheduledOrder.id),null);
+  const knownBatch=(await (await call(admin,{admin:true})).json()).batches.find(batch=>batch.id===scheduledBatchId);
+  assert.equal(knownBatch.scheduled,1);
+  await db.prepare("UPDATE welfare_shop_batches SET starts_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?").bind(scheduledBatchId).run();
+  const afterStart=await (await call(api,{cookie:one})).json();
+  assert.equal(afterStart.next_starts_at,null);
+  assert.equal(afterStart.products.some(item=>item.id===scheduledId),true);
+  assert.equal(afterStart.products.some(item=>item.id===scheduledDraftId),false);
+  assert.equal((await call(scheduledPhoto,{cookie:one})).status,200);
+  assert.equal((await call(api,{cookie:one,body:scheduledOrder})).status,200);
+  assert.ok(await journal(scheduledOrder.id));
+  assert.equal((await saveVenue({...batchRequest,id:scheduledBatchId,revision:2,name:scheduledBatch.name,starts_at:''})).status,200);
+  assert.equal((await db.prepare('SELECT starts_at FROM welfare_shop_batches WHERE id=?').bind(scheduledBatchId).first()).starts_at,null);
   const phoneMessage=(await flush()).find(message=>message.includes(record.id));
   assert.match(phoneMessage,/金額｜\$47,194\n/);
   assert.doesNotMatch(phoneMessage,/02-0000-0000/);
