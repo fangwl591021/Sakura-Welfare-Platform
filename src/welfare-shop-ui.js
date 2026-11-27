@@ -11,6 +11,7 @@ dialog{width:min(540px,calc(100% - 26px));max-height:85dvh;border:1px solid #bfc
 #products .card button{margin-top:auto;align-self:flex-start}
 #shop button,#detail button,#close,#login{height:44px;padding-block:0}
 #detail #itemInfo img{display:block;width:100%;max-height:40vh;object-fit:contain;margin:8px 0 12px}
+.condition-warning{color:#b21c34;font-weight:700}
 #apply{margin-top:16px}#apply h3{font-size:18px}
 .venue-checklist{max-height:260px;overflow:auto;border:1px solid #dce1e8;border-radius:8px;padding:8px 12px}
 .venue-checklist label{display:flex;align-items:flex-start;gap:8px}
@@ -41,6 +42,7 @@ const button = (text, fn) => {
   out.type = 'button'; out.onclick = fn;
   return out;
 };
+const warningClass = product => product.name.startsWith('【通電異常】') ? 'condition-warning' : '';
 const wholeYuan = cents => Math.round(cents/100);
 const yuanFormatter = new Intl.NumberFormat('zh-TW',{style:'currency',currency:'TWD',maximumFractionDigits:0,minimumFractionDigits:0});
 const money = cents => yuanFormatter.format(wholeYuan(cents));
@@ -94,7 +96,7 @@ function render() {
     if(p.has_photo) {
       const img=node('img'); img.src='/api/welfare-shop/photo?id='+encodeURIComponent(p.id); img.alt=p.name; img.loading='lazy'; card.append(img);
     }
-    card.append(node('div',[p.series,p.category].filter(Boolean).join(' · '),'muted'),node('h3',p.name),node('p',money(p.price_cents),'price'),
+    card.append(node('div',[p.series,p.category].filter(Boolean).join(' · '),'muted'),node('h3',p.name,warningClass(p)),node('p',money(p.price_cents),'price'),
       node('p',p.available > 0 ? '剩餘 '+p.available+' 件' : '暫無可申請庫存'),button('查看商品',()=>openProduct(p)));
     return card;
   });
@@ -109,7 +111,8 @@ q('filter').oninput=render;
 function openProduct(p) {
   selected=p; submission=crypto.randomUUID();
   q('itemName').textContent=p.name;
-  q('itemInfo').replaceChildren(node('p',money(p.price_cents),'price'),node('p','商品狀況｜'+p.condition_note),node('p','取貨｜'+p.pickup_note),node('small',q('watermark').textContent,'muted'));
+  q('itemName').className=warningClass(p);
+  q('itemInfo').replaceChildren(node('p',money(p.price_cents),'price'),node('p','商品狀況｜'+p.condition_note,warningClass(p)),node('p','取貨｜'+p.pickup_note),node('small',q('watermark').textContent,'muted'));
   if(p.has_photo){
     const img=node('img');img.src='/api/welfare-shop/photo?id='+encodeURIComponent(p.id);img.alt=p.name;
     q('itemInfo').prepend(img);
@@ -489,7 +492,7 @@ async function load() {
       const scheduled=p.status==='published'&&batch?.scheduled&&!expired;
       card.append(node('p',[p.series,p.category,venues.find(venue=>venue.id===p.venue_id)?.name,
         expired?'已到期下架':scheduled?'預約上架':labels[p.status]].filter(Boolean).join(' · '),'muted'),
-        node('h3',p.name),node('p',money(p.price_cents),'price'),node('p',expired?'已停止申請':scheduled?'尚未開放申請':'可申請 '+(p.stock-p.committed)+' 件'));
+        node('h3',p.name,warningClass(p)),node('p',money(p.price_cents),'price'),node('p',expired?'已停止申請':scheduled?'尚未開放申請':'可申請 '+(p.stock-p.committed)+' 件'));
       if(scheduled)card.append(node('p','上架 '+time(batch.starts_at),'muted'));
       card.append(node('p',batch?batch.name+' · 下架 '+time(batch.ends_at):'未設定下架時間','muted'),actions);
       return card;
